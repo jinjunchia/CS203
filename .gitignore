@@ -1,0 +1,37 @@
+# Backend Files
+
+cs203system/HELP.md
+cs203system/target/
+cs203system/!.mvn/wrapper/maven-wrapper.jar
+cs203system/!**/src/main/**/target/
+cs203system/!**/src/test/**/target/
+
+### STS ###
+cs203system/.apt_generated
+cs203system/.classpath
+cs203system/.factorypath
+cs203system/.project
+cs203system/.settings
+cs203system/.springBeans
+cs203system/.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+cs203system/.idea
+cs203system/*.iws
+cs203system/*.iml
+cs203system/*.ipr
+
+### NetBeans ###
+/cs203system/nbproject/private/
+/cs203system/nbbuild/
+/cs203system/dist/
+/cs203system/nbdist/
+/cs203system/.nb-gradle/
+cs203system/build/
+!cs203system/**/src/main/**/build/
+!cs203system/**/src/test/**/build/
+
+### VS Code ###
+cs203system/.vscode/
+!/.gitignore
