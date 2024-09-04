@@ -17,10 +17,14 @@ cs203system/.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
-cs203system/.idea
-cs203system/*.iws
-cs203system/*.iml
-cs203system/*.ipr
+*.iws
+*.iml
+*.ipr
+/cs203system/.idea/
+/cs203system/.idea/*
+/cs203system/*.iws
+/cs203system/*.iml
+/cs203system/*.ipr
 
 ### NetBeans ###
 /cs203system/nbproject/private/
@@ -34,4 +38,5 @@ cs203system/build/
 
 ### VS Code ###
 cs203system/.vscode/
-!/.gitignore
+!/cs203system/.idea/
+#/cs203system/.idea/workspace.xml
