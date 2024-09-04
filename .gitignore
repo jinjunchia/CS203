@@ -29,6 +29,7 @@ cs203system/.sts4-cache
 #/cs203system/.idea/workspace.xml
 cs203system/build/*
 cs203system/.gradle/
+cs203system/bin/
 #/cs203system/.gradle/*
 
 ### NetBeans ###
@@ -43,3 +44,27 @@ cs203system/build/
 
 ### VS Code ###
 cs203system/.vscode/
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/frontend/node_modules
+/frontend/.pnp
+frontend/.pnp.js
+
+# testing
+frontend/coverage
+
+# production
+frontend/build
+
+# misc
+frontend/.DS_Store
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
