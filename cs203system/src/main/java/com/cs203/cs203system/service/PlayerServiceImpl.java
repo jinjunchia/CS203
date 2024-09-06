@@ -13,8 +13,12 @@ import java.util.Optional;
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
+    private final PlayerRepository playerRepository;
+
     @Autowired
-    private PlayerRepository playerRepository;
+    public PlayerServiceImpl(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
+    }
 
     @Override
     public Player createPlayer(Player player) {

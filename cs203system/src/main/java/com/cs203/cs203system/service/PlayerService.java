@@ -7,8 +7,12 @@ import java.util.Optional;
 
 public interface PlayerService {
     Player createPlayer(Player player);
+
     List<Player> findAllPlayers();
+
     Optional<Player> findPlayerById(Integer id);
+
     Player updatePlayer(Player player);
+
     void deletePlayer(Integer id);
 }

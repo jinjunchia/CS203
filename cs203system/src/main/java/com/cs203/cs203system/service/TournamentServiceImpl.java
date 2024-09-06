@@ -15,10 +15,14 @@ import java.util.Optional;
 @Service
 public class TournamentServiceImpl implements TournamentService {
 
+    private final TournamentRepository tournamentRepository;
+    private final TeamRepository teamRepository;  // Ensure this is autowired
+
     @Autowired
-    private TournamentRepository tournamentRepository;
-    @Autowired
-    private TeamRepository teamRepository;  // Ensure this is autowired
+    public TournamentServiceImpl(TournamentRepository tournamentRepository, TeamRepository teamRepository) {
+        this.tournamentRepository = tournamentRepository;
+        this.teamRepository = teamRepository;
+    }
 
 
     @Override
@@ -42,7 +46,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public void deleteTournament(Integer id) {
+    public void deleteTournamentById(Integer id) {
         tournamentRepository.deleteById(id);
     }
 
@@ -52,9 +56,9 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         // Assume TeamService or direct repository access is available
-         Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
-         tournament.getTeams().add(team);
-         tournamentRepository.save(tournament);
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        tournament.getTeams().add(team);
+        tournamentRepository.save(tournament);
     }
 
     @Override
@@ -63,8 +67,8 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         // Same assumption as above
-         Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
-         tournament.getTeams().remove(team);
-         tournamentRepository.save(tournament);
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        tournament.getTeams().remove(team);
+        tournamentRepository.save(tournament);
     }
 }

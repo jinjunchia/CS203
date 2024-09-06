@@ -1,4 +1,4 @@
-package com.cs203.cs203system.service.impl;
+package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.model.Team;
 import com.cs203.cs203system.repository.TeamRepository;
@@ -13,8 +13,12 @@ import java.util.Optional;
 @Service
 public class TeamServiceImpl implements TeamService {
 
+    private final TeamRepository teamRepository;
+
     @Autowired
-    private TeamRepository teamRepository;
+    public TeamServiceImpl(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
+    }
 
     @Override
     public Team createTeam(Team team) {
@@ -42,6 +46,5 @@ public class TeamServiceImpl implements TeamService {
     public void deleteTeam(Integer id) {
         teamRepository.deleteById(id);
     }
-
 
 }

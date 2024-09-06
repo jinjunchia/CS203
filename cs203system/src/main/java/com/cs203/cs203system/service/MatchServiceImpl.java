@@ -11,9 +11,13 @@ import java.util.Optional;
 
 
 @Service
-public class MatchServiceImpl implements MatchService{
+public class MatchServiceImpl implements MatchService {
+    private final MatchRepository matchRepository;
+
     @Autowired
-    private MatchRepository matchRepository;
+    public MatchServiceImpl(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public Match createMatch(Match match) {
