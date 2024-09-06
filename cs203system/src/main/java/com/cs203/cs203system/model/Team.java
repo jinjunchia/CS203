@@ -20,9 +20,22 @@ public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Integer teamId;
 
     private String name;
+
+    private int eloRating = 1200;
+
+    private Integer ranking;
+
+    @Column(name = "wins", nullable = false)
+    private int wins = 0;
+
+    @Column(name = "losses", nullable = false)
+    private int losses = 0;
+
+    @Column(name = "draws", nullable = false)
+    private int draws = 0;
 
     // Relationships
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -53,7 +66,7 @@ public class Team {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Team team = (Team) o;
-        return getId() != null && Objects.equals(getId(), team.getId());
+        return getTeamId() != null && Objects.equals(getTeamId(), team.getTeamId());
     }
 
     @Override

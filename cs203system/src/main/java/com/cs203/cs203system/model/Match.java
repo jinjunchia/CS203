@@ -24,6 +24,12 @@ public class Match {
 
     private MatchType match_type;
 
+    private String result;  // e.g., "3-2", "Winner: Team A"
+
+    private Integer durationInMinutes;  // Duration of the match
+
+    private String status;  // Could also be an enum: MatchStatus
+
     private LocalDate match_date;
 
     @ManyToOne(optional = false)

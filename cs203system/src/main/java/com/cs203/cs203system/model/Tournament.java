@@ -16,6 +16,7 @@ import java.util.*;
 @ToString
 @Table(name = "tournament")
 public class Tournament {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -25,6 +26,26 @@ public class Tournament {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    private String venue; // Location of the tournament
+    private Status status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
+
+    // Persist enum as a string
+    public enum Status {
+        PLANNED, ONGOING, COMPLETED, CANCELLED
+    }
+    private Phase currentPhase; // Track the current phase of the tournament
+
+    public enum Phase {
+        SWISS, DOUBLE_ELIMINATION
+    }
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "tournament_teams",
+            joinColumns = @JoinColumn(name = "tournament_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id"))
+    @ToString.Exclude
+    private Set<Team> teams = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
