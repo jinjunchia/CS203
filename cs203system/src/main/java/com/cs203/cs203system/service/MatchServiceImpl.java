@@ -56,7 +56,16 @@ public class MatchServiceImpl implements MatchService {
     public void updateMatchStatus(Integer matchId, String status) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
-        match.setStatus(status);
+
+        try {
+            // Convert the string to a corresponding enum value
+            Match.Status matchStatus = Match.Status.valueOf(status.toUpperCase());
+            match.setStatus(matchStatus);
+        } catch (IllegalArgumentException e) {
+            // Handle the case where the provided status string does not match any enum value
+            throw new RuntimeException("Invalid status: " + status);
+        }
+
         matchRepository.save(match);
     }
 

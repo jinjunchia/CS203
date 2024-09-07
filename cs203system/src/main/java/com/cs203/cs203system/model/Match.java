@@ -22,15 +22,22 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private MatchType match_type;
+    private MatchType matchType;
 
     private String result;  // e.g., "3-2", "Winner: Team A"
 
     private Integer durationInMinutes;  // Duration of the match
 
-    private String status;  // Could also be an enum: MatchStatus
+    private Status status;  // Could also be an enum: MatchStatus
 
-    private LocalDate match_date;
+    public enum Status {
+        PLANNED, ONGOING, COMPLETED, CANCELLED
+    }
+
+    //create round here?
+    private Integer roundNumber;
+
+    private LocalDate matchDate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "tournament_id")
@@ -42,6 +49,29 @@ public class Match {
     private Set<Team> teams = new LinkedHashSet<>();
 
 // Implement a Result Database
+    public Integer getRoundNumber() {
+        return roundNumber;
+    }
+
+    public void setRoundNumber(Integer roundNumber) {
+        this.roundNumber = roundNumber;
+    }
+
+    public Set<Team> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Set<Team> teams) {
+        this.teams = teams;
+    }
+    public Status getStatus() {
+        return status;
+    }
+
+    // Setter
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
 
 }
