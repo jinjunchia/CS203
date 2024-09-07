@@ -16,14 +16,18 @@ import java.util.LinkedHashSet;
 @Component // Add this line to make the class a Spring-managed component
 public class SwissRoundManager {
 
-    @Autowired
-    private TournamentRepository tournamentRepository;
+    private final TournamentRepository tournamentRepository;
+
+    private final MatchRepository matchRepository;
+
+    private final TeamRepository teamRepository;
 
     @Autowired
-    private MatchRepository matchRepository;
-
-    @Autowired
-    private TeamRepository teamRepository;
+    public SwissRoundManager(TournamentRepository tournamentRepository, MatchRepository matchRepository, TeamRepository teamRepository) {
+        this.tournamentRepository = tournamentRepository;
+        this.matchRepository = matchRepository;
+        this.teamRepository = teamRepository;
+    }
 
     public void startSwissRound(Tournament tournament, int totalRounds) {
         for (int roundNumber = 1; roundNumber <= totalRounds; roundNumber++) {
@@ -56,7 +60,7 @@ public class SwissRoundManager {
         }
 
         if (teams.size() % 2 != 0) {
-            Team teamWithBye = teams.get(teams.size() - 1);
+            Team teamWithBye = teams.getLast();
             assignFreeWin(teamWithBye, tournament, roundNumber);
         }
         return matches;
@@ -93,7 +97,7 @@ public class SwissRoundManager {
         }
 
         if (teams.size() % 2 != 0) {
-            Team teamWithBye = teams.get(teams.size() - 1);
+            Team teamWithBye = teams.getLast();
             assignFreeWin(teamWithBye, tournament, roundNumber);
         }
         return matches;

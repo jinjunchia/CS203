@@ -28,12 +28,14 @@ public class Match {
 
     private Integer durationInMinutes;  // Duration of the match
 
+    // Setter
     private Status status;  // Could also be an enum: MatchStatus
 
     public enum Status {
         PLANNED, ONGOING, COMPLETED, CANCELLED
     }
 
+    // Implement a Result Database
     //create round here?
     private Integer roundNumber;
 
@@ -47,31 +49,6 @@ public class Match {
     @ToString.Exclude
     @ManyToMany(mappedBy = "matches", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Team> teams = new LinkedHashSet<>();
-
-// Implement a Result Database
-    public Integer getRoundNumber() {
-        return roundNumber;
-    }
-
-    public void setRoundNumber(Integer roundNumber) {
-        this.roundNumber = roundNumber;
-    }
-
-    public Set<Team> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(Set<Team> teams) {
-        this.teams = teams;
-    }
-    public Status getStatus() {
-        return status;
-    }
-
-    // Setter
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
 
 }

@@ -25,7 +25,9 @@ dependencies {
 	implementation 'org.projectlombok:lombok'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.session:spring-session-jdbc'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'net.datafaker:datafaker:1.9.0'
+	testImplementation 'org.springframework.boot:spring-b' +
+			'oot-starter-test'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	annotationProcessor 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

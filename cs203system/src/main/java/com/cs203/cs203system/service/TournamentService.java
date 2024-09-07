@@ -1,5 +1,6 @@
 package com.cs203.cs203system.service;
 
+import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.model.Tournament;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +15,14 @@ public interface TournamentService {
 
     List<Tournament> findAllTournaments();
 
-    Tournament updateTournament(Tournament tournament);
+    Tournament updateTournament(Integer id, TournamentUpdateRequest tournament);
 
     void deleteTournamentById(Integer id);
 
     void addTeamToTournament(Integer tournamentId, Integer teamId);
 
     void removeTeamFromTournament(Integer tournamentId, Integer teamId);
+
+    boolean existingTournament(Integer tournamentId);
+
 }

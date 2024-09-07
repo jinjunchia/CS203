@@ -28,12 +28,14 @@ public class Tournament {
     private LocalDate endDate;
 
     private String venue; // Location of the tournament
+
     private Status status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
 
     // Persist enum as a string
     public enum Status {
         PLANNED, ONGOING, COMPLETED, CANCELLED
     }
+
     private Phase currentPhase; // Track the current phase of the tournament
 
     public enum Phase {

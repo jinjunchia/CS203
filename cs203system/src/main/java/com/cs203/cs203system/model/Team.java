@@ -1,6 +1,5 @@
 package com.cs203.cs203system.model;
 
-import com.cs203.cs203system.enums.MatchType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -25,7 +24,6 @@ public class Team {
 
     private String name;
 
-
     private int eloRating = 1200;
 
     private Integer ranking;
@@ -39,6 +37,8 @@ public class Team {
     @Column(name = "draws", nullable = false)
     private int draws = 0;
 
+    // Setter
+    @Setter
     private Status status;  // Could also be an enum: MatchStatus
 
     public enum Status {
@@ -70,15 +70,6 @@ public class Team {
     @OneToMany(mappedBy = "team", orphanRemoval = true)
     @ToString.Exclude
     private Set<EloRecord> eloRecords = new LinkedHashSet<>();
-
-    public Status getStatus() {
-        return status;
-    }
-
-    // Setter
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
     @Override
     public final boolean equals(Object o) {
