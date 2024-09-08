@@ -12,6 +12,8 @@ import java.util.*;
 
 import java.util.Arrays;
 import java.util.List;
+
+@Component
 public class DoubleEliminationManager {
 
     @Autowired
@@ -93,7 +95,7 @@ public class DoubleEliminationManager {
                     advanceToLosersBracket(loser, tournament);
                 } else {
                     // eliminate or advance the losing team
-                    eliminateOrAdvanceLoser(winner, loser, match ,tournament);
+                    eliminateOrAdvanceLoser(loser, match ,tournament);
                 }
             }
             //see if the tournament is complete
@@ -135,15 +137,15 @@ public class DoubleEliminationManager {
     }
 
     // eliminate or advance a losing team in the losers bracket
-    private void eliminateOrAdvanceLoser(Team winner, Team loser, Match currentMatch, Tournament tournament) {
+    private void eliminateOrAdvanceLoser(Team loser, Match currentMatch, Tournament tournament) {
         if (loser.hasLostTwice()) {
-            // eliminate the team after two losses
+            // Eliminate the team after two losses
             loser.setStatus(Team.Status.ELIMINATED);
             teamRepository.save(loser);
         } else {
-            // advance the winner in the losers bracket
+            // Advance the loser in the losers bracket if they haven't lost twice
             Match nextLosersMatch = new Match();
-            nextLosersMatch.setTeams(new LinkedHashSet<>(Arrays.asList(winner)));
+            nextLosersMatch.setTeams(new LinkedHashSet<>(Arrays.asList(loser))); // Corrected to advance the loser
             nextLosersMatch.setTournament(tournament);
             nextLosersMatch.setRoundNumber(currentMatch.getRoundNumber() + 1); // Increment round number
             nextLosersMatch.setBracket(Match.Bracket.LOSERS);
@@ -151,6 +153,7 @@ public class DoubleEliminationManager {
             matchRepository.save(nextLosersMatch);
         }
     }
+
     // check if the tournament is complete
     private boolean checkIfTournamentComplete(Tournament tournament) {
         // Logic to determine if one team remains in each bracket
