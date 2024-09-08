@@ -45,6 +45,17 @@ public class Team {
         QUALIFIED, ELIMINATED
     }
 
+
+    // Method to check if the team has lost twice
+    public boolean hasLostTwice() {
+        return losses >= 2;
+    }
+
+    // Method to increment losses
+    public void incrementLosses() {
+        this.losses++;
+    }
+
     // Add relationship to Tournament
     @ManyToOne
     @JoinColumn(name = "tournament_id")

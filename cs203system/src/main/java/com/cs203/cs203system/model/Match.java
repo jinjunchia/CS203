@@ -32,7 +32,7 @@ public class Match {
     private Status status;  // Could also be an enum: MatchStatus
 
     public enum Status {
-        PLANNED, ONGOING, COMPLETED, CANCELLED
+        PLANNED, ONGOING, COMPLETED, CANCELLED,BYE , WAITING
     }
 
     // Implement a Result Database
@@ -40,6 +40,10 @@ public class Match {
     private Integer roundNumber;
 
     private LocalDate matchDate;
+    private Bracket bracket;
+    public enum Bracket{
+        WINNERS,LOSERS
+    }
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "tournament_id")
@@ -49,6 +53,7 @@ public class Match {
     @ToString.Exclude
     @ManyToMany(mappedBy = "matches", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Team> teams = new LinkedHashSet<>();
+
 
 
 }
