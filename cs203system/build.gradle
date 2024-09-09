@@ -26,8 +26,19 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.session:spring-session-jdbc'
 	implementation 'net.datafaker:datafaker:1.9.0'
-	testImplementation 'org.springframework.boot:spring-b' +
-			'oot-starter-test'
+
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT Support
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+	// MySQL Driver
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// For encoding passwords securely
+	implementation 'org.springframework.security:spring-security-crypto'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	annotationProcessor 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
