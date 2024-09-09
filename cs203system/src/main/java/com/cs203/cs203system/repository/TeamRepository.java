@@ -16,5 +16,4 @@ public interface TeamRepository extends JpaRepository<Team, Integer> {
     List<Team> findTop16ByTournament(Tournament tournament);
 
     // Finds teams by tournament and bracket type
-    List<Team> findByTournamentAndBracket(Tournament tournament, Match.Bracket bracket);
 }

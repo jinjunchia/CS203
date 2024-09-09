@@ -26,6 +26,8 @@ public class Team {
 
     private int eloRating = 1200;
 
+    private double points = 0.0;
+
     private Integer ranking;
 
     @Column(name = "wins", nullable = false)
@@ -40,6 +42,16 @@ public class Team {
     // Setter
     @Setter
     private Status status;  // Could also be an enum: MatchStatus
+
+    // Method to add points
+    public void addPoints(double points) {
+        this.points += points;
+    }
+
+    // Method to reset points
+    public void resetPoints() {
+        this.points = 0.0;
+    }
 
     public enum Status {
         QUALIFIED, ELIMINATED

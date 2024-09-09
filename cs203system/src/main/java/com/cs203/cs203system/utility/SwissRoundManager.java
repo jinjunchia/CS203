@@ -7,19 +7,18 @@ import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.TeamRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component; // Add this line
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.LinkedHashSet;
+import java.util.List;
 
-@Component // Add this line to make the class a Spring-managed component
+@Component
 public class SwissRoundManager {
 
     private final TournamentRepository tournamentRepository;
-
     private final MatchRepository matchRepository;
-
     private final TeamRepository teamRepository;
 
     @Autowired
@@ -29,17 +28,22 @@ public class SwissRoundManager {
         this.teamRepository = teamRepository;
     }
 
-    public void startSwissRound(Tournament tournament, int totalRounds) {
+    public void startSwissRounds(Tournament tournament) {
+        List<Team> teams = teamRepository.findByTournament(tournament);
+        int totalRounds = (int) Math.ceil(Math.log(teams.size()) / Math.log(2));  // Calculate rounds as log2(n)
+
         for (int roundNumber = 1; roundNumber <= totalRounds; roundNumber++) {
             runSwissRound(tournament, roundNumber, roundNumber == 1);
         }
-        eliminateBottomTeams(tournament);
+
+        eliminateBottomHalfTeams(tournament);  // Eliminate bottom half of teams
     }
 
     public void runSwissRound(Tournament tournament, int roundNumber, boolean isFirstRound) {
         List<Team> teams = teamRepository.findByTournament(tournament);
 
-        List<Match> matches = isFirstRound ? createRandomPairings(teams, roundNumber, tournament) : createPerformanceBasedPairings(teams, roundNumber, tournament);
+        List<Match> matches = isFirstRound ? createRandomPairings(teams, roundNumber, tournament)
+                : createPerformanceBasedPairings(teams, roundNumber, tournament);
         matchRepository.saveAll(matches);
     }
 
@@ -54,13 +58,15 @@ public class SwissRoundManager {
             Match match = new Match();
             match.setRoundNumber(roundNumber);
             match.setTeams(new LinkedHashSet<>(List.of(team1, team2)));
+            match.setTournament(tournament);
             match.setStatus(Match.Status.ONGOING);
 
             matches.add(match);
         }
 
+        // Handle bye for odd number of teams
         if (teams.size() % 2 != 0) {
-            Team teamWithBye = teams.getLast();
+            Team teamWithBye = teams.get(teams.size() - 1);
             assignFreeWin(teamWithBye, tournament, roundNumber);
         }
         return matches;
@@ -75,6 +81,7 @@ public class SwissRoundManager {
         byeMatch.setStatus(Match.Status.COMPLETED);
 
         teamWithBye.setWins(teamWithBye.getWins() + 1);
+        teamWithBye.addPoints(1);
 
         matchRepository.save(byeMatch);
         teamRepository.save(teamWithBye);
@@ -91,24 +98,29 @@ public class SwissRoundManager {
             Match match = new Match();
             match.setRoundNumber(roundNumber);
             match.setTeams(new LinkedHashSet<>(List.of(team1, team2)));
+            match.setTournament(tournament);
             match.setStatus(Match.Status.ONGOING);
 
             matches.add(match);
         }
 
+        // Handle bye for odd number of teams
         if (teams.size() % 2 != 0) {
-            Team teamWithBye = teams.getLast();
+            Team teamWithBye = teams.get(teams.size() - 1);
             assignFreeWin(teamWithBye, tournament, roundNumber);
         }
         return matches;
     }
 
-    private void eliminateBottomTeams(Tournament tournament) {
+    private void eliminateBottomHalfTeams(Tournament tournament) {
         List<Team> rankedTeams = teamRepository.findByTournamentOrderByEloRatingDesc(tournament);
-        List<Team> topTeams = rankedTeams.subList(0, Math.min(16, rankedTeams.size()));
-        List<Team> eliminatedTeams = rankedTeams.size() > 16 ? rankedTeams.subList(16, rankedTeams.size()) : new ArrayList<>();
+        int halfSize = rankedTeams.size() / 2;  // Calculate half of the total teams
 
-        topTeams.forEach(team -> team.setStatus(Team.Status.QUALIFIED)); // Ensure this matches your model
+        // Keep the top half and eliminate the bottom half
+        List<Team> topTeams = rankedTeams.subList(0, halfSize);
+        List<Team> eliminatedTeams = rankedTeams.subList(halfSize, rankedTeams.size());
+
+        topTeams.forEach(team -> team.setStatus(Team.Status.QUALIFIED));
         eliminatedTeams.forEach(team -> team.setStatus(Team.Status.ELIMINATED));
 
         teamRepository.saveAll(topTeams);
