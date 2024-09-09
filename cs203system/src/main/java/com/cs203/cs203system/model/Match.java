@@ -42,7 +42,7 @@ public class Match {
     private LocalDate matchDate;
     private Bracket bracket;
     public enum Bracket{
-        WINNERS,LOSERS
+        UPPER,LOWER,FINAL
     }
 
     @ManyToOne(optional = false)

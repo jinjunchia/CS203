@@ -1,5 +1,6 @@
 package com.cs203.cs203system.model;
 
+import com.cs203.cs203system.enums.TournamentFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -36,11 +37,8 @@ public class Tournament {
         PLANNED, ONGOING, COMPLETED, CANCELLED
     }
 
-    private Phase currentPhase; // Track the current phase of the tournament
-
-    public enum Phase {
-        SWISS, DOUBLE_ELIMINATION
-    }
+    @Enumerated(EnumType.STRING)
+    private TournamentFormat format;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "tournament_teams",

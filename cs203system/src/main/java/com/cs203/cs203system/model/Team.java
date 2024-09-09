@@ -54,7 +54,7 @@ public class Team {
     }
 
     public enum Status {
-        QUALIFIED, ELIMINATED
+        QUALIFIED, ELIMINATED, ACTIVE
     }
 
 
