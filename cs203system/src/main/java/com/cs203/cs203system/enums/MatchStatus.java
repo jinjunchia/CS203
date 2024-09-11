@@ -10,14 +10,11 @@ package com.cs203.cs203system.enums;
  * Pending Review → Match needs further investigation before declaring a result.
  */
 public enum MatchStatus {
-    SCHEDULED,
-    IN_PROGRESS,
-    COMPLETED,
-    POSTPONED,
-    CANCELLED,
-    FORFEITED,
-    PENDING_REVIEW,
-    TIED,
-    DISQUALIFIED,
-    PAUSED
+//    POSTPONED,
+//    FORFEITED,
+//    PENDING_REVIEW,
+//    TIED,
+//    DISQUALIFIED,
+//    PAUSED
+    PLANNED, ONGOING, COMPLETED, CANCELLED, BYE, WAITING
 }

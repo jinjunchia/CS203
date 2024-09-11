@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -16,7 +17,7 @@ import java.util.*;
 @NoArgsConstructor
 @ToString
 @Table(name = "tournament")
-public class Tournament {
+public class Tournament implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,9 +42,9 @@ public class Tournament {
     private TournamentFormat format;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "tournament_teams",
-            joinColumns = @JoinColumn(name = "tournament_id"),
-            inverseJoinColumns = @JoinColumn(name = "team_id"))
+    @JoinTable(name = "tournament_player",
+            joinColumns = @JoinColumn(name = "tournament_player"),
+            inverseJoinColumns = @JoinColumn(name = "player_id"))
     @ToString.Exclude
     private Set<Player> players = new LinkedHashSet<>();
 

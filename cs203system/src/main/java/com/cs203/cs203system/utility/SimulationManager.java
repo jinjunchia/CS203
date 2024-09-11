@@ -19,16 +19,20 @@ public class SimulationManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SimulationManager.class);
 
-    @Autowired
-    private TournamentRepository tournamentRepository;
+    private final TournamentRepository tournamentRepository;
+
+    private final PlayerRepository playerRepository;
+
+    private final TournamentManager tournamentManager;
 
     @Autowired
-    private PlayerRepository playerRepository;
+    public SimulationManager(TournamentManager tournamentManager, PlayerRepository playerRepository, TournamentRepository tournamentRepository) {
+        this.tournamentManager = tournamentManager;
+        this.playerRepository = playerRepository;
+        this.tournamentRepository = tournamentRepository;
+    }
 
-    @Autowired
-    private TournamentManager tournamentManager;
-
-    // Method to setup and run a dummy simulation
+    // Method to set up and run a dummy simulation
     public void setupAndRunDummySimulation() {
         try {
             // Step 1: Create and save a dummy tournament
@@ -37,14 +41,14 @@ public class SimulationManager {
             tournamentRepository.save(tournament);
             logger.info("Dummy tournament created: {}", tournament);
 
-            // Step 2: Create and save 32 dummy teams
-            List<Player> players = createDummyTeams(32, tournament);
+            // Step 2: Create and save 32 dummy players
+            List<Player> players = createDummyPlayers(32, tournament);
             if (players == null || players.contains(null)) {
-                logger.error("Null team detected in the list of created teams.");
+                logger.error("Null players detected in the list of created players.");
                 return;
             }
             playerRepository.saveAll(players);
-            logger.info("Dummy teams created and saved: {}", players);
+            logger.info("Dummy players created and saved: {}", players);
 
             // Step 3: Run the tournament manager with the dummy tournament
             tournamentManager.startTournament(tournament);
@@ -59,28 +63,28 @@ public class SimulationManager {
     // Helper method to create a dummy tournament
     private Tournament createDummyTournament() {
         Tournament tournament = new Tournament();
-        tournament.setName("32 Team Tournament");
+        tournament.setName("32 Player Tournament");
         tournament.setStatus(Tournament.Status.ONGOING); // Assuming you have a status field
         // Set other tournament fields as needed
         return tournament;
     }
 
-    // Helper method to create dummy teams
-    private List<Player> createDummyTeams(int count, Tournament tournament) {
+    // Helper method to create dummy players
+    private List<Player> createDummyPlayers(int count, Tournament tournament) {
         List<Player> players = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
             if (tournament == null) {
-                logger.error("Tournament is null, cannot assign it to teams.");
+                logger.error("Tournament is null, cannot assign it to players.");
                 return null;
             }
             Player player = new Player();
-            player.setName("Team " + i);
+            player.setName("Player " + i);
             player.setEloRating(1500); // Default ELO rating or any other initial value
             player.setTournament(tournament);
             player.setStatus(Player.Status.QUALIFIED); // Initial status
 
             if (player.getName() == null || player.getTournament() == null) {
-                logger.error("Invalid team data: {}", player);
+                logger.error("Invalid player data: {}", player);
                 continue;
             }
 

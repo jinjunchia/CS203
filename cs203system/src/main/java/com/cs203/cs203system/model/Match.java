@@ -1,10 +1,12 @@
 package com.cs203.cs203system.model;
 
+import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.MatchType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -17,7 +19,7 @@ import java.util.Set;
 @Entity
 @ToString
 @Table(name = "match")
-public class Match {
+public class Match implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -28,12 +30,7 @@ public class Match {
 
     private Integer durationInMinutes;  // Duration of the match
 
-    // Setter
-    private Status status;  // Could also be an enum: MatchStatus
-
-    public enum Status {
-        PLANNED, ONGOING, COMPLETED, CANCELLED,BYE , WAITING
-    }
+    private MatchStatus status;  // Could also be an enum: MatchStatus
 
     // Implement a Result Database
     //create round here?
@@ -41,8 +38,9 @@ public class Match {
 
     private LocalDate matchDate;
     private Bracket bracket;
-    public enum Bracket{
-        UPPER,LOWER,FINAL
+
+    public enum Bracket {
+        UPPER, LOWER, FINAL
     }
 
     @ManyToOne(optional = false)
@@ -53,7 +51,6 @@ public class Match {
     @ToString.Exclude
     @ManyToMany(mappedBy = "matches", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Player> players = new LinkedHashSet<>();
-
 
 
 }

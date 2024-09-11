@@ -13,19 +13,19 @@ import java.util.*;
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
 
-    // Finds all teams participating in the given tournament
+    // Finds all players participating in the given tournament
     List<Player> findByTournament(Tournament tournament);
 
-    // Finds all teams in a tournament ordered by their Elo rating in descending order
+    // Finds all players in a tournament ordered by their Elo rating in descending order
     List<Player> findByTournamentOrderByEloRatingDesc(Tournament tournament);
 
-    // Finds all teams in a tournament ordered by their points in descending order
+    // Finds all players in a tournament ordered by their points in descending order
     List<Player> findByTournamentOrderByPointsDesc(Tournament tournament);
 
-    // Finds teams by tournament and their status (e.g., QUALIFIED, ELIMINATED)
+    // Finds players by tournament and their status (e.g., QUALIFIED, ELIMINATED)
     List<Player> findByTournamentAndStatus(Tournament tournament, Player.Status status);
 
-    // Finds teams by tournament and bracket type for more specific queries
+    // Finds players by tournament and bracket type for more specific queries
     @Query("SELECT DISTINCT t FROM Player t JOIN t.matches m WHERE m.tournament = :tournament AND m.bracket = :bracket")
     List<Player> findByTournamentAndBracket(@Param("tournament") Tournament tournament, @Param("bracket") Match.Bracket bracket);
 }

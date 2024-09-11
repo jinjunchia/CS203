@@ -3,6 +3,11 @@ package com.cs203.cs203system.controller;
 import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.service.TournamentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +34,15 @@ public class TournamentController {
         return new ResponseEntity<>(tournamentService.findAllTournaments(), HttpStatus.OK);
     }
 
+    @Operation(summary = "Get a tournament by its id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the tournament",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Tournament.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Tournament not found",
+                    content = @Content) })
     @GetMapping("/{id}")
     public ResponseEntity<Tournament> getTournamentById(@PathVariable Integer id) {
         Optional<Tournament> tournament = tournamentService.findTournamentById(id);
