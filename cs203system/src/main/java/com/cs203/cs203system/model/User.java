@@ -31,8 +31,8 @@ public class User {
 
     // This is for JPA purposes
     @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @JoinColumn(name = "player_id")
+    private Player player;
 
     @Override
     public final boolean equals(Object o) {

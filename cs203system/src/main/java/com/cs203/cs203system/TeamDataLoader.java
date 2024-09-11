@@ -1,7 +1,7 @@
 package com.cs203.cs203system;
 
-import com.cs203.cs203system.model.Team;
-import com.cs203.cs203system.repository.TeamRepository;
+import com.cs203.cs203system.model.Player;
+import com.cs203.cs203system.repository.PlayerRepository;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,11 +15,11 @@ import java.util.Random;
 public class TeamDataLoader implements CommandLineRunner {
     private final Faker faker = new Faker();
 
-    private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    public TeamDataLoader(TeamRepository teamRepository) {
-        this.teamRepository = teamRepository;
+    public TeamDataLoader(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -27,11 +27,11 @@ public class TeamDataLoader implements CommandLineRunner {
         Random random = new Random();
 
         for (int i = 0; i < 200; i++ ) {
-            Team team = Team.builder()
+            Player player = Player.builder()
                     .name(faker.team().name())
                     .ranking(random.nextInt(32+1)).build();
 
-            teamRepository.save(team);
+            playerRepository.save(player);
         }
 
     }

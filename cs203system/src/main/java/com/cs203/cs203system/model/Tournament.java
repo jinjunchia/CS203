@@ -45,7 +45,7 @@ public class Tournament {
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "team_id"))
     @ToString.Exclude
-    private Set<Team> teams = new LinkedHashSet<>();
+    private Set<Player> players = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude

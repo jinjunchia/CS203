@@ -27,7 +27,7 @@ public class EloRecord {
     private EloRecord previousEloRecord;
 
     @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @JoinColumn(name = "player_id")
+    private Player player;
 
 }

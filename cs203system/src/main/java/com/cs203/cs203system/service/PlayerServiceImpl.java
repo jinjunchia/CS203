@@ -2,7 +2,6 @@ package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.PlayerRepository;
-import com.cs203.cs203system.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

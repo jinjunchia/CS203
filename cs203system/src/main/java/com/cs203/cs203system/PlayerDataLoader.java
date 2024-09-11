@@ -29,12 +29,12 @@ public class PlayerDataLoader implements CommandLineRunner {
 
         // Create and save 20 players
         for (int i = 0; i < 200; i++) {
-            Player player = Player.builder()
-                    .name(faker.funnyName().name())
-                    .rating(1000 + random.nextInt(501)) // Random rating between 1000 and 1500
-                    .build();
+//            Player player = Player.builder()
+//                    .name(faker.funnyName().name())
+//                    .rating(1000 + random.nextInt(501)) // Random rating between 1000 and 1500
+//                    .build();
 
-            playerRepository.save(player);
+//            playerRepository.save(player);
         }
 
         System.out.println("200 players have been inserted into the database!");

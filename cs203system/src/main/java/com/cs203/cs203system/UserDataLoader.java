@@ -1,9 +1,7 @@
 package com.cs203.cs203system;
 
 import com.cs203.cs203system.enums.Role;
-import com.cs203.cs203system.model.Team;
 import com.cs203.cs203system.model.User;
-import com.cs203.cs203system.repository.TeamRepository;
 import com.cs203.cs203system.repository.UserRepository;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;

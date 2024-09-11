@@ -52,7 +52,7 @@ public class Match {
 
     @ToString.Exclude
     @ManyToMany(mappedBy = "matches", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Set<Team> teams = new LinkedHashSet<>();
+    private Set<Player> players = new LinkedHashSet<>();
 
 
 

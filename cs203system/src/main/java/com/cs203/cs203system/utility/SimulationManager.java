@@ -1,8 +1,9 @@
 package com.cs203.cs203system.utility;
 
-import com.cs203.cs203system.model.Team;
+import com.cs203.cs203system.enums.TournamentFormat;
+import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
-import com.cs203.cs203system.repository.TeamRepository;
+import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,28 +23,37 @@ public class SimulationManager {
     private TournamentRepository tournamentRepository;
 
     @Autowired
-    private TeamRepository teamRepository;
+    private PlayerRepository playerRepository;
 
     @Autowired
     private TournamentManager tournamentManager;
 
     // Method to setup and run a dummy simulation
     public void setupAndRunDummySimulation() {
-        // Step 1: Create and save a dummy tournament
-        Tournament tournament = createDummyTournament();
-        tournamentRepository.save(tournament);
-        logger.info("Dummy tournament created: {}", tournament);
+        try {
+            // Step 1: Create and save a dummy tournament
+            Tournament tournament = createDummyTournament();
+            tournament.setFormat(TournamentFormat.SWISS);  // Set initial format to SWISS
+            tournamentRepository.save(tournament);
+            logger.info("Dummy tournament created: {}", tournament);
 
-        // Step 2: Create and save 32 dummy teams
-        List<Team> teams = createDummyTeams(32, tournament);
-        teamRepository.saveAll(teams);
-        logger.info("Dummy teams created and saved: {}", teams);
+            // Step 2: Create and save 32 dummy teams
+            List<Player> players = createDummyTeams(32, tournament);
+            if (players == null || players.contains(null)) {
+                logger.error("Null team detected in the list of created teams.");
+                return;
+            }
+            playerRepository.saveAll(players);
+            logger.info("Dummy teams created and saved: {}", players);
 
-        // Step 3: Run the tournament manager with the dummy tournament
-        tournamentManager.startTournament(tournament);
-        logger.info("Tournament simulation started.");
+            // Step 3: Run the tournament manager with the dummy tournament
+            tournamentManager.startTournament(tournament);
+            logger.info("Tournament simulation started.");
 
-        logger.info("Tournament simulation completed successfully.");
+            logger.info("Tournament simulation completed successfully.");
+        } catch (Exception e) {
+            logger.error("Error occurred during simulation: {}", e.getMessage());
+        }
     }
 
     // Helper method to create a dummy tournament
@@ -56,17 +66,28 @@ public class SimulationManager {
     }
 
     // Helper method to create dummy teams
-    private List<Team> createDummyTeams(int count, Tournament tournament) {
-        List<Team> teams = new ArrayList<>();
+    private List<Player> createDummyTeams(int count, Tournament tournament) {
+        List<Player> players = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
-            Team team = new Team();
-            team.setName("Team " + i);
-            team.setEloRating(1500); // Default ELO rating or any other initial value
-            team.setTournament(tournament);
-            team.setStatus(Team.Status.QUALIFIED); // Initial status
-            teams.add(team);
+            if (tournament == null) {
+                logger.error("Tournament is null, cannot assign it to teams.");
+                return null;
+            }
+            Player player = new Player();
+            player.setName("Team " + i);
+            player.setEloRating(1500); // Default ELO rating or any other initial value
+            player.setTournament(tournament);
+            player.setStatus(Player.Status.QUALIFIED); // Initial status
+
+            if (player.getName() == null || player.getTournament() == null) {
+                logger.error("Invalid team data: {}", player);
+                continue;
+            }
+
+            players.add(player);
         }
-        return teams;
+        return players;
     }
 }
+
 

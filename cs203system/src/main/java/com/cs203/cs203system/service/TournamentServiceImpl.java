@@ -2,10 +2,10 @@ package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.exceptions.TournamentNotFoundException;
-import com.cs203.cs203system.model.Team;
+import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
-import com.cs203.cs203system.repository.TeamRepository;
+import com.cs203.cs203system.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +17,12 @@ import java.util.Optional;
 public class TournamentServiceImpl implements TournamentService {
 
     private final TournamentRepository tournamentRepository;
-    private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    public TournamentServiceImpl(TournamentRepository tournamentRepository, TeamRepository teamRepository) {
+    public TournamentServiceImpl(TournamentRepository tournamentRepository, PlayerRepository playerRepository) {
         this.tournamentRepository = tournamentRepository;
-        this.teamRepository = teamRepository;
+        this.playerRepository = playerRepository;
     }
 
 
@@ -76,8 +76,8 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         // Assume TeamService or direct repository access is available
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
-        tournament.getTeams().add(team);
+        Player player = playerRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        tournament.getPlayers().add(player);
         tournamentRepository.save(tournament);
     }
 
@@ -87,8 +87,8 @@ public class TournamentServiceImpl implements TournamentService {
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new RuntimeException("Tournament not found"));
         // Same assumption as above
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
-        tournament.getTeams().remove(team);
+        Player player = playerRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found"));
+        tournament.getPlayers().remove(player);
         tournamentRepository.save(tournament);
     }
 

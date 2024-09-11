@@ -2,22 +2,116 @@ package com.cs203.cs203system.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+
+@Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @ToString
-@Table(name = "player")
+@Table(name = "team")
 public class Player {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Integer id;
 
     private String name;
 
-    private int rating = 1200; // default elo rating can be set init or adjusted later on
+    private int eloRating = 1200;
+
+    private double points = 0.0;
+
+    private Integer ranking;
+
+    @Column(name = "wins", nullable = false)
+    private int wins = 0;
+
+    @Column(name = "losses", nullable = false)
+    private int losses = 0;
+
+    @Column(name = "draws", nullable = false)
+    private int draws = 0;
+
+    private Match.Bracket bracket;
+    public enum Bracket{
+        UPPER,LOWER
+    }
+    // Setter
+    @Setter
+    private Status status;  // Could also be an enum: MatchStatus
+
+    // Method to add points
+    public void addPoints(double points) {
+        this.points += points;
+    }
+
+    // Method to reset points
+    public void resetPoints() {
+        this.points = 0.0;
+    }
+
+    public enum Status {
+        QUALIFIED, ELIMINATED
+    }
+
+
+    // Method to check if the team has lost twice
+    public boolean hasLostTwice() {
+        return losses >= 2;
+    }
+
+    // Method to increment losses
+    public void incrementLosses() {
+        this.losses++;
+    }
+
+    // Add relationship to Tournament
+    @ManyToOne
+    @JoinColumn(name = "tournament_id")
+    private Tournament tournament;  // New relationship to Tournament
+
+    // Relationships
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "player_matches",
+            joinColumns = @JoinColumn(name = "player_id"),
+            inverseJoinColumns = @JoinColumn(name = "matches_id"))
+    @ToString.Exclude
+    private Set<Match> matches = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @OneToOne(orphanRemoval = true)
+    @JoinColumn(name = "manager_id")
+    private User manager;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "player", orphanRemoval = true)
+    private Set<User> users = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "player", orphanRemoval = true)
+    @ToString.Exclude
+    private Set<EloRecord> eloRecords = new LinkedHashSet<>();
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Player player = (Player) o;
+        return getId() != null && Objects.equals(getId(), player.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
 }
