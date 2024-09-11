@@ -1,5 +1,6 @@
 package com.cs203.cs203system.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -24,6 +25,7 @@ public class User implements Serializable {
     private String username;
 
     // FOR DEV ONLY! TEMP STORE
+    @JsonIgnore
     private String password;
 
     private String email;

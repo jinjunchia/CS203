@@ -45,12 +45,10 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Tournament updateTournament(Integer id, TournamentUpdateRequest updateRequest) {
-        Optional<Tournament> existingTournament = this.findTournamentById(updateRequest.getId());
+        Optional<Tournament> existingTournament = this.findTournamentById(id);
 
-        // TODO: Add error handling
         if (existingTournament.isEmpty()) {
-//            throw new PlayerNotFoundException("Player with id " + id + " not found");
-            return null;
+            throw new NotFoundException("Player with id " + id + " not found");
         }
 
         Tournament tournament = existingTournament.get();

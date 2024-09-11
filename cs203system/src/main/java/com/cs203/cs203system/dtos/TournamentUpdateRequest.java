@@ -1,8 +1,5 @@
 package com.cs203.cs203system.dtos;
 
-import com.cs203.cs203system.model.Tournament;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,9 +13,6 @@ import java.util.Optional;
  */
 @Data
 public class TournamentUpdateRequest implements Serializable {
-
-//    @NotNull(message = "ID cannot be null")
-    Integer id;
 
     Optional<String> name = Optional.empty();
 
