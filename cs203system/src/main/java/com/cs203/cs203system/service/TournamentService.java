@@ -19,4 +19,5 @@ public interface TournamentService {
 
     void deleteTournamentById(Integer id);
 
+    String addPlayerToTournament(Integer tournamentId, Integer playerId);
 }

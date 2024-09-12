@@ -11,5 +11,5 @@ package com.cs203.cs203system.enums;
  */
 public enum MatchStatus {
 
-    PLANNED, ONGOING, COMPLETED, CANCELLED, BYE, WAITING
+    SCHEDULED, ONGOING, COMPLETED, CANCELLED, BYE, WAITING
 }

@@ -2,6 +2,7 @@ package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.exceptions.NotFoundException;
+import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
@@ -23,7 +24,6 @@ public class TournamentServiceImpl implements TournamentService {
         this.playerRepository = playerRepository;
     }
 
-
     @Override
     public Tournament createTournament(Tournament tournament) {
         return tournamentRepository.save(tournament);
@@ -35,7 +35,7 @@ public class TournamentServiceImpl implements TournamentService {
         if (tournament.isEmpty()) {
             throw new NotFoundException("Tournament id of " + id + " does not exist");
         }
-        return tournamentRepository.findById(id);
+        return tournament; // Simply return the found tournament Optional
     }
 
     @Override
@@ -45,18 +45,11 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public Tournament updateTournament(Integer id, TournamentUpdateRequest updateRequest) {
-        Optional<Tournament> existingTournament = this.findTournamentById(id);
+        Tournament tournament = findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
 
-        // TODO: Add error handling
-        if (existingTournament.isEmpty()) {
-//            throw new PlayerNotFoundException("Player with id " + id + " not found");
-            return null;
-        }
-
-        Tournament tournament = existingTournament.get();
-
+        // Update fields based on request
         updateRequest.getName().ifPresent(tournament::setName);
-        updateRequest.getVenue().ifPresent(tournament::setVenue);
+        updateRequest.getVenue().ifPresent(tournament::setLocation);
         updateRequest.getStartDate().ifPresent(tournament::setStartDate);
         updateRequest.getEndDate().ifPresent(tournament::setEndDate);
 
@@ -65,7 +58,39 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public void deleteTournamentById(Integer id) {
+        // Ensure the tournament exists before deletion
+        if (!tournamentRepository.existsById(id)) {
+            throw new NotFoundException("Tournament id of " + id + " does not exist");
+        }
         tournamentRepository.deleteById(id);
     }
 
+    @Override
+    public String addPlayerToTournament(Integer tournamentId, Integer playerId) {
+        Optional<Tournament> optionalTournament = tournamentRepository.findById(tournamentId);
+        Optional<Player> optionalPlayer = playerRepository.findById(playerId);
+
+        if (optionalTournament.isPresent() && optionalPlayer.isPresent()) {
+            Tournament tournament = optionalTournament.get();
+            Player player = optionalPlayer.get();
+
+            // Check if player's ELO rating is within the tournament's ELO restrictions
+            if (player.getEloRating() >= tournament.getMinEloRating() && player.getEloRating() <= tournament.getMaxEloRating()) {
+                tournament.getPlayers().add(player);
+                tournamentRepository.save(tournament);
+                return "Player added successfully.";
+            } else {
+                return "Player's ELO rating is not within the allowed range for this tournament.";
+            }
+        } else {
+            // Handle case where either the tournament or player is not found
+            if (optionalTournament.isEmpty()) {
+                throw new NotFoundException("Tournament with id " + tournamentId + " not found.");
+            }
+            if (optionalPlayer.isEmpty()) {
+                throw new NotFoundException("Player with id " + playerId + " not found.");
+            }
+            return "Tournament or Player not found."; // Redundant due to exceptions
+        }
+    }
 }

@@ -16,7 +16,7 @@ import java.util.*;
 @Setter
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type")
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING) // Ensure this is correctly defined
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +27,9 @@ public class User implements Serializable {
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_type", insertable = false, updatable = false) // Ensures the column is managed by the discriminator
     private UserType userType; // Enum for PARTICIPANT, ADMIN
 
-
-    @OneToMany(mappedBy = "user")
-    private Set<Match> matches;
 
     // This is for JPA purposes
 
