@@ -24,20 +24,22 @@ public class Match implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
     private MatchType matchType;
 
     private String result;  // e.g., "3-2", "Winner: Team A"
 
     private Integer durationInMinutes;  // Duration of the match
 
+    @Enumerated(EnumType.STRING)
     private MatchStatus status;  // Could also be an enum: MatchStatus
 
-    // Implement a Result Database
-    //create round here?
-    private Integer roundNumber;
 
     private LocalDate matchDate;
+    @Enumerated(EnumType.STRING)
     private Bracket bracket;
+    private Integer player1Score; // Score or results can be more complex if needed
+    private Integer player2Score;
 
     public enum Bracket {
         UPPER, LOWER, FINAL

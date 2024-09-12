@@ -1,6 +1,7 @@
 package com.cs203.cs203system.model;
 
 import com.cs203.cs203system.enums.TournamentFormat;
+import com.cs203.cs203system.enums.TournamentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -29,21 +30,19 @@ public class Tournament implements Serializable {
 
     private LocalDate endDate;
 
-    private String venue; // Location of the tournament
+    private String location;
 
-    private Status status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
+    private TournamentStatus status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
 
     // Persist enum as a string
-    public enum Status {
-        PLANNED, ONGOING, COMPLETED, CANCELLED
-    }
+
 
     @Enumerated(EnumType.STRING)
     private TournamentFormat format;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "tournament_player",
-            joinColumns = @JoinColumn(name = "tournament_player"),
+            joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id"))
     @ToString.Exclude
     private Set<Player> players = new LinkedHashSet<>();

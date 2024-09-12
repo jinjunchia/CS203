@@ -2,7 +2,7 @@ package com.cs203.cs203system.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import com.cs203.cs203system.enums.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -18,11 +18,13 @@ public class Player extends User {
 
     private String name;
 
-    private int eloRating = 1200;
-
     private double points = 0.0;
 
-    private Integer ranking;
+    private Integer ranking; //not sure how to deal with this maybe next time
+    private Integer totalGamesPlayed = 0; // Specific to players, same for this i will implement not sure when
+    
+
+    private Double eloRating = 1000.0; // Specific to players
 
     @Column(name = "wins", nullable = false)
     private int wins = 0;
@@ -33,13 +35,13 @@ public class Player extends User {
     @Column(name = "draws", nullable = false)
     private int draws = 0;
 
-    private Match.Bracket bracket;
+    @Enumerated(EnumType.STRING)
+    private PlayerBracket bracket;
 
-    public enum Bracket {
-        UPPER, LOWER
-    }
 
-    private Status status;  // Could also be an enum: MatchStatus
+
+    @Enumerated(EnumType.STRING)
+    private PlayerStatus status;
 
     // Method to add points
     public void addPoints(double points) {
@@ -51,9 +53,6 @@ public class Player extends User {
         this.points = 0.0;
     }
 
-    public enum Status {
-        QUALIFIED, ELIMINATED
-    }
 
 
     // Method to check if the player has lost twice
