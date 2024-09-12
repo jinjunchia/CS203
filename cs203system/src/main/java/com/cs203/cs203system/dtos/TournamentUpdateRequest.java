@@ -18,7 +18,7 @@ import java.util.Optional;
 public class TournamentUpdateRequest implements Serializable {
 
 //    @NotNull(message = "ID cannot be null")
-    Integer id;
+
 
     Optional<String> name = Optional.empty();
 

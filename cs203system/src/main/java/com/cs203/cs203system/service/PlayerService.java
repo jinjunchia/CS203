@@ -1,5 +1,6 @@
 package com.cs203.cs203system.service;
 
+import com.cs203.cs203system.dtos.PlayerUpdateRequest;
 import com.cs203.cs203system.model.Player;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ public interface PlayerService {
 
     Optional<Player> findPlayerById(Integer id);
 
-    Player updatePlayer(Player player);
+    Player updatePlayer(Integer id, PlayerUpdateRequest player);
 
     void deletePlayer(Integer id);
 }

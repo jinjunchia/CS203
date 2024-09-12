@@ -2,7 +2,7 @@ package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.PlayerRepository;
-import com.cs203.cs203system.service.PlayerService;
+import com.cs203.cs203system.dtos.PlayerUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,17 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     @Transactional
-    public Player updatePlayer(Player player) {
+    public Player updatePlayer(Integer id, PlayerUpdateRequest updateRequest) {
+
+        Optional<Player> existingPlayer = this.findPlayerById(id);
+
+        if (existingPlayer.isEmpty()) {
+            return null;
+        }
+
+        Player player = existingPlayer.get();
+
+        updateRequest.getName().ifPresent(player::setName);
         return playerRepository.save(player);
     }
 
