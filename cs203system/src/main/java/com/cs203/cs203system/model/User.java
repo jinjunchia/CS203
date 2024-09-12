@@ -31,7 +31,6 @@ public class User implements Serializable {
     private UserType userType; // Enum for PARTICIPANT, ADMIN
 
 
-
     // This is for JPA purposes
 
     @Override

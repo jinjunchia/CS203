@@ -65,6 +65,8 @@ public class Player extends User {
     public void incrementLosses() {
         this.losses++;
     }
+    public void incrementWins(){this.wins++;}
+    public void incrementDraws(){this.draws++;}
 
     // Add relationship to Tournament
     @ManyToOne

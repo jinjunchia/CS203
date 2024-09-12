@@ -26,9 +26,9 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     private MatchRepository matchRepository;
 
     @Autowired
-    private EloService eloService; // Inject EloService to update ELO ratings
+    private EloService eloService;
 
-    private final Random random = new Random(); // Random generator for simulation
+    private final Random random = new Random(); // Random generator for simulation for the points
 
     @Override
     public void initializeRounds(Tournament tournament) {
@@ -100,15 +100,18 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                 Player loser = match.getLoser();
 
                 if (winner != null) {
-                    winner.addPoints(1.0); // Points for a win
+                    winner.addPoints(1.0); // points for a win
                     // Consider updating winner stats like total games played, etc.
+                    winner.incrementWins();
                 }
 
                 if (loser != null) {
-                    loser.incrementLosses(); // Increment loss count for the loser
+                    loser.incrementLosses(); // increment loss count for the loser
                 } else if (match.isDraw()) {
                     match.getPlayer1().addPoints(0.5);
                     match.getPlayer2().addPoints(0.5);
+                    winner.incrementDraws();
+                    loser.incrementDraws();
                 }
 
                 // Update ELO ratings after each match
