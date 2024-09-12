@@ -40,7 +40,6 @@ public class Player extends User {
     private PlayerBracket bracket;
 
 
-
     @Enumerated(EnumType.STRING)
     private PlayerStatus status;
 

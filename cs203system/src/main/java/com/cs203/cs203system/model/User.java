@@ -1,5 +1,6 @@
 package com.cs203.cs203system.model;
 import com.cs203.cs203system.enums.UserType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -23,6 +24,7 @@ public class User implements Serializable {
     private Long id;
 
     private String username;
+    @JsonIgnore
     private String password;
     private String email;
 

@@ -43,7 +43,7 @@ public class TournamentController {
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Tournament not found",
                     content = @Content) })
-    @GetMapping("/{id}")
+    @GetMapping(path= "/{id}")
     public ResponseEntity<Tournament> getTournamentById(@PathVariable Integer id) {
         Optional<Tournament> tournament = tournamentService.findTournamentById(id);
         return tournament
