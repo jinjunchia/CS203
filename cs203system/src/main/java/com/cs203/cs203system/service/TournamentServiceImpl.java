@@ -23,6 +23,10 @@ public class TournamentServiceImpl implements TournamentService {
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
     }
+    @Override
+    public List<Player> getPlayersForTournament(Tournament tournament) {
+        return playerRepository.findByTournamentId(tournament.getId());
+    }
 
     @Override
     public Tournament createTournament(Tournament tournament) {

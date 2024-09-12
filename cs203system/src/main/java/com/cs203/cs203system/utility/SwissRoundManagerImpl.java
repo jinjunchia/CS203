@@ -7,7 +7,6 @@ import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.service.EloService;
-import com.cs203.cs203system.utility.SwissRoundManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     @Autowired
     private EloService eloService;
 
-    private final Random random = new Random(); // Random generator for simulation for the points
+    private final Random random = new Random(); // random generator for simulation for the points
 
     @Override
     public void initializeRounds(Tournament tournament) {
@@ -56,7 +55,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
             if (i + 1 < players.size()) {
                 pairs.add(Pair.of(players.get(i), players.get(i + 1)));
             } else {
-                pairs.add(Pair.of(players.get(i), null)); // Assign a bye if odd number
+                pairs.add(Pair.of(players.get(i), null)); // assign a bye if odd number
             }
         }
 
@@ -67,8 +66,8 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     private void createMatches(List<Pair<Player, Player>> pairs) {
         for (Pair<Player, Player> pair : pairs) {
             if (pair.getSecond() != null) {
-                // Simulate match outcome by assigning random scores
-                int player1Score = random.nextInt(10); // Simulate a score between 0 and 9
+                // simulate match outcome by assigning random scores
+                int player1Score = random.nextInt(10); // simulate a score between 0 and 9 this is for determining the "boxing winner"
                 int player2Score = random.nextInt(10);
 
                 Match match = Match.builder()
@@ -78,13 +77,13 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                         .roundNumber(pair.getFirst().getTournament().getCurrentRoundNumber())
                         .player1Score(player1Score)
                         .player2Score(player2Score)
-                        .status(MatchStatus.COMPLETED) // Set as completed since we're simulating
+                        .status(MatchStatus.COMPLETED) // set as completed since we're simulating
                         .build();
 
                 matchRepository.save(match);
             } else {
                 Player playerWithBye = pair.getFirst();
-                playerWithBye.addPoints(1.0); // Award points for bye
+                playerWithBye.addPoints(1.0); // award points for bye i think there will be one way or another if got odd number
                 // Consider saving any changes to player state if needed
             }
         }
@@ -101,8 +100,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
                 if (winner != null) {
                     winner.addPoints(1.0); // points for a win
-                    // Consider updating winner stats like total games played, etc.
-                    winner.incrementWins();
+                    winner.incrementWins();//increment player win
                 }
 
                 if (loser != null) {
@@ -110,8 +108,8 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                 } else if (match.isDraw()) {
                     match.getPlayer1().addPoints(0.5);
                     match.getPlayer2().addPoints(0.5);
-                    winner.incrementDraws();
-                    loser.incrementDraws();
+                    match.getPlayer1().incrementDraws();
+                    match.getPlayer2().incrementDraws();//increment draws for both side
                 }
 
                 // Update ELO ratings after each match
@@ -122,10 +120,6 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
         }
 
         tournament.setRoundsCompleted(tournament.getRoundsCompleted() + 1);
-
-        if (isSwissPhaseComplete(tournament) && tournament.getFormat() == TournamentFormat.HYBRID) {
-            transitionToDoubleElimination(tournament);
-        }
     }
 
     @Override
@@ -133,18 +127,21 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
         return tournament.getRoundsCompleted() >= tournament.getTotalSwissRounds();
     }
 
-    private void transitionToDoubleElimination(Tournament tournament) {
-        List<Player> topPlayers = tournament.getPlayers().stream()
-                .sorted(Comparator.comparingDouble(Player::getPoints).reversed())
-                .limit(tournament.getPlayers().size() / 2)
-                .collect(Collectors.toList());
 
-        // Implement logic for transitioning top players to a Double Elimination phase
-        // This could involve seeding players, initializing new matches, etc.
-        if (!topPlayers.isEmpty()) {
-            // Example placeholder: Initialize the first round of Double Elimination
-            System.out.println("Transitioning to Double Elimination with top players: " + topPlayers);
-            // Add code here to create double elimination matches/brackets based on topPlayers
+    public List<Player> getTopPlayers(Tournament tournament) {
+        return tournament.getPlayers().stream()
+                .sorted(Comparator.comparingDouble(Player::getPoints).reversed())
+                .limit(tournament.getPlayers().size() / 2) // Take top half of the players
+                .collect(Collectors.toList());
+    }
+
+    // determine the winner if the tournament is Swiss only
+    public Player determineSwissWinner(Tournament tournament) {
+        if (tournament.getFormat() == TournamentFormat.SWISS && isSwissPhaseComplete(tournament)) {
+            return tournament.getPlayers().stream()
+                    .max(Comparator.comparingDouble(Player::getPoints))
+                    .orElse(null); // Return the player with the highest points
         }
+        return null;
     }
 }
