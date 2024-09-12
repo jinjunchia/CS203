@@ -1,4 +1,4 @@
-package com.cs203.cs203system.utility.impl;
+package com.cs203.cs203system.utility;
 
 import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.TournamentFormat;
