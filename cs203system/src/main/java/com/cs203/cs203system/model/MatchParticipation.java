@@ -20,10 +20,10 @@ public class MatchParticipation implements Serializable {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "match_id")
+    @JoinColumn(name = "match_id", nullable = false) // Correctly points to match
     private Match match;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "player_id", nullable = false) // Correct column name
     private Player player;
 }

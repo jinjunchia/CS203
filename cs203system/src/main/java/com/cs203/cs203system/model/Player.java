@@ -16,6 +16,7 @@ import java.util.Set;
 @DiscriminatorValue("PLAYER")
 public class Player extends User {
 
+
     private String name;
 
     private double points = 0.0;
@@ -82,4 +83,9 @@ public class Player extends User {
     @ToString.Exclude
     private Set<EloRecord> eloRecords = new LinkedHashSet<>();
 
+    // If you are using MatchParticipation, you may not need a direct ManyToMany relationship with matches
+    // You can remove the ManyToMany with Match to simplify the model
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<MatchParticipation> participations = new LinkedHashSet<>();  // Use this if tracking participation through MatchParticipation
 }

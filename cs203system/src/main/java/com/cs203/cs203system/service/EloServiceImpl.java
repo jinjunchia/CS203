@@ -12,20 +12,20 @@ import java.time.LocalDateTime;
 @Service
 public class EloServiceImpl implements EloService {
 
-    private static final int K_FACTOR = 32; // ELO constant, can be adjusted based on requirements
+    private static final int K_FACTOR = 32; // ELO constant
 
     @Autowired
     private EloRecordRepository eloRecordRepository;
 
     @Override
     public void updateEloRatings(Player player1, Player player2, Match match) {
+        // Since player1 is always the winner
+        double actualScorePlayer1 = 1.0; // player1 wins
+        double actualScorePlayer2 = 0.0; // player2 loses
+
+        // Calculate expected scores
         double expectedScorePlayer1 = expectedScore(player1.getEloRating(), player2.getEloRating());
         double expectedScorePlayer2 = expectedScore(player2.getEloRating(), player1.getEloRating());
-
-        // Determine actual scores based on match results
-        double actualScorePlayer1 = match.getPlayer1Score() > match.getPlayer2Score() ? 1.0 :
-                (match.getPlayer1Score().equals(match.getPlayer2Score()) ? 0.5 : 0.0);
-        double actualScorePlayer2 = 1.0 - actualScorePlayer1;
 
         // Calculate new ELO ratings
         double newEloPlayer1 = player1.getEloRating() + K_FACTOR * (actualScorePlayer1 - expectedScorePlayer1);

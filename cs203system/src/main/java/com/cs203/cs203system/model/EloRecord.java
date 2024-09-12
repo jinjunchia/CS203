@@ -27,15 +27,15 @@ public class EloRecord implements Serializable {
     private String changeReason; // e.g., "Match against Player X"
 
     @ManyToOne
-    @JoinColumn(name = "player_id")
+    @JoinColumn(name = "player_id", nullable = false) // Player association
     private Player player;
 
     @ManyToOne
-    @JoinColumn(name = "match_id", nullable = true)
-    private Match match; // Reference to the match that caused the rating change
+    @JoinColumn(name = "match_id", nullable = true) // Match reference, nullable if not tied to a match
+    private Match match;
 
     @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = true)
-    private Tournament tournament; // Optional reference to the related tournament
+    @JoinColumn(name = "tournament_id", nullable = true) // Tournament association if applicable
+    private Tournament tournament;
 
 }

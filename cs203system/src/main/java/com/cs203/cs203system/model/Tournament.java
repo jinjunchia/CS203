@@ -34,7 +34,12 @@ public class Tournament implements Serializable {
 
     private TournamentStatus status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
 
-    // Persist enum as a string
+    private Double minEloRating; // Minimum ELO rating allowed for participants
+    private Double maxEloRating; // Maximum ELO rating allowed for participants
+
+    private Integer roundsCompleted = 0; // Track the number of completed rounds
+    private Integer currentRoundNumber; // Tracks the current round of the entire tournament
+    private Integer totalSwissRounds; // Total Swiss rounds, calculated dynamically
 
 
     @Enumerated(EnumType.STRING)

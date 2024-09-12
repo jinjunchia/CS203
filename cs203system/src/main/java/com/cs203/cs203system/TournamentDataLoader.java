@@ -1,6 +1,7 @@
 package com.cs203.cs203system;
 
 import com.cs203.cs203system.enums.Role;
+import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.model.User;
 import com.cs203.cs203system.repository.TournamentRepository;
@@ -45,9 +46,9 @@ public class TournamentDataLoader implements CommandLineRunner {
             Tournament tournament = Tournament.builder()
                     .startDate(randomDate)
                     .endDate(randomDate.plusDays(20))
-                    .status(Tournament.Status.ONGOING)
+                    .status(TournamentStatus.ONGOING)
                     .name(faker.chess().tournament())
-                    .venue(faker.address().city())
+                    .location(faker.address().city())
                     .build();
 
             tournamentRepository.save(tournament);
