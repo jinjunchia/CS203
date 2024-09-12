@@ -37,5 +37,9 @@ public interface SwissRoundManager {
      * @return true if ready to transition; false otherwise.
      */
     boolean isSwissPhaseComplete(Tournament tournament);
+
+    List<Player> getTopPlayers(Tournament tournament);
+
+    Player determineSwissWinner(Tournament tournament);
 }
 

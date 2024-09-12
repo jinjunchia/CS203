@@ -14,5 +14,5 @@ import java.util.*;
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
 
-
+    List<Player> findByTournamentId(Integer tournamentId);
 }
