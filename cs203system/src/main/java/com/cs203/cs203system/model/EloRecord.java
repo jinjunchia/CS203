@@ -16,15 +16,26 @@ import java.time.LocalDateTime;
 public class EloRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
-    private Double rating;
+    private LocalDateTime date; // Date of the ELO change
 
-    private LocalDateTime localDateTime;
+    private Double oldRating;
+
+    private Double newRating;
+
+    private String changeReason; // e.g., "Match against Player X"
 
     @ManyToOne
     @JoinColumn(name = "player_id")
     private Player player;
+
+    @ManyToOne
+    @JoinColumn(name = "match_id", nullable = true)
+    private Match match; // Reference to the match that caused the rating change
+
+    @ManyToOne
+    @JoinColumn(name = "tournament_id", nullable = true)
+    private Tournament tournament; // Optional reference to the related tournament
 
 }

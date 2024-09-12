@@ -1,11 +1,12 @@
 package com.cs203.cs203system.model;
-
+import com.cs203.cs203system.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.*;
 
 // Note that this might change in the future when we implement spring security
 @Entity
@@ -19,14 +20,18 @@ import java.util.Objects;
 public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String username;
-
-    // FOR DEV ONLY! TEMP STORE
     private String password;
-
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    private UserType userType; // Enum for PARTICIPANT, ADMIN
+
+
+    @OneToMany(mappedBy = "user")
+    private Set<Match> matches;
 
     // This is for JPA purposes
 
