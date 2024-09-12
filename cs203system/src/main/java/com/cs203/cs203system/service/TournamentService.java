@@ -19,10 +19,4 @@ public interface TournamentService {
 
     void deleteTournamentById(Integer id);
 
-    void addTeamToTournament(Integer tournamentId, Integer teamId);
-
-    void removeTeamFromTournament(Integer tournamentId, Integer teamId);
-
-    boolean existingTournament(Integer tournamentId);
-
 }

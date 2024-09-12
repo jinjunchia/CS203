@@ -1,10 +1,10 @@
 package com.cs203.cs203system.service;
 
+import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +59,7 @@ public class MatchServiceImpl implements MatchService {
 
         try {
             // Convert the string to a corresponding enum value
-            Match.Status matchStatus = Match.Status.valueOf(status.toUpperCase());
+            MatchStatus matchStatus = MatchStatus.valueOf(status.toUpperCase());
             match.setStatus(matchStatus);
         } catch (IllegalArgumentException e) {
             // Handle the case where the provided status string does not match any enum value

@@ -3,6 +3,7 @@ package com.cs203.cs203system.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "elo_record")
-public class EloRecord {
+public class EloRecord implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -22,12 +23,8 @@ public class EloRecord {
 
     private LocalDateTime localDateTime;
 
-    @OneToOne
-    @JoinColumn(name = "previous_elo_record_id")
-    private EloRecord previousEloRecord;
-
     @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @JoinColumn(name = "player_id")
+    private Player player;
 
 }
