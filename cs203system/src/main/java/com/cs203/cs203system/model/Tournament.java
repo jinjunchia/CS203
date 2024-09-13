@@ -35,7 +35,7 @@ public class Tournament implements Serializable {
     private TournamentStatus status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
 
     private Double minEloRating; // Minimum ELO rating allowed for participants
-    private Double maxEloRating; // Maximum ELO rating allowed for participants
+    private Double maxEloRating; // Maximum ELO rating allowed for participants admins can set this
 
     private Integer roundsCompleted = 0; // Track the number of completed rounds
     private Integer currentRoundNumber; // Tracks the current round of the entire tournament
