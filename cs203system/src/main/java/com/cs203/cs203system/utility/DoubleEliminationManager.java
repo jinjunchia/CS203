@@ -3,23 +3,27 @@ package com.cs203.cs203system.utility;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
-
+import com.cs203.cs203system.model.Round;
+import com.cs203.cs203system.enums.RoundType;
 import java.util.List;
 
 public interface DoubleEliminationManager {
 
-    // initialize the Double Elimination phase with top players
+    // Initialize the Double Elimination phase with top players
     void initializeDoubleElimination(Tournament tournament, List<Player> players);
 
-    // create matches for the current round
-    List<Match> createMatches(Tournament tournament, List<Player> players);
+    // Create matches for a specific round
+    List<Match> createMatches(Tournament tournament, List<Player> players, Round round);
 
-    // update standings based on match results
+    // Update standings based on match results
     void updateStandings(Tournament tournament);
 
-    // check if the Double Elimination phase is complete
+    // Check if the Double Elimination phase is complete
     boolean isDoubleEliminationComplete(Tournament tournament);
 
-    // determine the winner of the Double Elimination phase
+    // Determine the winner of the Double Elimination phase
     Player determineWinner(Tournament tournament);
+
+    // Initialize a new round
+    Round initializeRound(Tournament tournament, int roundNumber, RoundType roundType);
 }

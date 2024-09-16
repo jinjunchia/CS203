@@ -6,6 +6,7 @@ import com.cs203.cs203system.dtos.PlayerUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.cs203.cs203system.enums.UserType;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,19 +36,12 @@ public class PlayerServiceImpl implements PlayerService {
         return playerRepository.findById(id);
     }
 
-    @Override
-    @Transactional
-    public Player updatePlayer(Integer id, PlayerUpdateRequest updateRequest) {
-
-        Optional<Player> existingPlayer = this.findPlayerById(id);
-
-        if (existingPlayer.isEmpty()) {
-            return null;
-        }
-
-        Player player = existingPlayer.get();
-
-        updateRequest.getName().ifPresent(player::setName);
+    public Player createPlayer(String username, String email, double eloRating) {
+        Player player = new Player();
+        player.setUsername(username);
+        player.setEmail(email);
+        player.setEloRating(eloRating);
+        player.setUserType(UserType.PLAYER); // Correctly setting the user type
         return playerRepository.save(player);
     }
 
