@@ -1,4 +1,4 @@
 package com.cs203.cs203system.service;
 
-public class RulesServiceImpl {
+public class EloRecordService {
 }
