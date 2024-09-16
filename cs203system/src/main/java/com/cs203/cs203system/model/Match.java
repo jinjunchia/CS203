@@ -49,6 +49,10 @@ public class Match implements Serializable {
     private MatchBracket bracket;
 
 
+    @ManyToOne
+    @JoinColumn(name = "round_id")
+    private Round round;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "tournament_id")
     @JsonIgnore // Prevent Infinite Recursion

@@ -8,6 +8,7 @@ import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -60,6 +61,7 @@ public class TournamentManagerImpl implements TournamentManager {
 
 
     @Override
+    @Transactional
     public void progressTournament(Tournament tournament) {
         switch (tournament.getFormat()) {
             case SWISS:
