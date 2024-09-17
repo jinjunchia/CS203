@@ -109,6 +109,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     }
 
     @Override
+    @Transactional
     public void updateStandings(Tournament tournament) {
         List<Match> matches = matchRepository.findByTournament(tournament);
 
