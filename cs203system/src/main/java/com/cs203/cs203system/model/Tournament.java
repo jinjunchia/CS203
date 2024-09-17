@@ -41,6 +41,8 @@ public class Tournament implements Serializable {
     private Integer currentRoundNumber; // Tracks the current round of the entire tournament
     private Integer totalSwissRounds; // Total Swiss rounds, calculated dynamically
 
+    @Getter
+    private boolean doubleEliminationStarted = false;
 
     @Enumerated(EnumType.STRING)
     private TournamentFormat format;
