@@ -53,8 +53,6 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     public Tournament updateTournament(Integer id, TournamentUpdateRequest updateRequest) {
         Tournament tournament = findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
-
-        // Update fields based on request
         updateRequest.getName().ifPresent(tournament::setName);
         updateRequest.getVenue().ifPresent(tournament::setLocation);
         updateRequest.getStartDate().ifPresent(tournament::setStartDate);
