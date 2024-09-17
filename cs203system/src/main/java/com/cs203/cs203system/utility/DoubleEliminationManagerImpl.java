@@ -3,13 +3,17 @@ package com.cs203.cs203system.utility;
 import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.PlayerBracket;
 import com.cs203.cs203system.enums.PlayerStatus;
-import com.cs203.cs203system.enums.TournamentFormat;
+import com.cs203.cs203system.enums.RoundType;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
+import com.cs203.cs203system.repository.RoundRepository;
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.service.EloService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -27,7 +31,10 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     private MatchRepository matchRepository;
 
     @Autowired
-    private PlayerRepository playerRepository; // Add PlayerRepository to save player updates
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private RoundRepository roundRepository;
 
     @Autowired
     private EloService eloService;
@@ -35,48 +42,56 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     private final Random random = new Random();
 
 
-    public List<Player> getPlayersForTournament(Tournament tournament) {
+    private List<Player> getPlayersForTournament(Tournament tournament) {
+
         return playerRepository.findByTournamentId(tournament.getId());
     }
     @Override
-    public void initializeDoubleElimination(Tournament tournament, List<Player> topPlayers) {
-        // when i initialize i should check for the players  max and min elo rating and i should also initialize a normal double elimination
-        // initialize the double elimination bracket with top players
-        // this method sets up the first round of matches
+    @Transactional
+    public void initializeDoubleElimination(Tournament tournament, List<Player> players) {
         if (tournament.getFormat() == TournamentFormat.HYBRID) {
-            // If Hybrid, assume topPlayers have already been filtered by Swiss phase
-            Collections.shuffle(topPlayers); // Shuffle for random initial pairings
-            createMatches(tournament, topPlayers);
+            Collections.shuffle(players);
+            Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
+            createMatches(tournament, players, upperRound);
         } else if (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
-            // For standard Double Elimination, filter players by ELO ratings
             List<Player> eligiblePlayers = getEligiblePlayers(tournament, getPlayersForTournament(tournament));
-            Collections.shuffle(eligiblePlayers); // Shuffle for random initial pairings
-            createMatches(tournament, eligiblePlayers);
+            Collections.shuffle(eligiblePlayers);
+            Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
+            createMatches(tournament, eligiblePlayers, upperRound);
         }
     }
+
+
     private List<Player> getEligiblePlayers(Tournament tournament, List<Player> players) {
-        // Filter players based on tournament ELO restrictions this is usually for normal double eliminate
         return players.stream()
                 .filter(player -> player.getEloRating() >= tournament.getMinEloRating() &&
                         player.getEloRating() <= tournament.getMaxEloRating())
                 .collect(Collectors.toList());
     }
 
-    public List<Match> createMatches(Tournament tournament, List<Player> players) {
-        // filter players
+    @Override
+    @Transactional
+    public Round initializeRound(Tournament tournament, int roundNumber, RoundType roundType) {
+        Round round = new Round();
+        round.setRoundNumber(roundNumber);
+        round.setRoundType(roundType);
+        round.setTournament(tournament);
+        return roundRepository.save(round);
+    }
+
+    @Override
+    @Transactional
+    public List<Match> createMatches(Tournament tournament, List<Player> players, Round round) {
         players = players.stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .collect(Collectors.toList());
 
-        // shuffle players for random matchups
         Collections.shuffle(players);
         List<Pair<Player, Player>> pairs = pairPlayers(players);
         List<Match> matches = new ArrayList<>();
 
-        // create matches from pairs
         for (Pair<Player, Player> pair : pairs) {
             if (pair.getSecond() != null) {
-                // simulate match outcome by assigning random scores
                 int player1Score = random.nextInt(10);
                 int player2Score = random.nextInt(10);
 
@@ -84,41 +99,39 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                         .player1(pair.getFirst())
                         .player2(pair.getSecond())
                         .tournament(tournament)
-                        .roundNumber(tournament.getCurrentRoundNumber())
+                        .round(round)
                         .player1Score(player1Score)
                         .player2Score(player2Score)
-                        .status(MatchStatus.SCHEDULED) // set to SCHEDULED initially, update after simulation
+                        .status(MatchStatus.SCHEDULED)
                         .build();
 
                 matchRepository.save(match);
                 matches.add(match);
             } else {
-                // handle the case of an odd player (bye scenario), not sure if this is necessary but scared got odd number suddendly come out might need to change this
                 Player playerWithBye = pair.getFirst();
-                playerWithBye.addPoints(1.0); // award points for the bye
-                playerRepository.save(playerWithBye); // save changes to the player's points, same as the bottom might need to change to intemediary table
+                playerWithBye.addPoints(1.0);
+                playerRepository.save(playerWithBye);
             }
         }
         return matches;
     }
 
     @Override
+    @Transactional
     public void updateStandings(Tournament tournament) {
-        // Update standings after matches are completed
         List<Match> matches = matchRepository.findByTournament(tournament);
 
         for (Match match : matches) {
             if (match.getStatus() == MatchStatus.SCHEDULED) {
-
                 Player winner = match.getWinner();
                 Player loser = match.getLoser();
-                if(winner != null){
+                if (winner != null) {
                     winner.incrementWins();
                 }
-                if(loser != null){
+                if (loser != null) {
                     loser.incrementLosses();
                 }
-                if(match.isDraw()){
+                if (match.isDraw()) {
                     match.getPlayer1().addPoints(0.5);
                     match.getPlayer2().addPoints(0.5);
                     match.getPlayer1().incrementDraws();
@@ -137,8 +150,8 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     public boolean isDoubleEliminationComplete(Tournament tournament) {
         long remainingPlayers = tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
-                .count(); // this stream, streams the player and get their status
-        return remainingPlayers <= 1; // complete when 1 remains
+                .count();
+        return remainingPlayers <= 1;
     }
 
     @Override
@@ -146,34 +159,34 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         return tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .findFirst()
-                .orElse(null); // return the last standing player as the winner
+                .orElse(null);
     }
 
-    private void updatePlayerBracket(Player winner, Player loser) {
-        // update brackets and statuses for winner and loser
-        if(winner != null){
-            playerRepository.save(winner); // this might need to change since there might be a intemediary table , matchParticipation need to discuss this further
+    @Transactional
+    public void updatePlayerBracket(Player winner, Player loser) {
+        if (winner != null) {
+            playerRepository.save(winner);
         }
-        if (loser.getBracket() == PlayerBracket.UPPER) {
-            loser.setBracket(PlayerBracket.LOWER); // Move loser to lower bracket
-        } else {
-            loser.incrementLosses();
-            if (loser.hasLostTwice()) {
-                loser.setStatus(PlayerStatus.ELIMINATED); // Eliminate after second loss
+        if(loser != null){
+            if (loser.getBracket() == PlayerBracket.UPPER) {
+                loser.setBracket(PlayerBracket.LOWER);
+            } else {
+                loser.incrementLosses();
+                if (loser.hasLostTwice()) {
+                    loser.setStatus(PlayerStatus.ELIMINATED);
+                }
             }
+            playerRepository.save(loser);
         }
-        playerRepository.save(loser); // this might need to change since there might be a intemediary table , matchParticipation need to discuss this further
     }
 
     private void updateEloRatings(Match match) {
-        // update ELO ratings using EloService
         if (match.getPlayer1() != null && match.getPlayer2() != null) {
             eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
         }
     }
 
     private List<Pair<Player, Player>> pairPlayers(List<Player> players) {
-        // pair players for matches
         List<Pair<Player, Player>> pairs = new ArrayList<>();
         for (int i = 0; i < players.size(); i += 2) {
             if (i + 1 < players.size()) {
