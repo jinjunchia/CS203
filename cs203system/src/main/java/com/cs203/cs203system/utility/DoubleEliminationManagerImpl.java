@@ -70,6 +70,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     }
 
     @Override
+    @Transactional
     public Round initializeRound(Tournament tournament, int roundNumber, RoundType roundType) {
         Round round = new Round();
         round.setRoundNumber(roundNumber);
@@ -116,6 +117,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     }
 
     @Override
+    @Transactional
     public void updateStandings(Tournament tournament) {
         List<Match> matches = matchRepository.findByTournament(tournament);
 
@@ -160,19 +162,22 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 .orElse(null);
     }
 
-    private void updatePlayerBracket(Player winner, Player loser) {
+    @Transactional
+    public void updatePlayerBracket(Player winner, Player loser) {
         if (winner != null) {
             playerRepository.save(winner);
         }
-        if (loser.getBracket() == PlayerBracket.UPPER) {
-            loser.setBracket(PlayerBracket.LOWER);
-        } else {
-            loser.incrementLosses();
-            if (loser.hasLostTwice()) {
-                loser.setStatus(PlayerStatus.ELIMINATED);
+        if(loser != null){
+            if (loser.getBracket() == PlayerBracket.UPPER) {
+                loser.setBracket(PlayerBracket.LOWER);
+            } else {
+                loser.incrementLosses();
+                if (loser.hasLostTwice()) {
+                    loser.setStatus(PlayerStatus.ELIMINATED);
+                }
             }
+            playerRepository.save(loser);
         }
-        playerRepository.save(loser);
     }
 
     private void updateEloRatings(Match match) {
