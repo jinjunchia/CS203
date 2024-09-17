@@ -4,6 +4,7 @@ import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.EloRecordRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class EloServiceImpl implements EloService {
     private EloRecordRepository eloRecordRepository;
 
     @Override
+    @Transactional
     public void updateEloRatings(Player player1, Player player2, Match match) {
         // Since player1 is always the winner
         double actualScorePlayer1 = 1.0; // player1 wins

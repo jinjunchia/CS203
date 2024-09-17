@@ -6,6 +6,7 @@ import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public Tournament createTournament(Tournament tournament) {
         return tournamentRepository.save(tournament);
     }
@@ -48,6 +50,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public Tournament updateTournament(Integer id, TournamentUpdateRequest updateRequest) {
         Tournament tournament = findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
 
@@ -61,6 +64,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public void deleteTournamentById(Integer id) {
         // Ensure the tournament exists before deletion
         if (!tournamentRepository.existsById(id)) {
@@ -70,6 +74,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
+    @Transactional
     public String addPlayerToTournament(Integer tournamentId, Integer playerId) {
         Optional<Tournament> optionalTournament = tournamentRepository.findById(tournamentId);
         Optional<Player> optionalPlayer = playerRepository.findById(playerId);

@@ -37,6 +37,7 @@ public class TournamentManagerImpl implements TournamentManager {
     }
 
     @Override
+    @Transactional
     public void initializeTournament(Tournament tournament) {
         setTournamentDetails(tournament);
         startTournament(tournament);
@@ -102,6 +103,7 @@ public class TournamentManagerImpl implements TournamentManager {
     }
 
     @Override
+    @Transactional
     public Player determineWinner(Tournament tournament) {
         if (isTournamentComplete(tournament)) {
             completeTournament(tournament);

@@ -4,6 +4,7 @@ import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.RoundRepository;
 import com.cs203.cs203system.service.RoundService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class RoundServiceImpl implements RoundService {
     }
 
     @Override
+    @Transactional
     public Round createRound(Round round){
         return roundRepository.save(round);
     }
@@ -36,6 +38,7 @@ public class RoundServiceImpl implements RoundService {
     }
 
     @Override
+    @Transactional
     public Round updateRound(Integer id, Round roundDetails) {
         return roundRepository.findById(id)  // Ensure the ID is passed here
                 .map(round -> {
@@ -53,6 +56,7 @@ public class RoundServiceImpl implements RoundService {
                 .orElseThrow(() -> new RuntimeException("Round not found with id " + id));
     }
     @Override
+    @Transactional
     public void deleteRound(Integer id) {
         roundRepository.deleteById(id);
     }
