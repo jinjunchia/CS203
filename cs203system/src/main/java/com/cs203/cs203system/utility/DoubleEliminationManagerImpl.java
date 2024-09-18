@@ -4,6 +4,7 @@ import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.PlayerBracket;
 import com.cs203.cs203system.enums.PlayerStatus;
 import com.cs203.cs203system.enums.RoundType;
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
@@ -11,21 +12,20 @@ import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.RoundRepository;
-import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.service.EloService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
+    private static final Logger logger = LoggerFactory.getLogger(DoubleEliminationManagerImpl.class);
 
     @Autowired
     private MatchRepository matchRepository;
@@ -41,41 +41,60 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
     private final Random random = new Random();
 
-
-    private List<Player> getPlayersForTournament(Tournament tournament) {
-
-        return playerRepository.findByTournamentId(tournament.getId());
-    }
+    // Updated to accept Tournament and List<Player>
     @Override
     @Transactional
     public void initializeDoubleElimination(Tournament tournament, List<Player> players) {
-        if (tournament.getFormat() == TournamentFormat.HYBRID) {
-            Collections.shuffle(players);
-            Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
-            createMatches(tournament, players, upperRound);
-        } else if (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
-            List<Player> eligiblePlayers = getEligiblePlayers(tournament, getPlayersForTournament(tournament));
-            Collections.shuffle(eligiblePlayers);
-            Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
-            createMatches(tournament, eligiblePlayers, upperRound);
+        // Ensure the tournament format is suitable for Double Elimination
+        if (tournament.getFormat() != TournamentFormat.DOUBLE_ELIMINATION
+                && tournament.getFormat() != TournamentFormat.HYBRID) {
+            logger.warn("Tournament format is not Double Elimination or Hybrid. Skipping initialization.");
+            return;
         }
-    }
 
+        if (players.isEmpty()) {
+            logger.warn("No eligible players found for tournament: {}", tournament.getName());
+            return;
+        }
 
-    private List<Player> getEligiblePlayers(Tournament tournament, List<Player> players) {
-        return players.stream()
-                .filter(player -> player.getEloRating() >= tournament.getMinEloRating() &&
-                        player.getEloRating() <= tournament.getMaxEloRating())
-                .collect(Collectors.toList());
+        // Shuffle players and place them in the upper bracket
+        Collections.shuffle(players);
+        players.forEach(player -> {
+            player.setBracket(PlayerBracket.UPPER);
+            player.setStatus(PlayerStatus.QUALIFIED);
+            playerRepository.save(player);
+            logger.debug("Player {} initialized in UPPER bracket", player.getName());
+        });
+
+        // Initialize the first round in the upper bracket
+        Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
+        createMatches(tournament, players, upperRound);
     }
 
     @Override
+    @Transactional
+    public Round initializeNewRound(Tournament tournament, RoundType roundType) {
+        int nextRoundNumber = getNextRoundNumber(tournament, roundType);
+        Round round = new Round();
+        round.setRoundNumber(nextRoundNumber);
+        round.setRoundType(roundType);
+        round.setTournament(tournament);
+        return roundRepository.save(round);
+    }
+
+    @Override
+    @Transactional
     public Round initializeRound(Tournament tournament, int roundNumber, RoundType roundType) {
         Round round = new Round();
         round.setRoundNumber(roundNumber);
         round.setRoundType(roundType);
         round.setTournament(tournament);
         return roundRepository.save(round);
+    }
+
+    private int getNextRoundNumber(Tournament tournament, RoundType roundType) {
+        Optional<Round> latestRound = roundRepository.findTopByTournamentAndRoundTypeOrderByRoundNumberDesc(tournament, roundType);
+        return latestRound.map(round -> round.getRoundNumber() + 1).orElse(1);
     }
 
     @Override
@@ -91,101 +110,160 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
         for (Pair<Player, Player> pair : pairs) {
             if (pair.getSecond() != null) {
-                int player1Score = random.nextInt(10);
-                int player2Score = random.nextInt(10);
-
                 Match match = Match.builder()
                         .player1(pair.getFirst())
                         .player2(pair.getSecond())
                         .tournament(tournament)
                         .round(round)
-                        .player1Score(player1Score)
-                        .player2Score(player2Score)
                         .status(MatchStatus.SCHEDULED)
                         .build();
 
                 matchRepository.save(match);
                 matches.add(match);
+                logger.debug("Scheduled match between {} and {} in round {}",
+                        pair.getFirst().getName(), pair.getSecond().getName(), round.getRoundNumber());
             } else {
                 Player playerWithBye = pair.getFirst();
-                playerWithBye.addPoints(1.0);
+                playerWithBye.incrementWins();  // Bye counts as a win
                 playerRepository.save(playerWithBye);
+                logger.debug("Player {} gets a bye in round {}", playerWithBye.getName(), round.getRoundNumber());
             }
         }
         return matches;
     }
 
     @Override
+    @Transactional
     public void updateStandings(Tournament tournament) {
+        logger.debug("Updating standings for tournament: {}", tournament.getName());
         List<Match> matches = matchRepository.findByTournament(tournament);
 
         for (Match match : matches) {
-            if (match.getStatus() == MatchStatus.SCHEDULED) {
-                Player winner = match.getWinner();
-                Player loser = match.getLoser();
-                if (winner != null) {
-                    winner.incrementWins();
-                }
-                if (loser != null) {
-                    loser.incrementLosses();
-                }
-                if (match.isDraw()) {
-                    match.getPlayer1().addPoints(0.5);
-                    match.getPlayer2().addPoints(0.5);
-                    match.getPlayer1().incrementDraws();
-                    match.getPlayer2().incrementDraws();
-                }
-
-                updatePlayerBracket(winner, loser);
-                updateEloRatings(match);
-                match.setStatus(MatchStatus.COMPLETED);
-                matchRepository.save(match);
+            if (match.getStatus() != MatchStatus.SCHEDULED) {
+                continue;
             }
+
+            Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
+            Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
+
+            updatePlayerBracket(winner, loser);
+            updateEloRatings(match);
+
+            winner.incrementWins();
+            loser.incrementLosses();
+
+            match.setStatus(MatchStatus.COMPLETED);
+            matchRepository.save(match);
+            logger.debug("Match completed between {} and {} - Winner: {}",
+                    winner.getName(), loser.getName(), winner.getName());
         }
+
+        handleFinalMatchIfNecessary(tournament);
     }
+
 
     @Override
     public boolean isDoubleEliminationComplete(Tournament tournament) {
+        logger.debug("Checking if double elimination is complete for tournament: {}", tournament.getName());
+
+        // Check if all matches are completed
+        boolean allMatchesCompleted = matchRepository.findByTournament(tournament).stream()
+                .allMatch(match -> match.getStatus() == MatchStatus.COMPLETED);
+
+        // Check the number of remaining active players
         long remainingPlayers = tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .count();
-        return remainingPlayers <= 1;
+
+        // Double Elimination should be complete if only one player remains
+        boolean isComplete = allMatchesCompleted && remainingPlayers == 1;
+
+        if (remainingPlayers == 2) {
+            logger.debug("Exactly 2 players remain. Checking for final match.");
+            handleFinalMatchIfNecessary(tournament);
+        } else if (remainingPlayers > 2) {
+            logger.error("Unexpected number of remaining players: {}. Expected 1.", remainingPlayers);
+        }
+
+        logger.debug("Double elimination completion status: {} (All matches completed: {}, Remaining players: {})",
+                isComplete, allMatchesCompleted, remainingPlayers);
+
+        return isComplete;
     }
 
     @Override
     public Player determineWinner(Tournament tournament) {
-        return tournament.getPlayers().stream()
+        logger.debug("Determining winner for tournament: {}", tournament.getName());
+        Player winner = tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .findFirst()
                 .orElse(null);
+        if (winner != null) {
+            logger.debug("Winner determined: {}", winner.getName());
+        } else {
+            logger.debug("No winner determined yet.");
+        }
+        return winner;
     }
 
-    private void updatePlayerBracket(Player winner, Player loser) {
-        if (winner != null) {
-            playerRepository.save(winner);
-        }
+    @Transactional
+    public void updatePlayerBracket(Player winner, Player loser) {
+        playerRepository.save(winner);
         if (loser.getBracket() == PlayerBracket.UPPER) {
             loser.setBracket(PlayerBracket.LOWER);
-        } else {
+            playerRepository.save(loser);
+            logger.debug("Player {} moved to LOWER bracket after losing in UPPER", loser.getName());
+        } else if (loser.getBracket() == PlayerBracket.LOWER) {
             loser.incrementLosses();
-            if (loser.hasLostTwice()) {
+            if (loser.getLosses() >= 2) {
                 loser.setStatus(PlayerStatus.ELIMINATED);
+                logger.debug("Player {} has been eliminated after second loss in LOWER bracket", loser.getName());
+            }
+            playerRepository.save(loser);
+        }
+    }
+
+    private void handleFinalMatchIfNecessary(Tournament tournament) {
+        logger.debug("Checking if final match is necessary for tournament: {}", tournament.getName());
+        List<Player> remainingPlayers = tournament.getPlayers().stream()
+                .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
+                .collect(Collectors.toList());
+
+        if (remainingPlayers.size() == 2) {
+            Player upperBracketWinner = remainingPlayers.stream()
+                    .filter(player -> player.getBracket() == PlayerBracket.UPPER)
+                    .findFirst()
+                    .orElse(null);
+
+            Player lowerBracketWinner = remainingPlayers.stream()
+                    .filter(player -> player.getBracket() == PlayerBracket.LOWER)
+                    .findFirst()
+                    .orElse(null);
+
+            if (upperBracketWinner != null && lowerBracketWinner != null) {
+                Round finalRound = initializeNewRound(tournament, RoundType.FINAL);
+                createMatches(tournament, Arrays.asList(upperBracketWinner, lowerBracketWinner), finalRound);
+                logger.debug("Final match scheduled between {} and {}",
+                        upperBracketWinner.getName(), lowerBracketWinner.getName());
             }
         }
-        playerRepository.save(loser);
     }
 
     private void updateEloRatings(Match match) {
-        if (match.getPlayer1() != null && match.getPlayer2() != null) {
-            eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
-        }
+        eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
+        logger.debug("Elo ratings updated for match between {} and {}",
+                match.getPlayer1().getName(), match.getPlayer2().getName());
     }
 
     private List<Pair<Player, Player>> pairPlayers(List<Player> players) {
+        logger.debug("Pairing players for the round");
         List<Pair<Player, Player>> pairs = new ArrayList<>();
         for (int i = 0; i < players.size(); i += 2) {
             if (i + 1 < players.size()) {
                 pairs.add(Pair.of(players.get(i), players.get(i + 1)));
+            } else {
+                pairs.add(Pair.of(players.get(i), null));
+                logger.debug("Player {} gets a bye", players.get(i).getName());
             }
         }
         return pairs;

@@ -3,6 +3,7 @@ package com.cs203.cs203system.utility;
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class SimulationManagerImpl implements SimulationManager {
      * @param format The format of the tournament (SWISS, DOUBLE_ELIMINATION, HYBRID)
      */
     @Override
+    @Transactional
     public void runSimulation(TournamentFormat format) {
         // Create a tournament instance
         Tournament tournament = new Tournament();
