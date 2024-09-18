@@ -3,6 +3,7 @@ package com.cs203.cs203system.service;
 import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.repository.MatchRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    @Transactional
     public void updateMatchResult(Integer id, String result) {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
@@ -53,6 +55,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    @Transactional
     public void updateMatchStatus(Integer matchId, String status) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));

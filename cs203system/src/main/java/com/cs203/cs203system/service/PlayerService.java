@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public interface PlayerService {
-    Player createPlayer(Player player);
+    Player createPlayer(String username, String email, double elorating);
 
     List<Player> findAllPlayers();
 

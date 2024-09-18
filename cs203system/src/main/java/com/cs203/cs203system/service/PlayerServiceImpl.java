@@ -22,11 +22,6 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player createPlayer(Player player) {
-        return playerRepository.save(player);
-    }
-
-    @Override
     public List<Player> findAllPlayers() {
         return playerRepository.findAll();
     }
@@ -44,6 +39,19 @@ public class PlayerServiceImpl implements PlayerService {
         player.setUserType(UserType.PLAYER); // Correctly setting the user type
         return playerRepository.save(player);
     }
+
+    @Override
+    @Transactional
+    public Player updatePlayer(Integer id, PlayerUpdateRequest playerRequest){
+        return playerRepository.findById(id)
+                .map(player -> {
+                    playerRequest.getName().ifPresent(player::setName);
+                    //update the fields to the repo
+                    return playerRepository.save(player);
+                })
+                .orElseThrow(() -> new RuntimeException("Player not found with Id "+ id));
+    }
+
 
     @Override
     public void deletePlayer(Integer id) {
