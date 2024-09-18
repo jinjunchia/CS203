@@ -36,8 +36,8 @@ export default function Login() {
     <div style={styles.container}>
       <h1>Login Page</h1>
       <div style={styles.inputContainer}>
-        <input type="text" placeholder="Username" style={styles.input} />
-        <input type="password" placeholder="Password" style={styles.input} />
+      <input type="text" placeholder="Username" id="username" name="username" style={styles.input} required />
+      <input type="password" placeholder="Password" id="password" name="password" style={styles.input} required />
       </div>
       <button style={styles.button}>Enter</button>
     </div>
