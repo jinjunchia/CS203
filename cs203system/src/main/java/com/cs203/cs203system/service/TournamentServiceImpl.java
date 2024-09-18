@@ -26,7 +26,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
     @Override
     public List<Player> getPlayersForTournament(Tournament tournament) {
-        return playerRepository.findByTournamentId(tournament.getId());
+        return playerRepository.findByTournaments_Id(tournament.getId());
     }
 
     @Override
@@ -36,7 +36,7 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public Optional<Tournament> findTournamentById(Integer id) {
+    public Optional<Tournament> findTournamentById(Long id) {
         Optional<Tournament> tournament = tournamentRepository.findById(id);
         if (tournament.isEmpty()) {
             throw new NotFoundException("Tournament id of " + id + " does not exist");
@@ -51,7 +51,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public Tournament updateTournament(Integer id, TournamentUpdateRequest updateRequest) {
+    public Tournament updateTournament(Long id, TournamentUpdateRequest updateRequest) {
         Tournament tournament = findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
         updateRequest.getName().ifPresent(tournament::setName);
         updateRequest.getVenue().ifPresent(tournament::setLocation);
@@ -63,7 +63,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public void deleteTournamentById(Integer id) {
+    public void deleteTournamentById(Long id) {
         // Ensure the tournament exists before deletion
         if (!tournamentRepository.existsById(id)) {
             throw new NotFoundException("Tournament id of " + id + " does not exist");
@@ -73,7 +73,7 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public String addPlayerToTournament(Integer tournamentId, Integer playerId) {
+    public String addPlayerToTournament(Long tournamentId, Long playerId) {
         Optional<Tournament> optionalTournament = tournamentRepository.findById(tournamentId);
         Optional<Player> optionalPlayer = playerRepository.findById(playerId);
 

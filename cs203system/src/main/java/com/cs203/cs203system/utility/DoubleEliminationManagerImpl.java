@@ -78,7 +78,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         Round round = new Round();
         round.setRoundNumber(nextRoundNumber);
         round.setRoundType(roundType);
-        round.setTournament(tournament);
+//        round.setTournament(tournament);
         return roundRepository.save(round);
     }
 
@@ -88,12 +88,12 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         Round round = new Round();
         round.setRoundNumber(roundNumber);
         round.setRoundType(roundType);
-        round.setTournament(tournament);
+//        round.setTournament(tournament);
         return roundRepository.save(round);
     }
 
     private int getNextRoundNumber(Tournament tournament, RoundType roundType) {
-        Optional<Round> latestRound = roundRepository.findTopByTournamentAndRoundTypeOrderByRoundNumberDesc(tournament, roundType);
+        Optional<Round> latestRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournament.getId(), roundType);
         return latestRound.map(round -> round.getRoundNumber() + 1).orElse(1);
     }
 

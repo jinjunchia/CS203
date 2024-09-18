@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 public interface RoundService {
     Round createRound(Round round);
-    Optional<Round> findRoundById(Integer id);
+    Optional<Round> findRoundById(Long id);
     List<Round> findRoundsByTournament(Tournament tournament);
 
-    Round updateRound(Integer id, Round roundDetails);
+    Round updateRound(Long id, Round roundDetails);
 
-    void deleteRound(Integer id);
+    void deleteRound(Long id);
 
 }

@@ -44,7 +44,7 @@ public class TournamentController {
             @ApiResponse(responseCode = "404", description = "Tournament not found",
                     content = @Content) })
     @GetMapping(path= "/{id}")
-    public ResponseEntity<Tournament> getTournamentById(@PathVariable Integer id) {
+    public ResponseEntity<Tournament> getTournamentById(@PathVariable Long id) {
         Optional<Tournament> tournament = tournamentService.findTournamentById(id);
         return tournament
                 .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -57,13 +57,13 @@ public class TournamentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tournament> updateTournament(@PathVariable Integer id, @Valid @RequestBody TournamentUpdateRequest updatedTournament) {
+    public ResponseEntity<Tournament> updateTournament(@PathVariable Long id, @Valid @RequestBody TournamentUpdateRequest updatedTournament) {
         Tournament savedTournament = tournamentService.updateTournament(id, updatedTournament);
         return new ResponseEntity<>(savedTournament, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTournament(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteTournament(@PathVariable Long id) {
         tournamentService.deleteTournamentById(id);
         return new ResponseEntity<>("Tournament not found", HttpStatus.NOT_FOUND);
     }

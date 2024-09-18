@@ -3,7 +3,6 @@ package com.cs203.cs203system.service;
 import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.RoundRepository;
-import com.cs203.cs203system.service.RoundService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,22 +27,22 @@ public class RoundServiceImpl implements RoundService {
     }
 
     @Override
-    public Optional<Round> findRoundById(Integer id){
+    public Optional<Round> findRoundById(Long id){
         return roundRepository.findById(id);
     }
 
     @Override
     public List<Round> findRoundsByTournament(Tournament tournament){
-        return roundRepository.findByTournament(tournament);
+        return roundRepository.findByMatches_Tournament_Id(tournament.getId());
     }
 
     @Override
     @Transactional
-    public Round updateRound(Integer id, Round roundDetails) {
+    public Round updateRound(Long id, Round roundDetails) {
         return roundRepository.findById(id)  // Ensure the ID is passed here
                 .map(round -> {
                     round.setRoundNumber(roundDetails.getRoundNumber());
-                    round.setTournament(roundDetails.getTournament());
+//                    round.setTournament(roundDetails.getTournament());
                     round.setMatches(roundDetails.getMatches());
 
                     // Update RoundType if it exists in roundDetails
@@ -57,7 +56,7 @@ public class RoundServiceImpl implements RoundService {
     }
     @Override
     @Transactional
-    public void deleteRound(Integer id) {
+    public void deleteRound(Long id) {
         roundRepository.deleteById(id);
     }
 

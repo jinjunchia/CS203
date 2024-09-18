@@ -3,7 +3,6 @@ package com.cs203.cs203system.service;
 import com.cs203.cs203system.model.Match;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -11,15 +10,15 @@ public interface MatchService {
     //business logic
     Match createMatch(Match match);
 
-    Optional<Match> findMatchById(Integer id);
+    Optional<Match> findMatchById(Long id);
 
     List<Match> findAllMatches();
 
     Match updateMatch(Match match);
 
-    void deleteMatch(Integer id);
+    void deleteMatch(Long id);
 
-    void updateMatchResult(Integer matchId, String result);
+    void updateMatchResult(Long matchId, String result);
 
-    void updateMatchStatus(Integer matchId, String status);
+    void updateMatchStatus(Long matchId, String status);
 }

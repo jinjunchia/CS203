@@ -34,8 +34,4 @@ public class EloRecord implements Serializable {
     @JoinColumn(name = "match_id", nullable = true) // Match reference, nullable if not tied to a match
     private Match match;
 
-    @ManyToOne
-    @JoinColumn(name = "tournament_id", nullable = true) // Tournament association if applicable
-    private Tournament tournament;
-
 }

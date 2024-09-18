@@ -26,7 +26,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Optional<Match> findMatchById(Integer id) {
+    public Optional<Match> findMatchById(Long id) {
         return matchRepository.findById(id);
     }
 
@@ -41,13 +41,13 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public void deleteMatch(Integer id) {
+    public void deleteMatch(Long id) {
         matchRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void updateMatchResult(Integer id, String result) {
+    public void updateMatchResult(Long id, String result) {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         match.setResult(result);
@@ -56,7 +56,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     @Transactional
-    public void updateMatchStatus(Integer matchId, String status) {
+    public void updateMatchStatus(Long matchId, String status) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
 
