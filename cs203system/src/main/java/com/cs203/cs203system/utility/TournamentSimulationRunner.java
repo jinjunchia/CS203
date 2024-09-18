@@ -1,4 +1,4 @@
-package com.cs203.cs203system;
+package com.cs203.cs203system.utility;
 
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.utility.SimulationManager;
