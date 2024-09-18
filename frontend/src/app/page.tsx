@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link"; // Import the Link component from Next.js
 
 export default function Home() {
+
   return (
     <div style={styles.container}>
       {/* Header Section */}
