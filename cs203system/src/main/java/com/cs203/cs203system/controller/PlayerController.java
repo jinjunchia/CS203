@@ -16,6 +16,7 @@ import java.util.*;
 public class PlayerController {
 
     private final PlayerService playerService;
+
     @Autowired
     public PlayerController(PlayerService playerService) {
         this.playerService = playerService;
@@ -27,7 +28,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Player> findPlayerById(@PathVariable Integer id) {
+    public ResponseEntity<Player> findPlayerById(@PathVariable Long id) {
         Optional<Player> Player = playerService.findPlayerById(id);
         return Player
                 .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -35,19 +36,19 @@ public class PlayerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(@PathVariable Integer id, @Valid @RequestBody PlayerUpdateRequest updatedPlayer) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerUpdateRequest updatedPlayer) {
         Player savedPlayer = playerService.updatePlayer(id, updatedPlayer);
         return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@PathVariable Integer id, @Valid @RequestBody PlayerUpdateRequest updatedPlayer) {
+    public ResponseEntity<Player> createPlayer(@PathVariable Long id, @Valid @RequestBody PlayerUpdateRequest updatedPlayer) {
         Player savedPlayer = playerService.updatePlayer(id, updatedPlayer);
         return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePlayer(@PathVariable Integer id) {
+    public ResponseEntity<String> deletePlayer(@PathVariable Long id) {
         playerService.deletePlayer(id);
         return new ResponseEntity<>("Player deleted", HttpStatus.OK);
     }

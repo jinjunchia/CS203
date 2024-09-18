@@ -1,14 +1,17 @@
 package com.cs203.cs203system.model;
+
 import com.cs203.cs203system.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.*;
 
-// Note that this might change in the future when we implement spring security
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,22 +19,22 @@ import java.util.*;
 @Setter
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING) // Ensure this is correctly defined
-public class User implements Serializable {
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String username;
+
+//    @JsonIgnore
     private String password;
+
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", insertable = false, updatable = false) // Ensures the column is managed by the discriminator
+    @Column(name = "user_type", insertable = false, updatable = false)
     private UserType userType; // Enum for PARTICIPANT, ADMIN
-
-
-    // This is for JPA purposes
 
     @Override
     public final boolean equals(Object o) {
@@ -47,5 +50,15 @@ public class User implements Serializable {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    /**
+     * Returns the authorities granted to the user. Cannot return <code>null</code>.
+     *
+     * @return the authorities, sorted by natural key (never <code>null</code>)
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new SimpleGrantedAuthority(userType.toString()));
     }
 }

@@ -6,6 +6,8 @@ import com.cs203.cs203system.enums.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+
+
 @Entity
 @Getter
 @Setter
@@ -15,7 +17,6 @@ import java.util.Set;
 @ToString
 @DiscriminatorValue("PLAYER")
 public class Player extends User {
-
 
     private String name;
 
@@ -39,13 +40,21 @@ public class Player extends User {
     @Enumerated(EnumType.STRING)
     private PlayerBracket bracket;
 
-
-
     @Enumerated(EnumType.STRING)
     private PlayerStatus status;
 
+    @ManyToMany(mappedBy = "players", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ToString.Exclude
+    private Set<Tournament> tournaments = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "player", orphanRemoval = true)
+    @ToString.Exclude
+    private Set<EloRecord> eloRecords = new LinkedHashSet<>();
 
+    @ToString.Exclude
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "player_stats_id")
+    private PlayerStats playerStats;
 
     // Method to add points
     public void addPoints(double points) {
@@ -56,8 +65,6 @@ public class Player extends User {
     public void resetPoints() {
         this.points = 0.0;
     }
-
-
 
     // Method to check if the player has lost twice
     public boolean hasLostTwice() {
@@ -70,22 +77,5 @@ public class Player extends User {
     }
     public void incrementWins(){this.wins++;}
     public void incrementDraws(){this.draws++;}
-
-    // Add relationship to Tournament
-    @ManyToOne
-    @JoinColumn(name = "tournament_id")
-    private Tournament tournament;  // New relationship to Tournament
-
-    // Relationships
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "player_matches",
-            joinColumns = @JoinColumn(name = "player_id"),
-            inverseJoinColumns = @JoinColumn(name = "matches_id"))
-    @ToString.Exclude
-    private Set<Match> matches = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "player", orphanRemoval = true)
-    @ToString.Exclude
-    private Set<EloRecord> eloRecords = new LinkedHashSet<>();
 
 }

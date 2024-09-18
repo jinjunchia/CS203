@@ -5,7 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EloRecordRepository extends JpaRepository<EloRecord, Integer> {
-
-
+public interface EloRecordRepository extends JpaRepository<EloRecord, Long> {
 }

@@ -12,9 +12,9 @@ public interface PlayerService {
 
     List<Player> findAllPlayers();
 
-    Optional<Player> findPlayerById(Integer id);
+    Optional<Player> findPlayerById(Long id);
 
-    Player updatePlayer(Integer id, PlayerUpdateRequest player);
+    Player updatePlayer(Long id, PlayerUpdateRequest player);
 
-    void deletePlayer(Integer id);
+    void deletePlayer(Long id);
 }

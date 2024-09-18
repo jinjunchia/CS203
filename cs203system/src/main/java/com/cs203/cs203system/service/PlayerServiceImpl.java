@@ -27,7 +27,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Optional<Player> findPlayerById(Integer id) {
+    public Optional<Player> findPlayerById(Long id) {
         return playerRepository.findById(id);
     }
 
@@ -42,7 +42,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     @Transactional
-    public Player updatePlayer(Integer id, PlayerUpdateRequest playerRequest){
+    public Player updatePlayer(Long id, PlayerUpdateRequest playerRequest){
         return playerRepository.findById(id)
                 .map(player -> {
                     playerRequest.getName().ifPresent(player::setName);
@@ -54,7 +54,7 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-    public void deletePlayer(Integer id) {
+    public void deletePlayer(Long id) {
         playerRepository.deleteById(id);
     }
 }
