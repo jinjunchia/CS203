@@ -6,6 +6,7 @@ import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
@@ -25,11 +26,18 @@ public class PlayerDataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Random random = new Random();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        for (int i = 0; i < 200; i++ ) {
+        for (int i = 0; i < 1; i++ ) {
             Player player = Player.builder()
                     .name(faker.funnyName().name())
                     .ranking(random.nextInt(32+1)).build();
+
+            String password = "admin";
+            player.setUsername("admin");
+            player.setEmail(faker.internet().emailAddress());
+            player.setPassword(passwordEncoder.encode(password));
+
 
             playerRepository.save(player);
         }
