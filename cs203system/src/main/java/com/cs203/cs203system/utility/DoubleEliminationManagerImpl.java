@@ -139,14 +139,30 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         List<Match> matches = matchRepository.findByTournament(tournament);
 
         for (Match match : matches) {
-//            if (match.getStatus() != MatchStatus.SCHEDULED) {
-//                logger.debug("Hello");
-//                continue;
-//            }
 
-            Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
+            Double p1_rating = match.getPlayer1().getEloRating();
+            Double p2_rating = match.getPlayer2().getEloRating();
+
+            Double p1_EO = 1 / ( 1 + Math.pow(10,(p2_rating-p1_rating) / 400));
+            Double p2_EO = 1 / ( 1 + Math.pow(10,(p1_rating-p2_rating) / 400));
+
+            int randomNum = random.nextInt(100);
+
+            Player winner = match.getPlayer1();
+            Player loser = match.getPlayer2();
+
+            winner.setEloRating(winner.getEloRating() + 32 * (1-p1_EO));
+            loser.setEloRating(winner.getEloRating() + 32 * (0-p2_EO));
+
+            if (randomNum > p1_EO*100) {
+                loser = match.getPlayer1();
+                winner = match.getPlayer2();
+                winner.setEloRating(winner.getEloRating() + 32 * (1-p2_EO));
+                loser.setEloRating(winner.getEloRating() + 32 * (0-p1_EO));
+            }
+
+
             logger.debug("This is the winner" + winner);
-            Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
             logger.debug("This is the loser" + loser);
 
             updatePlayerBracket(winner, loser);
