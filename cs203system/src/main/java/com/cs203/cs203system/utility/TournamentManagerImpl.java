@@ -195,7 +195,7 @@ public class TournamentManagerImpl implements TournamentManager {
         tournament.setStatus(TournamentStatus.SCHEDULED);
 //        TournamentFormat[] formats = TournamentFormat.values();
 //        tournament.setFormat(formats[random.nextInt(formats.length)]);
-        tournament.setFormat(TournamentFormat.SWISS);
+        tournament.setFormat(TournamentFormat.DOUBLE_ELIMINATION);
 
         tournamentRepository.save(tournament);
     }

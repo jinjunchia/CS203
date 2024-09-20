@@ -17,14 +17,14 @@ public class TournamentSimulationRunner implements CommandLineRunner {
         // Run simulations for different tournament formats
         System.out.println("Starting tournament simulations...");
 
-        // Run a SWISS tournament simulation
-        simulationManager.runSimulation(TournamentFormat.SWISS);
+//        // Run a SWISS tournament simulation
+//        simulationManager.runSimulation(TournamentFormat.SWISS);
 
-        // Run a DOUBLE_ELIMINATION tournament simulation
+//        // Run a DOUBLE_ELIMINATION tournament simulation
         simulationManager.runSimulation(TournamentFormat.DOUBLE_ELIMINATION);
-
-        // Run a HYBRID tournament simulation
-        simulationManager.runSimulation(TournamentFormat.HYBRID);
+//
+//        // Run a HYBRID tournament simulation
+//        simulationManager.runSimulation(TournamentFormat.HYBRID);
 
         System.out.println("Tournament simulations completed.");
     }

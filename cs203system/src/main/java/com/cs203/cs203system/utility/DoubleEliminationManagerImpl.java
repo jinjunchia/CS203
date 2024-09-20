@@ -139,12 +139,15 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         List<Match> matches = matchRepository.findByTournament(tournament);
 
         for (Match match : matches) {
-            if (match.getStatus() != MatchStatus.SCHEDULED) {
-                continue;
-            }
+//            if (match.getStatus() != MatchStatus.SCHEDULED) {
+//                logger.debug("Hello");
+//                continue;
+//            }
 
             Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
+            logger.debug("This is the winner" + winner);
             Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
+            logger.debug("This is the loser" + loser);
 
             updatePlayerBracket(winner, loser);
             updateEloRatings(match);
@@ -170,10 +173,16 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         boolean allMatchesCompleted = matchRepository.findByTournament(tournament).stream()
                 .allMatch(match -> match.getStatus() == MatchStatus.COMPLETED);
 
+        if (!allMatchesCompleted) {
+            logger.debug("Matches not completed yet");
+        }
+
         // Check the number of remaining active players
         long remainingPlayers = tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .count();
+
+        logger.debug(remainingPlayers + " still remaining");
 
         // Double Elimination should be complete if only one player remains
         boolean isComplete = allMatchesCompleted && remainingPlayers == 1;
