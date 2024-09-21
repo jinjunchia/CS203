@@ -41,6 +41,8 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
     private final Random random = new Random();
 
+    private int round_num = 0;
+
     // Updated to accept Tournament and List<Player>
     @Override
     @Transactional
@@ -69,6 +71,9 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         // Initialize the first round in the upper bracket
         Round upperRound = initializeRound(tournament, 1, RoundType.UPPER);
         createMatches(tournament, players, upperRound);
+//        logger.debug(round_num  + "in initialise");
+//        UpperCreateMatches(tournament, players, upperRound);
+//        LowerCreateMatches(tournament, players, upperRound);
     }
 
     @Override
@@ -78,7 +83,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         Round round = new Round();
         round.setRoundNumber(nextRoundNumber);
         round.setRoundType(roundType);
-//        round.setTournament(tournament);
         return roundRepository.save(round);
     }
 
@@ -103,11 +107,71 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         players = players.stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .collect(Collectors.toList());
-
         Collections.shuffle(players);
         List<Pair<Player, Player>> pairs = pairPlayers(players);
         List<Match> matches = new ArrayList<>();
+        for (Pair<Player, Player> pair : pairs) {
+            if (pair.getSecond() != null) {
+                Match match = Match.builder()
+                        .player1(pair.getFirst())
+                        .player2(pair.getSecond())
+                        .tournament(tournament)
+                        .round(round)
+                        .status(MatchStatus.SCHEDULED)
+                        .build();
 
+                matchRepository.save(match);
+                matches.add(match);
+                logger.debug("Scheduled match between {} and {} in round {}",
+                        pair.getFirst().getName(), pair.getSecond().getName(), round.getRoundNumber());
+            } else {
+                Player playerWithBye = pair.getFirst();
+                playerWithBye.incrementWins();  // Bye counts as a win
+                playerRepository.save(playerWithBye);
+                logger.debug("Player {} gets a bye in round {}", playerWithBye.getName(), round.getRoundNumber());
+            }
+        }
+        return matches;
+    }
+
+    public List<Match> LowerCreateMatches(Tournament tournament, List<Player> players, Round round) {
+        players = players.stream()
+                .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED && player.getBracket() != PlayerBracket.UPPER)
+                .collect(Collectors.toList());
+        Collections.shuffle(players);
+        List<Pair<Player, Player>> pairs = pairPlayers(players);
+        List<Match> matches = new ArrayList<>();
+        for (Pair<Player, Player> pair : pairs) {
+            if (pair.getSecond() != null) {
+                Match match = Match.builder()
+                        .player1(pair.getFirst())
+                        .player2(pair.getSecond())
+                        .tournament(tournament)
+                        .round(round)
+                        .status(MatchStatus.SCHEDULED)
+                        .build();
+
+                matchRepository.save(match);
+                matches.add(match);
+                logger.debug("Scheduled match between {} and {} in round {}",
+                        pair.getFirst().getName(), pair.getSecond().getName(), round.getRoundNumber());
+            } else {
+                Player playerWithBye = pair.getFirst();
+                playerWithBye.incrementWins();  // Bye counts as a win
+                playerRepository.save(playerWithBye);
+                logger.debug("Player {} gets a bye in round {}", playerWithBye.getName(), round.getRoundNumber());
+            }
+        }
+        return matches;
+    }
+
+    public List<Match> UpperCreateMatches(Tournament tournament, List<Player> players, Round round) {
+        players = players.stream()
+                .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED && player.getBracket() != PlayerBracket.UPPER)
+                .collect(Collectors.toList());
+        Collections.shuffle(players);
+        List<Pair<Player, Player>> pairs = pairPlayers(players);
+        List<Match> matches = new ArrayList<>();
         for (Pair<Player, Player> pair : pairs) {
             if (pair.getSecond() != null) {
                 Match match = Match.builder()
@@ -151,6 +215,9 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             Player winner = match.getPlayer1();
             Player loser = match.getPlayer2();
 
+            winner.setTotalGamesPlayed(winner.getTotalGamesPlayed()+1);
+            loser.setTotalGamesPlayed(loser.getTotalGamesPlayed()+1);
+
             winner.setEloRating(winner.getEloRating() + 32 * (1-p1_EO));
             loser.setEloRating(winner.getEloRating() + 32 * (0-p2_EO));
 
@@ -160,11 +227,12 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 winner.setEloRating(winner.getEloRating() + 32 * (1-p2_EO));
                 loser.setEloRating(winner.getEloRating() + 32 * (0-p1_EO));
             }
-
-
-            logger.debug("This is the winner" + winner);
-            logger.debug("This is the loser" + loser);
-
+            logger.debug(winner + " this is the winner");
+            logger.debug(winner + " this is the loser");
+            if (round_num == 1) {
+                logger.debug("Hello im here");
+                //Put new updatePlayerBracketHere
+            }
             updatePlayerBracket(winner, loser);
             updateEloRatings(match);
 
@@ -176,7 +244,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             logger.debug("Match completed between {} and {} - Winner: {}",
                     winner.getName(), loser.getName(), winner.getName());
         }
-
+        round_num++;    //Temporary counter
         handleFinalMatchIfNecessary(tournament);
     }
 
@@ -201,7 +269,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         logger.debug(remainingPlayers + " still remaining");
 
         // Double Elimination should be complete if only one player remains
-        boolean isComplete = allMatchesCompleted && remainingPlayers == 1;
+        boolean isComplete = allMatchesCompleted && remainingPlayers < 2;
 
         if (remainingPlayers == 2) {
             logger.debug("Exactly 2 players remain. Checking for final match.");
@@ -246,6 +314,31 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             }
             playerRepository.save(loser);
         }
+    }
+
+    //Testing
+//    @Transactional
+//    public void updatePlayerBracket(Player winner, Player loser) {
+//        winner.incrementWins();
+//        loser.incrementLosses();
+//        playerRepository.save(winner);
+//        if (loser.getBracket() == PlayerBracket.UPPER) {
+//            loser.setBracket(PlayerBracket.LOWER);
+//            playerRepository.save(loser);
+//            logger.debug("Player {} moved to LOWER bracket after losing in UPPER", loser.getName());
+//        }
+//    }
+//
+    public void loserBracket(Player winner, Player loser) {
+        loser.incrementLosses();
+        winner.incrementWins();
+        loser.setStatus(PlayerStatus.ELIMINATED);
+    }
+
+    public void upperBracket(Player winner, Player loser) {
+        loser.incrementLosses();
+        winner.incrementWins();
+        loser.setStatus(PlayerStatus.ELIMINATED);
     }
 
     private void handleFinalMatchIfNecessary(Tournament tournament) {
