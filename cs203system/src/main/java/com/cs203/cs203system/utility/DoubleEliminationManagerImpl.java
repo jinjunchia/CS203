@@ -158,6 +158,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             if(match.getPlayer2() != null){
                 Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
                 Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
+                match.setWinner(winner);
 
                 if(winner.getBracket() == PlayerBracket.UPPER){
                     winner.setBracket(PlayerBracket.UPPER);
@@ -199,7 +200,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     @Transactional
     public void processNextRound(Tournament tournament){
         //fetch all remaining players
-        List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament,PlayerStatus.QUALIFIED);
+        List<Player> remainingPlayers = playerRepository.findAllByTournamentsAndStatus(tournament,PlayerStatus.QUALIFIED);
         if (isDoubleEliminationComplete(tournament)) {
             Player winner = determineTournamentWinner(remainingPlayers);
             logger.info("Tournament {} is complete. The winner is {}", tournament.getName(), winner.getName());
@@ -233,7 +234,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     @Transactional
     public Player determineWinner(Tournament tournament) {
         // Fetch all remaining players who are still in the tournament
-        List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament, PlayerStatus.QUALIFIED);
+        List<Player> remainingPlayers = playerRepository.findAllByTournamentsAndStatus(tournament, PlayerStatus.QUALIFIED);
 
         // Check if the tournament is complete (only one player remains in the upper bracket)
         if (isDoubleEliminationComplete(tournament)) {
@@ -254,7 +255,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     @Override
     public boolean isDoubleEliminationComplete(Tournament tournament) {
         // Fetch all players in the given tournament who are still qualified (not eliminated)
-        List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament, PlayerStatus.QUALIFIED);
+        List<Player> remainingPlayers = playerRepository.findAllByTournamentsAndStatus(tournament, PlayerStatus.QUALIFIED);
 
         // Count the players in each bracket
         long upperBracketPlayers = remainingPlayers.stream()
