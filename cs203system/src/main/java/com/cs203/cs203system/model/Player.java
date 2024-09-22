@@ -29,7 +29,8 @@ public class Player extends User {
 
     private Integer ranking; //not sure how to deal with this maybe next time
     private Integer totalGamesPlayed = 0; // Specific to players, same for this i will implement not sure when
-    
+
+    private int tournamentLosses = 0;
 
     private Double eloRating = 1000.0; // Specific to players
 
@@ -82,5 +83,7 @@ public class Player extends User {
     }
     public void incrementWins(){this.wins++;}
     public void incrementDraws(){this.draws++;}
+
+    public void incrementTournamentLosses(){this.tournamentLosses++;}
 
 }
