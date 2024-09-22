@@ -22,8 +22,20 @@ public class EloServiceImpl implements EloService {
     @Transactional
     public void updateEloRatings(Player player1, Player player2, Match match) {
         // Since player1 is always the winner
-        double actualScorePlayer1 = 1.0; // player1 wins
-        double actualScorePlayer2 = 0.0; // player2 loses
+//        double actualScorePlayer1 = 1.0; // player1 wins
+//        double actualScorePlayer2 = 0.0; // player2 loses
+
+        double actualScorePlayer1;
+        double actualScorePlayer2;
+
+        if (match.getWinner().equals(player1)) {
+            actualScorePlayer1 = 1.0; // player1 wins
+            actualScorePlayer2 = 0.0; // player2 loses
+        } else {
+            actualScorePlayer1 = 0.0; // player1 loses
+            actualScorePlayer2 = 1.0; // player2 wins
+        }
+
 
         // Calculate expected scores
         double expectedScorePlayer1 = expectedScore(player1.getEloRating(), player2.getEloRating());

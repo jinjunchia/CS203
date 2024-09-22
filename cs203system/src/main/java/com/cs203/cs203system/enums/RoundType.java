@@ -4,5 +4,6 @@ public enum RoundType {
     UPPER,
     LOWER,
     FINAL,
-    SWISS
+    SWISS,
+    DOUBLE_ELIMINATION
 }
