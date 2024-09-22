@@ -70,56 +70,79 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     public void initializeRound(Tournament tournament, List<Player> players ){
         Round round = new Round();
         round.setTournament(tournament);
+        round.setRoundType(RoundType.DOUBLE_ELIMINATION); // Ensure this is set properly
         int roundNumber = getNextRoundNumber(tournament);
+        logger.debug("Currently at round " + roundNumber);
         round.setRoundNumber(roundNumber);
         roundRepository.save(round);
 
-        //create match for this round
-        createMatches(tournament,players,round);
-
+        // Create matches for this round
+        createMatches(tournament, players, round);
+        logger.debug("Saved round: " + round);
     }
+
 
     @Transactional
     public int getNextRoundNumber(Tournament tournament){
         long tournamentId = tournament.getId();
+        logger.debug("Fetching last round for tournament ID: " + tournamentId);
         RoundType roundType = RoundType.DOUBLE_ELIMINATION;
-
-        Optional<Round> lastRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournamentId,roundType);
-        return lastRound.map(round -> round.getRoundNumber() + 1).orElse(1);
+        Optional<Round> lastRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournamentId, roundType);
+        logger.debug("Last round found: " + lastRound);
+        return lastRound.map(round -> {
+            logger.debug("Found round number: " + round.getRoundNumber());
+            return round.getRoundNumber() + 1;
+        }).orElse(1);
     }
 
 
     @Override
     @Transactional
     public void createMatches(Tournament tournament, List<Player> players, Round round) {
-//        players = players.stream()
-//                .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
-//                .collect(Collectors.toList());
-//
-//        Collections.shuffle(players);
-//        List<Pair<Player, Player>> pairs = pairPlayers(players);
+
         List<Player> upperBracketPlayers = players.stream()
                 .filter(player-> player.getBracket() == PlayerBracket.UPPER && player.getStatus() != PlayerStatus.ELIMINATED)
                 .collect(Collectors.toList());
         List<Player> lowerBracketPlayers = players.stream()
                 .filter(player-> player.getBracket() == PlayerBracket.LOWER && player.getStatus() != PlayerStatus.ELIMINATED)
                 .collect(Collectors.toList());
+        List<Player> upperToLowerBracketPlayers = players.stream()
+                .filter(player-> player.getBracket() == PlayerBracket.UPPER_TO_LOWER && player.getStatus() != PlayerStatus.ELIMINATED)
+                .collect(Collectors.toList());
 
         //shuffle them
         Collections.shuffle(upperBracketPlayers);
         Collections.shuffle(lowerBracketPlayers);
+        Collections.shuffle(upperToLowerBracketPlayers);        //Upper players who have fallen
+        lowerBracketPlayers.addAll(upperToLowerBracketPlayers); //Adding upper players who have fallen to lower bracket
+
+        //If left one player from both lowerBracket and UpperBracket, then combine them
+        List<Match> finalMatch = null;
+        if (upperBracketPlayers.size() == 1 && lowerBracketPlayers.size() == 1) {
+            upperBracketPlayers.addAll(lowerBracketPlayers);
+            finalMatch = createBracketMatches(tournament, upperBracketPlayers, round);
+        } else {
+            List<Match> upperBracketMatches = createBracketMatches(tournament, upperBracketPlayers, round);
+            List<Match> lowerBracketMatches = createBracketMatches(tournament, lowerBracketPlayers, round);
+        }
 
         //
         List<Match> upperBracketMatches = createBracketMatches(tournament, upperBracketPlayers, round);
         List<Match> lowerBracketMatches = createBracketMatches(tournament, lowerBracketPlayers, round);
 
+
+
+
         //combine all matches
         List<Match> allMatches = new ArrayList<>(upperBracketMatches);
         allMatches.addAll(lowerBracketMatches);
 
-        //play matches immediately after creating
-        playMatches(allMatches);
 
+
+        //play matches immediately after creating
+        playMatches(allMatches, this.getNextRoundNumber(tournament));
+//        playMatches(upperBracketMatches, this.getNextRoundNumber(tournament)); //Calling playMatch function separately for each bracket
+//        playMatches(lowerBracketMatches, this.getNextRoundNumber(tournament));
     }
 
     @Transactional
@@ -153,30 +176,43 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
     @Transactional
     //havent include draw
-    public void playMatches(List<Match> matches){
+    public void playMatches(List<Match> matches, int roundNumber){
         for(Match match: matches){
             if(match.getPlayer2() != null){
                 Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
                 Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
                 match.setWinner(winner);
+                loser.incrementTournamentLosses();
 
                 if(winner.getBracket() == PlayerBracket.UPPER){
                     winner.setBracket(PlayerBracket.UPPER);
                 }
-                if(winner.getBracket() == PlayerBracket.LOWER){
+                if(winner.getBracket() == PlayerBracket.LOWER) {
                     winner.setBracket(PlayerBracket.LOWER);
                 }
+                if (loser.getBracket() == PlayerBracket.UPPER_TO_LOWER && loser.getTournamentLosses() > 1) {
+                    loser.setStatus(PlayerStatus.ELIMINATED);
+                }
                 if(loser.getBracket() == PlayerBracket.UPPER){
+                    if (roundNumber == 2) { //Falling from upper
+                        loser.setBracket(PlayerBracket.UPPER_TO_LOWER);
+                    }
                     loser.setBracket(PlayerBracket.LOWER); //first loss
+                    if (roundNumber > 1 && loser.getTournamentLosses() >= 1) {
+                        loser.setStatus(PlayerStatus.ELIMINATED);
+                    }
                 }else{
                     //second loss
                     //if player is already in lower bracket ,increment tournament losses and then check if lost twice
-                    loser.incrementTournamentLosses();
+                    logger.debug(loser.getName() + " has " + loser.getTournamentLosses());
                     if(loser.getTournamentLosses() == 2){
                         loser.setStatus(PlayerStatus.ELIMINATED);
+                        logger.debug(loser.getName() + " has been eliminated");
                         //delete player from tournament?
                     }
                 }
+                logger.debug(winner + " is now in " + winner.getBracket());
+                logger.debug(loser + " loser is now in " + loser.getBracket());
                 //update the status of the winner and loseer
                 match.setStatus(MatchStatus.COMPLETED);
                 winner.incrementWins();
