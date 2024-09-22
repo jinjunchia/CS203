@@ -21,6 +21,10 @@ public class Round {
 
     private int roundNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tournament_id")
+    private Tournament tournament;
+
     @Enumerated(EnumType.STRING)
     private RoundType roundType;
 

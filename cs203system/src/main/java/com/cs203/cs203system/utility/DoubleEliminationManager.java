@@ -15,12 +15,7 @@ public interface DoubleEliminationManager {
     void initializeDoubleElimination(Tournament tournament, List<Player> players);
 
     // Initialize a new round in the tournament, automatically assigning the correct round number based on the type.
-    @Transactional
-    Round initializeNewRound(Tournament tournament, RoundType roundType);
 
-    // Initialize a specific round with a given round number and type.
-    @Transactional
-    Round initializeRound(Tournament tournament, int roundNumber, RoundType roundType);
 
     // Create and schedule matches for a given round, ensuring players are paired correctly.
     @Transactional

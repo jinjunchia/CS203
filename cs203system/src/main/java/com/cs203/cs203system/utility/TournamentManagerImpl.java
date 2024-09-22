@@ -210,5 +210,14 @@ public class TournamentManagerImpl implements TournamentManager {
     public void completeTournament(Tournament tournament) {
         tournament.setStatus(TournamentStatus.COMPLETED);
         tournamentRepository.save(tournament);
+        //resetTournamentDataForPlayers
     }
+//    public void resetTournamentDataForPlayers(List<Player> players) {
+//        players.forEach(player -> {
+//            player.setTournamentLosses(0); // Reset losses to 0
+//            player.setBracket(PlayerBracket.UPPER); // Reset to upper bracket
+//            player.setStatus(PlayerStatus.QUALIFIED); // Set to qualified
+//            playerRepository.save(player); // Persist the changes
+//        });
+//    }
 }
