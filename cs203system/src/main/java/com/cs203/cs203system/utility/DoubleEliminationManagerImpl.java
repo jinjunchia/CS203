@@ -1,10 +1,6 @@
 package com.cs203.cs203system.utility;
 
-import com.cs203.cs203system.enums.MatchStatus;
-import com.cs203.cs203system.enums.PlayerBracket;
-import com.cs203.cs203system.enums.PlayerStatus;
-import com.cs203.cs203system.enums.RoundType;
-import com.cs203.cs203system.enums.TournamentFormat;
+import com.cs203.cs203system.enums.*;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
@@ -82,15 +78,20 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         createMatches(tournament,players,round);
 
     }
-    private int getNextRoundNumber(Tournament tournament){
-        Optional<Round> lastRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournament);
+
+    @Transactional
+    public int getNextRoundNumber(Tournament tournament){
+        long tournamentId = tournament.getId();
+        RoundType roundType = RoundType.DOUBLE_ELIMINATION;
+
+        Optional<Round> lastRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournamentId,roundType);
         return lastRound.map(round -> round.getRoundNumber() + 1).orElse(1);
     }
 
 
     @Override
     @Transactional
-    public List<Match> createMatches(Tournament tournament, List<Player> players, Round round) {
+    public void createMatches(Tournament tournament, List<Player> players, Round round) {
 //        players = players.stream()
 //                .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
 //                .collect(Collectors.toList());
@@ -119,7 +120,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         //play matches immediately after creating
         playMatches(allMatches);
 
-        return allMatches;
     }
 
     @Transactional
@@ -200,7 +200,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     public void processNextRound(Tournament tournament){
         //fetch all remaining players
         List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament,PlayerStatus.QUALIFIED);
-        if (isTournamentComplete(remainingPlayers)) {
+        if (isDoubleEliminationComplete(tournament)) {
             Player winner = determineTournamentWinner(remainingPlayers);
             logger.info("Tournament {} is complete. The winner is {}", tournament.getName(), winner.getName());
             return;
@@ -229,6 +229,21 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         return pairs;
     }
 
+    @Override
+    @Transactional
+    public Player determineWinner(Tournament tournament) {
+        // Fetch all remaining players who are still in the tournament
+        List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament, PlayerStatus.QUALIFIED);
+
+        // Check if the tournament is complete (only one player remains in the upper bracket)
+        if (isDoubleEliminationComplete(tournament)) {
+            return determineTournamentWinner(remainingPlayers);
+        }
+
+        return null;  // Tournament is not complete yet
+    }
+
+
     public Player determineTournamentWinner(List<Player> players) {
         return players.stream()
                 .filter(player -> player.getBracket() == PlayerBracket.UPPER && player.getStatus() == PlayerStatus.QUALIFIED)
@@ -236,15 +251,21 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 .orElse(null); // There should be one player left in the upper bracket
     }
 
-    public boolean isTournamentComplete(List<Player> players) {
-        long upperBracketPlayers = players.stream()
+    @Override
+    public boolean isDoubleEliminationComplete(Tournament tournament) {
+        // Fetch all players in the given tournament who are still qualified (not eliminated)
+        List<Player> remainingPlayers = playerRepository.findAllByTournamentandStatus(tournament, PlayerStatus.QUALIFIED);
+
+        // Count the players in each bracket
+        long upperBracketPlayers = remainingPlayers.stream()
                 .filter(player -> player.getBracket() == PlayerBracket.UPPER)
                 .count();
-        long lowerBracketPlayers = players.stream()
+        long lowerBracketPlayers = remainingPlayers.stream()
                 .filter(player -> player.getBracket() == PlayerBracket.LOWER)
                 .count();
 
-        // The tournament is complete if there is only one player left in the upper bracket and no more in lower
+        // The tournament is complete if there's only one player left in the upper bracket and no more in the lower bracket
         return upperBracketPlayers == 1 && lowerBracketPlayers == 0;
     }
+
 }
