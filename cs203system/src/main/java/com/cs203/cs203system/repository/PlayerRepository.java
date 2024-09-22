@@ -13,6 +13,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     List<Player> findByTournaments_Id(Long tournamentId);
 
-    List<Player> findAllByTournamentandStatus(Tournament tournament, PlayerStatus playerStatus);
+    List<Player> findAllByTournamentsAndStatus(Tournament tournament, PlayerStatus playerStatus);
 
 }
