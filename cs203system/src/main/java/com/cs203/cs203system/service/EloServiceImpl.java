@@ -21,14 +21,16 @@ public class EloServiceImpl implements EloService {
     @Override
     @Transactional
     public void updateEloRatings(Player player1, Player player2, Match match) {
-        // Since player1 is always the winner
-//        double actualScorePlayer1 = 1.0; // player1 wins
-//        double actualScorePlayer2 = 0.0; // player2 loses
+        Player winner = match.getWinner();
+
+        if (winner == null) {
+            return;
+        }
 
         double actualScorePlayer1;
         double actualScorePlayer2;
 
-        if (match.getWinner().equals(player1)) {
+        if (winner.equals(player1)) {
             actualScorePlayer1 = 1.0; // player1 wins
             actualScorePlayer2 = 0.0; // player2 loses
         } else {
