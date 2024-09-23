@@ -38,6 +38,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     private final Random random = new Random();
 
     // Updated to accept Tournament and List<Player>
+    //todo: have to think of ranking and totalgamesplayed
     @Override
     @Transactional
     public void initializeDoubleElimination(Tournament tournament, List<Player> players) {
@@ -117,13 +118,13 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         lowerBracketPlayers.addAll(upperToLowerBracketPlayers); //Adding upper players who have fallen to lower bracket
 
         //If left one player from both lowerBracket and UpperBracket, then combine them
-        List<Match> finalMatch = null;
+        //List<Match> finalMatch = null;
         if (upperBracketPlayers.size() == 1 && lowerBracketPlayers.size() == 1) {
             upperBracketPlayers.addAll(lowerBracketPlayers);
-            finalMatch = createBracketMatches(tournament, upperBracketPlayers, round);
+            //finalMatch = createBracketMatches(tournament, upperBracketPlayers, round);
         } else {
-            List<Match> upperBracketMatches = createBracketMatches(tournament, upperBracketPlayers, round);
-            List<Match> lowerBracketMatches = createBracketMatches(tournament, lowerBracketPlayers, round);
+            //List<Match> upperBracketMatches = createBracketMatches(tournament, upperBracketPlayers, round);
+            //List<Match> lowerBracketMatches = createBracketMatches(tournament, lowerBracketPlayers, round);
         }
 
         //
@@ -247,11 +248,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     }
 
 
-    //update elo
-    //settle win by bye
-    //check if tournament complete
-    //determineWinner
-    //processthe rounds
+
     private List<Pair<Player, Player>> pairPlayers(List<Player> players) {
         logger.debug("Pairing players for the round");
         List<Pair<Player, Player>> pairs = new ArrayList<>();
