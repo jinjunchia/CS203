@@ -16,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString
-@DiscriminatorValue("ADMIN")
+@DiscriminatorValue("ROLE_ADMIN")
 public class Admin extends User {
     @ToString.Exclude
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
