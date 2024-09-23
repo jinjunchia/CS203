@@ -180,7 +180,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         handleFinalMatchIfNecessary(tournament);
     }
 
-
+    //Implement draw, implement algorithm for expected winning outcome
     @Override
     public boolean isDoubleEliminationComplete(Tournament tournament) {
         logger.debug("Checking if double elimination is complete for tournament: {}", tournament.getName());
