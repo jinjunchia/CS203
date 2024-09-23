@@ -19,7 +19,7 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    private int roundNumber;
+    private Integer roundNumber;
 
     @Enumerated(EnumType.STRING)
     private RoundType roundType;

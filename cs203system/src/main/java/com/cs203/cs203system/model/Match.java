@@ -22,21 +22,18 @@ public class Match implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String result;  // e.g., "3-2", "Winner: Team A"
-
     private Integer durationInMinutes;  // Duration of the match
-    private Integer roundNumber;
 
     @Enumerated(EnumType.STRING)
     private MatchStatus status;  // Could also be an enum: MatchStatus
+
+    @Enumerated(EnumType.STRING)
+    private MatchBracket bracket;
 
     private Integer player1Score;  // Score for player1
     private Integer player2Score;  // Score for player2
 
     private LocalDate matchDate;
-
-    @Enumerated(EnumType.STRING)
-    private MatchBracket bracket;
 
     @ToString.Exclude
     @ManyToOne(cascade = CascadeType.ALL)

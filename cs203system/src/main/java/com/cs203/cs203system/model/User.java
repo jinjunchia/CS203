@@ -7,8 +7,6 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.*;
 
@@ -27,14 +25,13 @@ public class User implements UserDetails {
 
     private String username;
 
-//    @JsonIgnore
     private String password;
 
     private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", insertable = false, updatable = false)
-    private UserType userType; // Enum for PARTICIPANT, ADMIN
+    private UserType userType;
 
     @Override
     public final boolean equals(Object o) {

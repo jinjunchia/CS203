@@ -24,6 +24,7 @@ public class TournamentServiceImpl implements TournamentService {
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
     }
+
     @Override
     public List<Player> getPlayersForTournament(Tournament tournament) {
         return playerRepository.findByTournaments_Id(tournament.getId());
@@ -52,7 +53,10 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     @Transactional
     public Tournament updateTournament(Long id, TournamentUpdateRequest updateRequest) {
-        Tournament tournament = findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
+        Tournament tournament = tournamentRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Tournament with id " + id + " not found"));
+
         updateRequest.getName().ifPresent(tournament::setName);
         updateRequest.getVenue().ifPresent(tournament::setLocation);
         updateRequest.getStartDate().ifPresent(tournament::setStartDate);

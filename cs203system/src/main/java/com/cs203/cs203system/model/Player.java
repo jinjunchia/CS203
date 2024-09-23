@@ -3,6 +3,11 @@ package com.cs203.cs203system.model;
 import jakarta.persistence.*;
 import lombok.*;
 import com.cs203.cs203system.enums.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,7 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @ToString
-@DiscriminatorValue("PLAYER")
+@DiscriminatorValue("ROLE_PLAYER")
 public class Player extends User {
 
     private String name;
