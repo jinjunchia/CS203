@@ -78,7 +78,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         Round round = new Round();
         round.setRoundNumber(nextRoundNumber);
         round.setRoundType(roundType);
-        round.setTournament(tournament);
+//        round.setTournament(tournament);
         return roundRepository.save(round);
     }
 
@@ -88,12 +88,12 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         Round round = new Round();
         round.setRoundNumber(roundNumber);
         round.setRoundType(roundType);
-        round.setTournament(tournament);
+//        round.setTournament(tournament);
         return roundRepository.save(round);
     }
 
     private int getNextRoundNumber(Tournament tournament, RoundType roundType) {
-        Optional<Round> latestRound = roundRepository.findTopByTournamentAndRoundTypeOrderByRoundNumberDesc(tournament, roundType);
+        Optional<Round> latestRound = roundRepository.findTopByMatches_Tournament_IdAndRoundTypeOrderByRoundNumberDesc(tournament.getId(), roundType);
         return latestRound.map(round -> round.getRoundNumber() + 1).orElse(1);
     }
 
@@ -139,12 +139,31 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         List<Match> matches = matchRepository.findByTournament(tournament);
 
         for (Match match : matches) {
-            if (match.getStatus() != MatchStatus.SCHEDULED) {
-                continue;
+
+            Double p1_rating = match.getPlayer1().getEloRating();
+            Double p2_rating = match.getPlayer2().getEloRating();
+
+            Double p1_EO = 1 / ( 1 + Math.pow(10,(p2_rating-p1_rating) / 400));
+            Double p2_EO = 1 / ( 1 + Math.pow(10,(p1_rating-p2_rating) / 400));
+
+            int randomNum = random.nextInt(100);
+
+            Player winner = match.getPlayer1();
+            Player loser = match.getPlayer2();
+
+            winner.setEloRating(winner.getEloRating() + 32 * (1-p1_EO));
+            loser.setEloRating(winner.getEloRating() + 32 * (0-p2_EO));
+
+            if (randomNum > p1_EO*100) {
+                loser = match.getPlayer1();
+                winner = match.getPlayer2();
+                winner.setEloRating(winner.getEloRating() + 32 * (1-p2_EO));
+                loser.setEloRating(winner.getEloRating() + 32 * (0-p1_EO));
             }
 
-            Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
-            Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
+
+            logger.debug("This is the winner" + winner);
+            logger.debug("This is the loser" + loser);
 
             updatePlayerBracket(winner, loser);
             updateEloRatings(match);
@@ -161,7 +180,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         handleFinalMatchIfNecessary(tournament);
     }
 
-
+    //Implement draw, implement algorithm for expected winning outcome
     @Override
     public boolean isDoubleEliminationComplete(Tournament tournament) {
         logger.debug("Checking if double elimination is complete for tournament: {}", tournament.getName());
@@ -170,10 +189,16 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         boolean allMatchesCompleted = matchRepository.findByTournament(tournament).stream()
                 .allMatch(match -> match.getStatus() == MatchStatus.COMPLETED);
 
+        if (!allMatchesCompleted) {
+            logger.debug("Matches not completed yet");
+        }
+
         // Check the number of remaining active players
         long remainingPlayers = tournament.getPlayers().stream()
                 .filter(player -> player.getStatus() != PlayerStatus.ELIMINATED)
                 .count();
+
+        logger.debug(remainingPlayers + " still remaining");
 
         // Double Elimination should be complete if only one player remains
         boolean isComplete = allMatchesCompleted && remainingPlayers == 1;

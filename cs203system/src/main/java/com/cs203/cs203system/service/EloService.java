@@ -15,5 +15,5 @@ public interface EloService {
      */
     void updateEloRatings(Player player1, Player player2, Match match);
 
-    // aditional method signatures for other ELO-related operations, if needed
+    // additional method signatures for other ELO-related operations, if needed
 }

@@ -64,7 +64,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                 Round round = new Round();
                 round.setRoundNumber(i);
                 round.setRoundType(RoundType.SWISS); // a RoundType enum
-                round.setTournament(tournament);
+//                round.setTournament(tournament);
                 round = roundRepository.save(round); // Save the round before creating matches
                 logger.debug("Round {} saved with ID: {}", round.getRoundNumber(), round.getId());
 

@@ -36,7 +36,7 @@ public class TournamentManagerImpl implements TournamentManager {
     private final Random random = new Random();
 
     public List<Player> getPlayersForTournament(Tournament tournament) {
-        return playerRepository.findByTournamentId(tournament.getId());
+        return playerRepository.findByTournaments_Id(tournament.getId());
     }
 
     @Override

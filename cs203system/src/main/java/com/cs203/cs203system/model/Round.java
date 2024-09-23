@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.cs203.cs203system.enums.RoundType;
 
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -12,20 +13,18 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "round")
 public class Round {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
+    private Long Id;
 
-    private int roundNumber;
+    private Integer roundNumber;
 
     @Enumerated(EnumType.STRING)
     private RoundType roundType;
 
-    @ManyToOne
-    @JoinColumn(name = "tournament_id")
-    private Tournament tournament;
+    @OneToMany(mappedBy = "round", orphanRemoval = true)
+    private Set<Match> matches = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "round", cascade = CascadeType.ALL)
-    private List<Match> matches;
 }

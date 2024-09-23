@@ -12,15 +12,15 @@ import java.util.Optional;
 public interface TournamentService {
     Tournament createTournament(Tournament tournament);
 
-    Optional<Tournament> findTournamentById(Integer id);
+    Optional<Tournament> findTournamentById(Long id);
 
     List<Tournament> findAllTournaments();
 
-    Tournament updateTournament(Integer id, TournamentUpdateRequest tournament);
+    Tournament updateTournament(Long id, TournamentUpdateRequest tournament);
 
-    void deleteTournamentById(Integer id);
+    void deleteTournamentById(Long id);
 
-    String addPlayerToTournament(Integer tournamentId, Integer playerId);
+    String addPlayerToTournament(Long tournamentId, Long playerId);
 
     List<Player> getPlayersForTournament(Tournament tournament);
 

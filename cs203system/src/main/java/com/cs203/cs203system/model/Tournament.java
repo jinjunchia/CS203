@@ -22,7 +22,7 @@ public class Tournament implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String name;
 
@@ -47,23 +47,20 @@ public class Tournament implements Serializable {
     @Enumerated(EnumType.STRING)
     private TournamentFormat format;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "tournament_player",
-            joinColumns = @JoinColumn(name = "tournament_id"),
-            inverseJoinColumns = @JoinColumn(name = "player_id"))
-    @ToString.Exclude
-    private Set<Player> players = new LinkedHashSet<>();
-
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Match> matches = new ArrayList<>();
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
+
     @ToString.Exclude
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "tournament_rules",
+    @JoinTable(name = "tournament_players",
             joinColumns = @JoinColumn(name = "tournament_id"),
-            inverseJoinColumns = @JoinColumn(name = "rules_id"))
-    private Set<Rules> rules = new LinkedHashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "players_id"))
+    private Set<Player> players = new LinkedHashSet<>();
 
     @Override
     public final boolean equals(Object o) {

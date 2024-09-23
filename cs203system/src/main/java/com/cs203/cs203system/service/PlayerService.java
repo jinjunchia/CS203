@@ -1,6 +1,8 @@
 package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.dtos.PlayerUpdateRequest;
+import com.cs203.cs203system.dtos.players.CreateUserRequest;
+import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
 import com.cs203.cs203system.model.Player;
 import org.springframework.stereotype.Service;
 
@@ -8,13 +10,13 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public interface PlayerService {
-    Player createPlayer(String username, String email, double elorating);
+    PlayerWithOutStatsDto createPlayer(CreateUserRequest createUserRequest);
 
-    List<Player> findAllPlayers();
+    List<PlayerWithOutStatsDto> findAllPlayers();
 
-    Optional<Player> findPlayerById(Integer id);
+    Optional<PlayerWithOutStatsDto> findPlayerById(Long id);
 
-    Player updatePlayer(Integer id, PlayerUpdateRequest player);
+    Player updatePlayer(Long id, PlayerUpdateRequest player);
 
-    void deletePlayer(Integer id);
+    void deletePlayer(Long id);
 }
