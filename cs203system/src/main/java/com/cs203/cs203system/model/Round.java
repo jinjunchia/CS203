@@ -19,7 +19,7 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    private Integer roundNumber;
+    private int roundNumber = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tournament_id")
