@@ -5,11 +5,11 @@ export default function Register() {
     <div style={styles.container}>
       <div style={styles.buttons}>
         {/* Link to the login page */}
-        <Link href="/register/register_admin">
+        <Link href="/register/admin">
           <button style={styles.button}>Creating as an Admin</button>
         </Link>
         {/* Link to the register page */}
-        <Link href="/register/register_player">
+        <Link href="/register/player">
           <button style={styles.button}>Creating as a Player</button>
         </Link>
       </div>
@@ -39,6 +39,7 @@ const styles = {
   buttons: {
     display: "flex",
     gap: "10px",
+    paddingBottom: "20px",
   },
   button: {
     backgroundColor: "#0070f3",
