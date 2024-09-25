@@ -52,6 +52,9 @@ public class Match implements Serializable {
     @ManyToOne(cascade = {CascadeType.ALL})
     private Round round;
 
+    @ManyToOne
+    private Player winner; // Add winner field
+
     public Player getWinner() {
         if (player1Score != null && player2Score != null) {
             if (player1Score > player2Score) {

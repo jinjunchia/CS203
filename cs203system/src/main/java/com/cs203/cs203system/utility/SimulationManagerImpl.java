@@ -35,7 +35,7 @@ public class SimulationManagerImpl implements SimulationManager {
         tournament.setMaxEloRating(1200.0);
 
         // create 32 players with different ELO ratings
-        List<Player> players = IntStream.range(1, 33).mapToObj(i -> {
+        List<Player> players = IntStream.range(1, 9).mapToObj(i -> {
             Player player = new Player();
             player.setName("Player " + i);
             player.setEloRating(800.0 + i * 10); // Assign different ELOs for diversity

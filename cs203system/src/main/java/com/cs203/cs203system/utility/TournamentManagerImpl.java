@@ -97,7 +97,7 @@ public class TournamentManagerImpl implements TournamentManager {
             case DOUBLE_ELIMINATION:
                 logger.debug("Progressing Double Elimination format...");
                 if (!doubleEliminationManager.isDoubleEliminationComplete(tournament)) {
-                    doubleEliminationManager.updateStandings(tournament); // Update standings
+//                    doubleEliminationManager.updateStandings(tournament); // Update standings
                 } else {
                     tournament.setStatus(TournamentStatus.COMPLETED);
                     logger.debug("Double Elimination complete. Tournament marked as completed.");
@@ -133,7 +133,7 @@ public class TournamentManagerImpl implements TournamentManager {
             // Ensure Double Elimination is complete before proceeding
             if (!doubleEliminationManager.isDoubleEliminationComplete(tournament)) {
                 logger.debug("Continuing Double Elimination rounds...");
-                doubleEliminationManager.updateStandings(tournament);
+//                doubleEliminationManager.updateStandings(tournament);
             } else {
                 logger.debug("Double Elimination is complete. No further progression needed.");
                 tournament.setStatus(TournamentStatus.COMPLETED);
@@ -210,5 +210,14 @@ public class TournamentManagerImpl implements TournamentManager {
     public void completeTournament(Tournament tournament) {
         tournament.setStatus(TournamentStatus.COMPLETED);
         tournamentRepository.save(tournament);
+        //resetTournamentDataForPlayers
     }
+//    public void resetTournamentDataForPlayers(List<Player> players) {
+//        players.forEach(player -> {
+//            player.setTournamentLosses(0); // Reset losses to 0
+//            player.setBracket(PlayerBracket.UPPER); // Reset to upper bracket
+//            player.setStatus(PlayerStatus.QUALIFIED); // Set to qualified
+//            playerRepository.save(player); // Persist the changes
+//        });
+//    }
 }
