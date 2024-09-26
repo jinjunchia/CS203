@@ -176,7 +176,11 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     }
 
     @Transactional
-    //havent include draw
+    //todo:
+    // havent include draw-> this can be a system where the boxing match ifDraw then simulate again
+    //  player stats, how the points system of boxing works
+    //todo: have to think of ranking
+    //todo: need to preset the ELO and all the other field variables
     public void playMatches(List<Match> upperMatch, List<Match> lowerMatch, int roundNumber){
         List<Player> upperPlayers = new ArrayList<>();
         List<Player> lowerPlayers = new ArrayList<>();
@@ -237,7 +241,9 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                     //update the status of the winner and loser
                     match.setStatus(MatchStatus.COMPLETED);
                     winner.incrementWins();
+                    winner.incrementTotalGamesPlayed();
                     loser.incrementLosses();
+                    loser.incrementTotalGamesPlayed();
                     updateEloRatings(match);
                     matchRepository.save(match);
                     playerRepository.save(winner);
@@ -305,6 +311,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         return upperPlayers;
     }
 
+    //todo://might need to check this if the elo changes persist
     private void updateEloRatings(Match match) {
         eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
         logger.debug("Elo ratings updated for match between {} and {}",

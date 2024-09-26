@@ -50,6 +50,7 @@ public class TournamentServiceImpl implements TournamentService {
         return tournamentRepository.findAll();
     }
 
+    //todo:update here for the setting of tournament details
     @Override
     @Transactional
     public Tournament updateTournament(Long id, TournamentUpdateRequest updateRequest) {
