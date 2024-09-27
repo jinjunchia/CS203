@@ -15,6 +15,7 @@ public class PlayerStats {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @OneToOne(mappedBy = "playerStats", cascade = CascadeType.ALL, orphanRemoval = true)
     private Player player;
 
