@@ -82,11 +82,14 @@ public class TournamentManagerImpl implements TournamentManager {
             case SWISS:
                 logger.debug("Progressing Swiss format...");
                 if (!swissRoundManager.isSwissPhaseComplete(tournament)) {
+                    // Check if any rounds can still be progressed or matches played
                     swissRoundManager.updateStandings(tournament); // Update standings if not complete
-                } else {
-                    // Transitioning to the next phase or marking the tournament as completed
-                    logger.debug("Swiss phase complete. Marking the tournament as complete.");
-                    tournament.setStatus(TournamentStatus.COMPLETED);
+                } else if (tournament.getFormat() == TournamentFormat.HYBRID && !tournament.isDoubleEliminationStarted()) {
+                    // Transition to Double Elimination
+                    logger.debug("Transitioning to Double Elimination format...");
+                    List<Player> topPlayers = swissRoundManager.getTopPlayers(tournament);
+                    doubleEliminationManager.initializeDoubleElimination(tournament, topPlayers);
+                    tournament.setDoubleEliminationStarted(true);
                     tournamentRepository.save(tournament);
                 }
                 break;
@@ -94,13 +97,10 @@ public class TournamentManagerImpl implements TournamentManager {
             case DOUBLE_ELIMINATION:
                 logger.debug("Progressing Double Elimination format...");
                 if (!doubleEliminationManager.isDoubleEliminationComplete(tournament)) {
-                    // Progress the double elimination
-                    logger.debug("Progressing Double Elimination...");
-                    // Uncomment the method to update standings for Double Elimination
-                    // doubleEliminationManager.updateStandings(tournament);
+//                    doubleEliminationManager.updateStandings(tournament); // Update standings
                 } else {
-                    logger.debug("Double Elimination complete. Marking the tournament as complete.");
                     tournament.setStatus(TournamentStatus.COMPLETED);
+                    logger.debug("Double Elimination complete. Tournament marked as completed.");
                     tournamentRepository.save(tournament);
                 }
                 break;
@@ -117,44 +117,28 @@ public class TournamentManagerImpl implements TournamentManager {
         tournamentRepository.save(tournament);
     }
 
-    @Transactional
-    public void handleHybridProgression(Tournament tournament) {
+    private void handleHybridProgression(Tournament tournament) {
         logger.debug("Handling Hybrid progression...");
 
-        // Step 1: Progress Swiss rounds if not completed
         if (!swissRoundManager.isSwissPhaseComplete(tournament)) {
             logger.debug("Continuing Swiss rounds...");
             swissRoundManager.updateStandings(tournament);
-        }
-        // Step 2: If Swiss is complete and Double Elimination has not started, transition
-        else if (!tournament.isDoubleEliminationStarted()) {
-
-            logger.debug("Swiss rounds are complete. Determining Swiss winner...");
-
-            // Determine the Swiss winner and log the result
-            Player swissWinner = swissRoundManager.determineSwissWinner(tournament);
-            if (swissWinner != null) {
-                logger.debug("Swiss winner is: {}", swissWinner.getName());
-            }
-            logger.debug("Swiss rounds are complete. Transitioning to Double Elimination...");
+        } else if (!tournament.isDoubleEliminationStarted()) {
+            logger.debug("Transitioning to Double Elimination...");
             List<Player> topPlayers = swissRoundManager.getTopPlayers(tournament);
             doubleEliminationManager.initializeDoubleElimination(tournament, topPlayers);
-
-            // Mark that Double Elimination has started to avoid re-transitioning
             tournament.setDoubleEliminationStarted(true);
             tournamentRepository.save(tournament);
-        }
-        // Step 3: If Double Elimination has started, progress through it
-        else {
+        } else {
+            // Ensure Double Elimination is complete before proceeding
             if (!doubleEliminationManager.isDoubleEliminationComplete(tournament)) {
-                logger.debug("Progressing Double Elimination rounds...");
-                // Add logic here to progress the Double Elimination if needed.
-                // Uncomment this when you implement standings updates for Double Elimination
-                // doubleEliminationManager.updateStandings(tournament);
+                logger.debug("Continuing Double Elimination rounds...");
+//                doubleEliminationManager.updateStandings(tournament);
             } else {
-                logger.debug("Double Elimination is complete. Marking tournament as complete.");
+                logger.debug("Double Elimination is complete. No further progression needed.");
                 tournament.setStatus(TournamentStatus.COMPLETED);
                 tournamentRepository.save(tournament); // Mark tournament as complete
+                return;
             }
         }
     }
@@ -198,7 +182,6 @@ public class TournamentManagerImpl implements TournamentManager {
         return null;
     }
 
-    //todo:
     @Override
     public void setTournamentDetails(Tournament tournament) {
         LocalDate startDate = LocalDate.now().plusDays(random.nextInt(10)); // Start in 0-9 days
@@ -212,7 +195,7 @@ public class TournamentManagerImpl implements TournamentManager {
         tournament.setStatus(TournamentStatus.SCHEDULED);
 //        TournamentFormat[] formats = TournamentFormat.values();
 //        tournament.setFormat(formats[random.nextInt(formats.length)]);
-        tournament.setFormat(TournamentFormat.HYBRID);
+        tournament.setFormat(TournamentFormat.DOUBLE_ELIMINATION);
 
         tournamentRepository.save(tournament);
     }
