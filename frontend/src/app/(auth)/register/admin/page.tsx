@@ -1,75 +1,52 @@
-"use client";
-import Link from "next/link";
+// File: app/login/page.tsx (for Next.js 13+ app directory setup)
+export default function Register_Admin() {
+    const styles = {
+      container: {
+        display: 'flex',
+        flexDirection: 'column' as const, // Specify 'column' as a constant to prevent TypeScript errors
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+      },
+      inputContainer: {
+        display: 'flex',
+        flexDirection: 'column' as const,
+        gap: '10px',
+        marginBottom: '20px',
+      },
+      input: {
+        padding: '10px',
+        fontSize: '16px',
+        width: '250px',
+        borderRadius: '5px',
+        border: '1px solid #ccc',
+      },
+      button: {
+        padding: '10px 20px',
+        fontSize: '16px',
+        cursor: 'pointer',
+        borderRadius: '5px',
+        border: 'none',
+        backgroundColor: '#0070f3',
+        color: '#fff',
+      },
+      headertype: {
+        fontSize: '20px',
+      }
+    };
+  
+    return (
+      <div style={styles.container}>
+        <h1 style = {styles.headertype}>Register_Admin Page</h1>
+        <div style={styles.inputContainer}>
 
-export default function RegisterAdminPage() {
-  return (
-    <div className="w-screen h-screen bg-cover bg-center flex justify-center items-center">
-      {/* White Box (Taller with Enhanced Shadow) */}
-      <div className="bg-white py-16 px-8 rounded-xl shadow-2xl w-8/12 max-w-2xl min-h-[850px]">
-        {/* Heading */}
-        <h1 className="text-center text-3xl mb-8">Create Admin Page</h1>
+        <input type="text" placeholder="Username" id="username" name="username" style={styles.input} required />
+          <input type="password" placeholder="Password" id = "password" style={styles.input} required />
+          <input type="email" placeholder = "Email Address" id="email" name="email" style = {styles.input} required />
 
-        {/* Form */}
-        <form className="space-y-6">
-          {/* Username */}
-          <div>
-            <label className="block text-lg text-center text-gray-700">
-              Username
-            </label>
-            <input
-              type="text"
-              className="mt-1 block w-11/12 mx-auto content-center px-4 py-5 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Username"
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-lg text-gray-700 text-center">
-              Email
-            </label>
-            <input
-              type="email"
-              className="mt-1 block w-11/12 mx-auto px-4 py-5 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Email"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-lg text-gray-700 text-center">
-              Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-11/12 mx-auto px-4 py-5 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Password"
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-lg text-gray-700 text-center">
-              Confirm Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              className="mt-1 block w-11/12 mx-auto px-4 py-5 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Confirm Password"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center mt-8">
-            <button
-              type="submit"
-              className="w-half py-3 px-6 text-lg bg-black text-white rounded-md hover:bg-lamaSky hover:text-gray-600"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+        </div>
+        <button style={styles.button}>Submit</button>
       </div>
-    </div>
-  );
-}
+    );
+  }
+  
