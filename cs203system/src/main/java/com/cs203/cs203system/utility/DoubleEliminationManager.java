@@ -20,8 +20,10 @@ public interface DoubleEliminationManager {
     @Transactional
     void createMatches(Tournament tournament, List<Player> players, Round round);
 
+    public List<Match> createBracketMatches (Tournament tournament, List<Player> players, Round round);
+
     // Update the standings based on the results of completed matches, moving players between brackets and eliminating as necessary.
-    void playMatches(List<Match> uppermatches, List<Match> lowermatch, int roundNum);
+    public void playMatches (List<Match> Match, int roundNumber, boolean isFinal);
 
     // Check if the Double Elimination phase of the tournament is complete, determining if a final match is needed.
     boolean isDoubleEliminationComplete(Tournament tournament);

@@ -2,6 +2,7 @@
 
 import Menu from "@/components/Menu";
 import Navbar from "@/components/Navbar";
+import ProtectedRoute from "@/components/ProtectedRoutes";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,6 +12,7 @@ export default function DashboardLayout({
 	children: React.ReactNode;
 }>) {
 	return (
+		// <ProtectedRoute>
 		<div className="h-screen flex">
 			{/* LEFT */}
 			<div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
@@ -30,5 +32,6 @@ export default function DashboardLayout({
 				{children}
 			</div>
 		</div>
+		// </ProtectedRoute>
 	);
 }
