@@ -23,14 +23,12 @@ public class EloRecordServiceImpl implements EloRecordService {
         return eloRecordRepository.findAll();
     }
 
-    // 2. Find an Elo record by ID
     @Override
     public EloRecord findEloRecordById(Long id) {
         Optional<EloRecord> eloRecord = eloRecordRepository.findById(id);
         return eloRecord.orElseThrow(() -> new RuntimeException("Elo Record not found for id: " + id));
     }
 
-    // 3. Save a new Elo record (this version accepts an EloRecord object)
     @Override
     @Transactional
     public void saveEloRecord(EloRecord eloRecord) {
@@ -52,7 +50,7 @@ public class EloRecordServiceImpl implements EloRecordService {
         eloRecordRepository.save(eloRecord);
     }
 
-    // 5. Delete an Elo record by ID
+
     @Override
     @Transactional
     public void deleteEloRecord(Long id) {
