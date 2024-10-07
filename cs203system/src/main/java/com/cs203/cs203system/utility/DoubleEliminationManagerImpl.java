@@ -109,7 +109,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         List<Match> upperBracketMatch = new ArrayList<>();
         List<Match> lowerBracketMatch = new ArrayList<>();
 
-
         if (round_number == 1) {
             upperBracketMatch = createBracketMatches(tournament, upperBracketPlayers, round);
             playMatches(upperBracketMatch,round_number,isFinal);
