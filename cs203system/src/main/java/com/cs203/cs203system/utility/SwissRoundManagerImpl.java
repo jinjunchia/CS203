@@ -124,6 +124,50 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
             }
         }
     }
+//    @Transactional
+//    public void createMatches(List<Pair<Player, Player>> pairs, Round round, Tournament tournament, List<Pair<Player, Player>> results) {
+//        logger.debug("Creating matches for round {} of tournament: {}", round.getRoundNumber(), tournament.getId());
+//
+//        for (int i = 0; i < pairs.size(); i++) {
+//            Pair<Player, Player> pair = pairs.get(i);
+//            Pair<Player, Player> result = results.get(i);
+//
+//            if (pair.getSecond() != null) {
+//                Player winner = result.getFirst();
+//                Player loser = result.getSecond();
+//
+//                Match match = Match.builder()
+//                        .player1(pair.getFirst())
+//                        .player2(pair.getSecond())
+//                        .tournament(tournament)
+//                        .round(round) // associate match with the round
+//                        .winner(winner)
+//                        .loser(loser)
+//                        .status(MatchStatus.COMPLETED) // set as completed since it's manually set
+//                        .build();
+//
+//                // Update player stats for winner
+//                winner.addPoints(1.0);
+//                winner.incrementWins();
+//                logger.debug("Player {} wins and now has {} points", winner.getId(), winner.getPoints());
+//
+//                // Update player stats for loser
+//                loser.incrementLosses();
+//                logger.debug("Player {} loses and now has {} losses", loser.getId(), loser.getLosses());
+//
+//                // Update ELO ratings
+//                eloService.updateEloRatings(winner, loser, match);
+//
+//                matchRepository.save(match);
+//                logger.debug("Match saved between player {} and player {} with winner {}", pair.getFirst().getId(), pair.getSecond().getId(), winner.getId());
+//            } else {
+//                Player playerWithBye = pair.getFirst();
+//                playerWithBye.addPoints(1.0); // award points for bye
+//                logger.debug("Player {} receives a bye and is awarded 1 point", playerWithBye.getId());
+//            }
+//        }
+//    }
+
 
     @Override
     @Transactional
