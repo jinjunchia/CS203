@@ -9,12 +9,56 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EloRecordServiceImpl implements EloRecordService {
 
     @Autowired
     private EloRecordRepository eloRecordRepository;
+
+    @Override
+    public List<EloRecord> findAllEloRecords() {
+        return eloRecordRepository.findAll();
+    }
+
+    // 2. Find an Elo record by ID
+    @Override
+    public EloRecord findEloRecordById(Long id) {
+        Optional<EloRecord> eloRecord = eloRecordRepository.findById(id);
+        return eloRecord.orElseThrow(() -> new RuntimeException("Elo Record not found for id: " + id));
+    }
+
+    // 3. Save a new Elo record (this version accepts an EloRecord object)
+    @Override
+    @Transactional
+    public void saveEloRecord(EloRecord eloRecord) {
+        eloRecordRepository.save(eloRecord);
+    }
+
+    @Override
+    @Transactional
+    public void updateEloRecord(Long id, EloRecord eloRecordDetails) {
+        EloRecord eloRecord = findEloRecordById(id);
+
+        eloRecord.setPlayer(eloRecordDetails.getPlayer());
+        eloRecord.setMatch(eloRecordDetails.getMatch());
+        eloRecord.setOldRating(eloRecordDetails.getOldRating());
+        eloRecord.setNewRating(eloRecordDetails.getNewRating());
+        eloRecord.setChangeReason(eloRecordDetails.getChangeReason());
+        eloRecord.setDate(eloRecordDetails.getDate());
+
+        eloRecordRepository.save(eloRecord);
+    }
+
+    // 5. Delete an Elo record by ID
+    @Override
+    @Transactional
+    public void deleteEloRecord(Long id) {
+        EloRecord eloRecord = findEloRecordById(id);
+        eloRecordRepository.delete(eloRecord);
+    }
 
     @Override
     @Transactional
