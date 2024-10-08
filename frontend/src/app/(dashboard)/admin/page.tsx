@@ -1,7 +1,6 @@
 "use client";
 
 import CountChart from "@/components/CountChart";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import UserCard from "@/components/UserCard";
 
 const AdminPage = () => {
@@ -38,4 +37,4 @@ const AdminPage = () => {
 	);
 };
 
-export default ProtectedRoute(AdminPage);
+export default AdminPage;

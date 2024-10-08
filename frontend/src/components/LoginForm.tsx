@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,7 +18,6 @@ import {
 import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "./ui/toast";
-import useAuth from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -31,7 +31,6 @@ const formSchema = z.object({
 
 const LoginForm = () => {
 	const router = useRouter();
-	const { login, user } = useAuth();
 	const { toast } = useToast();
 	const [loading, setLoading] = useState(false);
 
@@ -49,7 +48,25 @@ const LoginForm = () => {
 		setLoading(true);
 
 		try {
-			await login(values.username, values.password);
+			const result = await signIn("credentials", {
+				username: values.username,
+				password: values.password,
+				redirect: false,
+				callbackUrl: "/admin",
+			});
+
+			if (result?.error) {
+				// Display error toast if authentication fails
+				toast({
+					variant: "destructive",
+					title: "Authentication Failed",
+					description: "Please check your credentials.",
+					action: <ToastAction altText="Try again">Try again</ToastAction>,
+				});
+			} else {
+				// Redirect manually if authentication is successful
+				router.push("/admin");
+			}
 		} catch (err) {
 			toast({
 				variant: "destructive",
@@ -61,13 +78,6 @@ const LoginForm = () => {
 			setLoading(false);
 		}
 	};
-
-	useEffect(() => {
-		console.log(user);
-		if (user) {
-			router.push("/admin");
-		}
-	}, [user, router]);
 
 	return (
 		<Form {...form}>

@@ -1,16 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CiBullhorn, CiChat1, CiSearch } from "react-icons/ci";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
-import useAuth from "@/hooks/useAuth";
 
 const Navbar = () => {
-	const { user } = useAuth();
-
-	useEffect(() => {
-		console.log("This has been updated: " + user);
-	}, [user]);
-
 	return (
 		<div className="flex items-center justify-between p-4">
 			{/* SEARCH BAR */}
@@ -43,9 +36,7 @@ const Navbar = () => {
 					className="flex items-center justify-between gap-2"
 				>
 					<div className="flex flex-col justify-center">
-						<span className="text-xs leading-3 font-medium">
-							{user?.username}
-						</span>
+						<span className="text-xs leading-3 font-medium">admin</span>
 						{/* Edit this for more dynamic roles */}
 						<span className="text-[10px] text-gray-500 text-right">Admin</span>
 					</div>

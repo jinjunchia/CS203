@@ -1,13 +1,19 @@
 package com.cs203.cs203system.service;
 
+import com.cs203.cs203system.dtos.PlayerUpdateRequest;
 import com.cs203.cs203system.dtos.players.CreatePlayerMapper;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDtoMapper;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
+import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Player;
+import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.dtos.PlayerUpdateRequest;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,12 +61,26 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player updatePlayer(Long id, PlayerUpdateRequest player) {
-        return null;
+    @Transactional
+    public Player updatePlayer(Long id, PlayerUpdateRequest updateRequest) {
+        Player player = playerRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Player with id " + id + " not found"));
+
+        updateRequest.getName().ifPresent(player::setName);
+        updateRequest.getEmail().ifPresent(player::setEmail);
+        updateRequest.getUsername().ifPresent(player::setUsername);
+
+        return playerRepository.save(player);
     }
 
     @Override
     public void deletePlayer(Long id) {
-        playerRepository.deleteById(id);
+        try {
+            playerRepository.deleteById(id);  // Attempt to delete the player by ID
+        } catch (EmptyResultDataAccessException e) {
+            // If the player doesn't exist, throw EntityNotFoundException
+            throw new EntityNotFoundException("Player with ID " + id + " not found.");
+        }
     }
 }

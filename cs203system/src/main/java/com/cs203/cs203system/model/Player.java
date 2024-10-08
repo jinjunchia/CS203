@@ -28,7 +28,7 @@ public class Player extends User {
     private double points = 0.0;
 
     private Integer ranking; //not sure how to deal with this maybe next time
-    private Integer totalGamesPlayed = 0;
+    private Integer totalGamesPlayed = 0; // Specific to players, same for this i will implement not sure when
 
     private int tournamentLosses = 0;
 
@@ -85,6 +85,5 @@ public class Player extends User {
     public void incrementDraws(){this.draws++;}
 
     public void incrementTournamentLosses(){this.tournamentLosses++;}
-    public void incrementTotalGamesPlayed(){this.totalGamesPlayed++;}
 
 }

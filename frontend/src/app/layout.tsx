@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./(context)/AuthContext";
+import Provider from "@/components/Provider";
 
 export const metadata: Metadata = {
 	title: "TournaX",
@@ -19,7 +19,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={inter.className}>
-				<AuthProvider>{children}</AuthProvider>
+				<Provider>{children}</Provider>
 				<Toaster />
 			</body>
 		</html>

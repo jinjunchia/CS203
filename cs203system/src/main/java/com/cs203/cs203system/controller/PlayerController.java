@@ -2,15 +2,12 @@ package com.cs203.cs203system.controller;
 
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
-import com.cs203.cs203system.model.Player;
-import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.service.PlayerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -19,8 +16,6 @@ import java.util.*;
 @CrossOrigin("*")
 public class PlayerController {
 
-    @Autowired
-    private PlayerRepository playerRepository;
     private final PlayerService playerService;
 
     @Autowired
@@ -58,12 +53,6 @@ public class PlayerController {
 //        playerService.deletePlayer(id);
 //        return new ResponseEntity<>("Player deleted", HttpStatus.OK);
 //    }
-
-    @GetMapping("/{id}/profile")
-    public Player getPlayerProfile(@PathVariable Long id) {
-        return playerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found"));
-    }
 
 
 

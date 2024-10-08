@@ -7,7 +7,6 @@ import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.enums.RoundType;
-import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.RoundRepository;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.service.EloService;
@@ -42,8 +41,6 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     private EloService eloService;
 
     private final Random random = new Random(); // random generator for simulation for the points
-    @Autowired
-    private PlayerRepository playerRepository;
 
     @Override
     @Transactional // Ensure this method runs within a transaction
@@ -124,7 +121,6 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
             } else {
                 Player playerWithBye = pair.getFirst();
                 playerWithBye.addPoints(1.0); // award points for bye
-                playerRepository.save(playerWithBye); // <-- Save player to ensure points are persisted
                 logger.debug("Player {} receives a bye and is awarded 1 point", playerWithBye.getId());
             }
         }
@@ -144,25 +140,17 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                 if (winner != null) {
                     winner.addPoints(1.0); // points for a win
                     winner.incrementWins();//increment player win
-                    winner.incrementTotalGamesPlayed();;//increase total games played
-                    playerRepository.save(winner);//save their the updated player entity back into the repo to ensure changes are persisted
                     logger.debug("Player {} wins and now has {} points", winner.getId(), winner.getPoints());
                 }
 
                 if (loser != null) {
                     loser.incrementLosses(); // increment loss count for the loser
-                    loser.incrementTotalGamesPlayed();//increase total games played
-                    playerRepository.save(loser);
                     logger.debug("Player {} loses and now has {} losses", loser.getId(), loser.getLosses());
                 } else if (match.isDraw()) {
                     match.getPlayer1().addPoints(0.5);
                     match.getPlayer2().addPoints(0.5);
                     match.getPlayer1().incrementDraws();
                     match.getPlayer2().incrementDraws();//increment draws for both side
-                    match.getPlayer1().incrementTotalGamesPlayed();
-                    match.getPlayer2().incrementTotalGamesPlayed();
-                    playerRepository.save(match.getPlayer1());
-                    playerRepository.save(match.getPlayer2());
                     logger.debug("Match between player {} and player {} is a draw, both receive 0.5 points",
                             match.getPlayer1().getId(), match.getPlayer2().getId());
                 }
@@ -199,7 +187,6 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     // determine the winner if the tournament is Swiss only
     public Player determineSwissWinner(Tournament tournament) {
         if (tournament.getFormat() == TournamentFormat.SWISS && isSwissPhaseComplete(tournament)) {
-
             return tournament.getPlayers().stream()
                     .max(Comparator.comparingDouble(Player::getPoints))
                     .orElse(null); // return the player with the highest points
