@@ -144,10 +144,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             }
 
         }
-
-
-
-//        logger.debug("In createMatch there is left {} in upper and {} in lower", upperBracketPlayers.size(), lowerBracketPlayers.size());
         processNextRound(tournament);
     }
 
@@ -218,32 +214,10 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         return matches;
     }
 
-//    public Player returnWinner (Match match) {
-//        Player P1 = match.getPlayer1();
-//        Player P2 = match.getPlayer2();
-//
-//        Double p1EloRating = P1.getEloRating();
-//        Double p2EloRating = P2.getEloRating();
-//
-//        double expectedP1 = 1 / (1 + Math.pow(10, (p2EloRating - p1EloRating) / 300));
-//        double expectedP2 = 1 / (1 + Math.pow(10, (p1EloRating - p2EloRating) / 300));
-//
-//        Random random = new Random();
-//        double randomNumber = random.nextDouble();
-//
-//        // Determine the outcome based on the probability and random number
-//        if (randomNumber < expectedP1) {
-//            match.setWinner(P1);
-//            P1.setEloRating(p1EloRating + );
-//        } else if (randomNumber > expectedP1) {
-//            match.setWinner(P2);
-//        }
-//        P1.setEloRating(p1EloRating + );
-//    }
-
     @Transactional
     //havent include draw
     public void playMatches(List<Match> Match, int roundNumber, boolean isFinal){
+
         for(Match match: Match){
             logger.debug("List of matches: " + match.getId());
             Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
@@ -288,14 +262,60 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         }
     }
 
-    public int numPlayer (List<Match> Matches) {
-        int output = 0;
-        for (Match match:Matches) {
-            output += 2;
+//    @Transactional
+//    public void SendMatch(List<Match> Match, int roundNumber, boolean isFinal) {
+//
+//    }
+
+    @Transactional
+    //havent include draw
+    public void ReceiveResult(List<Match> Match, int roundNumber, boolean isFinal){
+
+        for(Match match: Match){
+            logger.debug("List of matches: " + match.getId());
+            Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
+            Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
+            logger.debug("{} is the winner, {} is the loser", winner.getName(), loser.getName());
+            match.setWinner(winner);
+            loser.incrementTournamentLosses();
+            if (isFinal) {
+                loser.setStatus(PlayerStatus.ELIMINATED);
+            }
+            if (winner.getBracket() == PlayerBracket.UPPER) {
+                winner.setBracket(PlayerBracket.UPPER);
+            }
+            if (winner.getBracket() == PlayerBracket.LOWER) {
+                winner.setBracket(PlayerBracket.LOWER);
+            }
+            if (loser.getBracket() == PlayerBracket.UPPER) {
+                if (roundNumber > 1) {
+                    loser.setBracket(PlayerBracket.UPPER_TO_LOWER);
+                } else {
+                    loser.setBracket(PlayerBracket.LOWER);
+                }
+            } else{
+                //second loss
+                if (loser.getTournamentLosses() >= 2){
+                    loser.setStatus(PlayerStatus.ELIMINATED);
+                    logger.debug(loser.getName() + " has been eliminated");
+                    //delete player from tournament?
+                }
+
+                logger.debug("{} is status:{}", winner.getName(), winner.getBracket());
+                logger.debug("{} is status:{}", loser.getName(), loser.getBracket());
+                //update the status of the winner and loser
+                match.setStatus(MatchStatus.COMPLETED);
+                winner.incrementWins();
+                loser.incrementLosses();
+                updateEloRatings(match);
+                matchRepository.save(match);
+                playerRepository.save(winner);
+                playerRepository.save(loser);
+            }
         }
-        logger.debug("Players left in matches: {}", output);
-        return output;
     }
+
+
     private List<Pair<Player, Player>> pairPlayers(List<Player> players) {
         logger.debug("Pairing players for the round");
         List<Pair<Player, Player>> pairs = new ArrayList<>();

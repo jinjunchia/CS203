@@ -1,8 +1,13 @@
 package com.cs203.cs203system.controller;
 
-import com.cs203.cs203system.dtos.TournamentUpdateRequest;
+import com.cs203.cs203system.dtos.*;
+import com.cs203.cs203system.enums.TournamentFormat;
+import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.service.TournamentService;
+import com.cs203.cs203system.utility.TournamentManager;
+import com.cs203.cs203system.utility.TournamentManagerImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,10 +28,22 @@ import java.util.Optional;
 public class TournamentController {
 
     private final TournamentService tournamentService;
+    private final TournamentMapper tournamentMapper;
+
+    private final TournamentManager tournamentManager;
+    private final PlayerRepository playerRepository;
+    private final TournamentResponseDTOMapper tournamentResponseDTOMapper;
 
     @Autowired
-    public TournamentController(TournamentService tournamentService) {
+    public TournamentController(TournamentService tournamentService,
+                                TournamentMapper tournamentMapper, TournamentManagerImpl tournamentManager,
+                                PlayerRepository playerRepository,
+                                TournamentResponseDTOMapper tournamentResponseDTOMapper) {
         this.tournamentService = tournamentService;
+        this.tournamentMapper = tournamentMapper;
+        this.tournamentManager = tournamentManager;
+        this.playerRepository = playerRepository;
+        this.tournamentResponseDTOMapper = tournamentResponseDTOMapper;
     }
 
 
@@ -53,8 +70,12 @@ public class TournamentController {
     }
 
     @PostMapping
-    public ResponseEntity<Tournament> createTournament(@RequestBody Tournament tournament) {
-        return new ResponseEntity<>(tournamentService.createTournament(tournament), HttpStatus.CREATED);
+    public ResponseEntity<TournamentResponseDto> createTournament(@RequestBody @Valid TournamentCreateDto tournamentCreateDto) {
+        System.out.println("Players added: " + tournamentCreateDto.getPlayerIds());
+        //Create Tournament First
+        Tournament tournament = tournamentManager.initializeTournament(tournamentCreateDto);
+        tournamentService.addPlayerToTournament(tournament.getId(),tournamentCreateDto.getPlayerIds());
+        return new ResponseEntity<>(tournamentResponseDTOMapper.toDto(tournament), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

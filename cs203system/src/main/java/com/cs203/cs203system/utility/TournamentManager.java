@@ -1,10 +1,15 @@
 package com.cs203.cs203system.utility;
 
+import com.cs203.cs203system.dtos.TournamentCreateDto;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 
 public interface TournamentManager {
-    void initializeTournament(Tournament tournament);
+//    Tournament initializeTournament(TournamentCreateDto tournamentCreateDto);
+
+    Tournament initializeTournament(TournamentCreateDto tournamentCreateDto);
+
+    Tournament initializeTournament(Tournament tournament);
 
     void progressTournament(Tournament tournament);
 

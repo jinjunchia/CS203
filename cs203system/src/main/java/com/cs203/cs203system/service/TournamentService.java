@@ -20,7 +20,9 @@ public interface TournamentService {
 
     void deleteTournamentById(Long id);
 
-    String addPlayerToTournament(Long tournamentId, Long playerId);
+    String addPlayerToTournament(Long tournamentId, List<Long> playerId);
+
+//    String addPlayerToTournament(List<Long> playerId);
 
     List<Player> getPlayersForTournament(Tournament tournament);
 

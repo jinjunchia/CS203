@@ -7,11 +7,13 @@ import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import jakarta.transaction.Transactional;
+import net.datafaker.providers.entertainment.SouthPark;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
@@ -78,31 +80,21 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     @Transactional
-    public String addPlayerToTournament(Long tournamentId, Long playerId) {
+    public String addPlayerToTournament(Long tournamentId, List<Long> playerId) {
         Optional<Tournament> optionalTournament = tournamentRepository.findById(tournamentId);
-        Optional<Player> optionalPlayer = playerRepository.findById(playerId);
+        Tournament tournament = optionalTournament.orElseThrow(() ->
+                new NotFoundException("Tournament with id " + tournamentId + " not found."));
+        System.out.println(tournament);
 
-        if (optionalTournament.isPresent() && optionalPlayer.isPresent()) {
-            Tournament tournament = optionalTournament.get();
-            Player player = optionalPlayer.get();
-
-            // Check if player's ELO rating is within the tournament's ELO restrictions
-            if (player.getEloRating() >= tournament.getMinEloRating() && player.getEloRating() <= tournament.getMaxEloRating()) {
-                tournament.getPlayers().add(player);
-                tournamentRepository.save(tournament);
-                return "Player added successfully.";
-            } else {
-                return "Player's ELO rating is not within the allowed range for this tournament.";
-            }
-        } else {
-            // Handle case where either the tournament or player is not found
-            if (optionalTournament.isEmpty()) {
-                throw new NotFoundException("Tournament with id " + tournamentId + " not found.");
-            }
-            if (optionalPlayer.isEmpty()) {
-                throw new NotFoundException("Player with id " + playerId + " not found.");
-            }
-            return "Tournament or Player not found."; // Redundant due to exceptions
+        for (Long id : playerId) {
+            System.out.println("Player ID: " + id);
+            Optional<Player> optionalPlayer = playerRepository.findById(id);
+            Player player = optionalPlayer.orElseThrow(() ->
+                    new NotFoundException("Player with id " + id + " not found."));
+            System.out.println(player.getName());
+            tournament.getPlayers().add(player);
         }
+        tournamentRepository.save(tournament);
+        return "";
     }
 }

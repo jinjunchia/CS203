@@ -47,6 +47,7 @@ public class Tournament implements Serializable {
     @Enumerated(EnumType.STRING)
     private TournamentFormat format;
 
+    @Builder.Default
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Match> matches = new ArrayList<>();
@@ -56,6 +57,7 @@ public class Tournament implements Serializable {
     private Admin admin;
 
     @ToString.Exclude
+    @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "tournament_players",
             joinColumns = @JoinColumn(name = "tournament_id"),
