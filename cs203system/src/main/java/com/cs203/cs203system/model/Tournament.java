@@ -48,7 +48,7 @@ public class Tournament implements Serializable {
     private TournamentFormat format;
 
     @Builder.Default
-    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Match> matches = new ArrayList<>();
 

@@ -29,7 +29,6 @@ public class TournamentController {
 
     private final TournamentService tournamentService;
     private final TournamentMapper tournamentMapper;
-
     private final TournamentManager tournamentManager;
     private final PlayerRepository playerRepository;
     private final TournamentResponseDTOMapper tournamentResponseDTOMapper;
@@ -75,6 +74,7 @@ public class TournamentController {
         //Create Tournament First
         Tournament tournament = tournamentManager.initializeTournament(tournamentCreateDto);
         tournamentService.addPlayerToTournament(tournament.getId(),tournamentCreateDto.getPlayerIds());
+        tournamentResponseDTOMapper.linkMatches(tournament);
         return new ResponseEntity<>(tournamentResponseDTOMapper.toDto(tournament), HttpStatus.CREATED);
     }
 

@@ -37,6 +37,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
     @Autowired
     private RoundRepository roundRepository;
+
     @Autowired
     private EloService eloService;
 

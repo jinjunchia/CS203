@@ -1,6 +1,7 @@
 package com.cs203.cs203system.utility;
 
 import com.cs203.cs203system.dtos.TournamentCreateDto;
+import com.cs203.cs203system.dtos.TournamentResponseDto;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 
@@ -9,15 +10,13 @@ public interface TournamentManager {
 
     Tournament initializeTournament(TournamentCreateDto tournamentCreateDto);
 
-    Tournament initializeTournament(Tournament tournament);
-
     void progressTournament(Tournament tournament);
 
     boolean isTournamentComplete(Tournament tournament);
 
     Player determineWinner(Tournament tournament);
 
-    void setTournamentDetails(Tournament tournament);
+    void setTournamentDetails(Tournament tournament, TournamentCreateDto tournamentCreateDto);
 
     void startTournament(Tournament tournament);
 

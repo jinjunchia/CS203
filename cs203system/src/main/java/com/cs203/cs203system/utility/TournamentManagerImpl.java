@@ -275,6 +275,7 @@
 package com.cs203.cs203system.utility;
 
 import com.cs203.cs203system.dtos.TournamentCreateDto;
+import com.cs203.cs203system.dtos.TournamentResponseDto;
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Player;
@@ -326,40 +327,12 @@ public class TournamentManagerImpl implements TournamentManager {
 
     @Override
     @Transactional
-    public Tournament initializeTournament(Tournament tournament) {
-        setTournamentDetails(tournament);
-        startTournament(tournament);
-
-        List<Player> players = getPlayersForTournament(tournament);
-        Tournament output = tournamentRepository.save(tournament);
-        switch (tournament.getFormat()) {
-            case SWISS:
-                logger.debug("Initializing Swiss tournament...");
-                swissRoundManager.initializeRounds(tournament);
-                break;
-            case DOUBLE_ELIMINATION:
-                logger.debug("Initializing Double Elimination tournament...");
-                doubleEliminationManager.initializeDoubleElimination(tournament, players);
-                break;
-            case HYBRID:
-                logger.debug("Initializing Hybrid tournament with Swiss rounds...");
-                swissRoundManager.initializeRounds(tournament);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
-        }
-
-        return output;
-    }
-
-    @Override
-    @Transactional
     public Tournament initializeTournament(TournamentCreateDto tournamentCreateDto) {
         Tournament tournament = new Tournament();
         tournamentService.createTournament(tournament);
         createDummyPlayers();
         tournamentService.addPlayerToTournament(tournament.getId(),tournamentCreateDto.getPlayerIds());
-        setTournamentDetails(tournament);
+        setTournamentDetails(tournament, tournamentCreateDto);
         startTournament(tournament);
         List<Player> players = getPlayersForTournament(tournament);
         System.out.println("Players in tournament:" + players);
@@ -385,6 +358,7 @@ public class TournamentManagerImpl implements TournamentManager {
         return output;
     }
 
+    //Simulation
     public List<Player> createDummyPlayers() {
         // create 32 players with different ELO ratings
         List<Player> players = IntStream.range(1, 9).mapToObj(i -> {
@@ -532,7 +506,7 @@ public class TournamentManagerImpl implements TournamentManager {
 
     //todo:
     @Override
-    public void setTournamentDetails(Tournament tournament) {
+    public void setTournamentDetails(Tournament tournament, TournamentCreateDto tournamentCreateDto) {
         LocalDate startDate = LocalDate.now().plusDays(random.nextInt(10)); // Start in 0-9 days
         LocalDate endDate = startDate.plusDays(5 + random.nextInt(5)); // Duration of 5-9 days
         tournament.setStartDate(startDate);
@@ -542,9 +516,7 @@ public class TournamentManagerImpl implements TournamentManager {
         tournament.setLocation(locations.get(random.nextInt(locations.size())));
 
         tournament.setStatus(TournamentStatus.SCHEDULED);
-//        TournamentFormat[] formats = TournamentFormat.values();
-//        tournament.setFormat(formats[random.nextInt(formats.length)]);
-        tournament.setFormat(TournamentFormat.DOUBLE_ELIMINATION);
+        tournament.setFormat(tournamentCreateDto.getFormat());
 
         tournamentRepository.save(tournament);
     }
@@ -559,6 +531,5 @@ public class TournamentManagerImpl implements TournamentManager {
     public void completeTournament(Tournament tournament) {
         tournament.setStatus(TournamentStatus.COMPLETED);
         tournamentRepository.save(tournament);
-        //resetTournamentDataForPlayers
     }
 }

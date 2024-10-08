@@ -200,8 +200,9 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                         .status(MatchStatus.SCHEDULED)
                         .build();
 
-                matchRepository.save(match);
+
                 matches.add(match);
+                matchRepository.save(match);
                 logger.debug("Scheduled match between {} and {} in round {}",
                         pair.getFirst().getName(), pair.getSecond().getName(), round.getRoundNumber());
             } else {
@@ -217,7 +218,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     @Transactional
     //havent include draw
     public void playMatches(List<Match> Match, int roundNumber, boolean isFinal){
-
         for(Match match: Match){
             logger.debug("List of matches: " + match.getId());
             Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
@@ -261,11 +261,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             }
         }
     }
-
-//    @Transactional
-//    public void SendMatch(List<Match> Match, int roundNumber, boolean isFinal) {
-//
-//    }
 
     @Transactional
     //havent include draw
