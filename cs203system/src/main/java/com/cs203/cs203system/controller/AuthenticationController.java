@@ -1,8 +1,8 @@
 package com.cs203.cs203system.controller;
 
-import com.cs203.cs203system.dtos.LoginRequest;
-import com.cs203.cs203system.dtos.LoginResponse;
-import com.cs203.cs203system.dtos.UserResponseMapper;
+import com.cs203.cs203system.dtos.players.LoginRequest;
+import com.cs203.cs203system.dtos.players.LoginResponse;
+import com.cs203.cs203system.dtos.players.UserResponseMapper;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.model.User;
 import com.cs203.cs203system.model.UserResponseDto;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

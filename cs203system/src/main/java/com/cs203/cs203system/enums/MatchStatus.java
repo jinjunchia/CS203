@@ -1,15 +1,47 @@
 package com.cs203.cs203system.enums;
 
 /**
- * Scheduled → Match is set up.
- * In Progress → Players begin the match.
- * Completed → Winner is decided.
- * Forfeited / Disqualified → Match ends early due to a player's action.
- * Postponed / Paused → Match temporarily halted.
- * Cancelled → Match won't happen.
- * Pending Review → Match needs further investigation before declaring a result.
+ * The {@code MatchStatus} enum represents the various states that a match
+ * can be in during a tournament.
+ * <p>
+ * This enum helps to track the current status of a match, whether it's scheduled
+ * to be played, already completed, cancelled, or waiting for an opponent.
+ * It also accounts for matches where one team advances automatically (BYE).
+ * </p>
+ *
+ * <ul>
+ *  <li>{@link #SCHEDULED} - The match is scheduled but has not yet taken place.</li>
+ *  <li>{@link #COMPLETED} - The match has been played and finished.</li>
+ *  <li>{@link #CANCELLED} - The match has been cancelled and will not take place.</li>
+ *  <li>{@link #BYE} - The match is a "bye", meaning a participant advances without a match.</li>
+ *  <li>{@link #WAITING} - The match is waiting for a participant or another condition to be fulfilled before being scheduled.</li>
+ * </ul>
  */
 public enum MatchStatus {
 
-    SCHEDULED, COMPLETED, CANCELLED, BYE, WAITING
+    /**
+     * The match is scheduled but has not yet been played.
+     */
+    SCHEDULED,
+
+    /**
+     * The match has been completed and the results are finalized.
+     */
+    COMPLETED,
+
+    /**
+     * The match has been cancelled and will not take place.
+     */
+    CANCELLED,
+
+    /**
+     * The match is a "bye", meaning a participant advances without playing a match.
+     */
+    BYE,
+
+    /**
+     * The match is waiting for other conditions to be met, such as determining
+     * the opponent or scheduling.
+     */
+    WAITING
 }

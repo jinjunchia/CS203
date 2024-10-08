@@ -1,6 +1,6 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.PlayerUpdateRequest;
+import com.cs203.cs203system.dtos.players.PlayerUpdateRequest;
 import com.cs203.cs203system.dtos.players.CreatePlayerMapper;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
@@ -8,7 +8,6 @@ import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDtoMapper;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.aspectj.lang.annotation.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

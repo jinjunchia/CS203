@@ -1,9 +1,8 @@
-package com.cs203.cs203system.dtos;
+package com.cs203.cs203system.dtos.players;
 
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Optional;
 
 @Data

@@ -1,7 +1,7 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.LoginResponse;
-import com.cs203.cs203system.dtos.UserResponseMapper;
+import com.cs203.cs203system.dtos.players.LoginResponse;
+import com.cs203.cs203system.dtos.players.UserResponseMapper;
 import com.cs203.cs203system.dtos.players.CreateAdminMapper;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.dtos.players.CreatePlayerMapper;

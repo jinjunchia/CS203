@@ -1,9 +1,7 @@
 package com.cs203.cs203system;
 
-import com.cs203.cs203system.enums.Role;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Tournament;
-import com.cs203.cs203system.model.User;
 import com.cs203.cs203system.repository.TournamentRepository;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Random;
 
 @Component

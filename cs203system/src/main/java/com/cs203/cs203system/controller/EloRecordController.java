@@ -1,13 +1,13 @@
 package com.cs203.cs203system.controller;
+
 import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.service.EloRecordService;
-import com.cs203.cs203system.service.EloRecordServiceImpl;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+
+import java.util.List;
 
 //CRUD
 @RestController
@@ -48,7 +48,4 @@ public class EloRecordController {
         eloRecordService.deleteEloRecord(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
-
 }

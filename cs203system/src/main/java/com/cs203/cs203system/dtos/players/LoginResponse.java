@@ -1,4 +1,4 @@
-package com.cs203.cs203system.dtos;
+package com.cs203.cs203system.dtos.players;
 
 import com.cs203.cs203system.model.UserResponseDto;
 import lombok.AllArgsConstructor;
