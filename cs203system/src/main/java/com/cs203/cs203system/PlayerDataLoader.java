@@ -28,19 +28,18 @@ public class PlayerDataLoader implements CommandLineRunner {
         Random random = new Random();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        for (int i = 0; i < 1; i++ ) {
-            Player player = Player.builder()
-                    .name(faker.funnyName().name())
-                    .ranking(random.nextInt(32+1)).build();
-
+        for (int i = 0; i < 8; i++ ) {
+            Player player = new Player();
+            player.setName(faker.funnyName().name());
             String password = "admin";
-            player.setUsername("admin");
+            if (i == 0) {
+                player.setUsername("admin");
+            } else {
+                player.setUsername(faker.funnyName().name());
+            }
             player.setEmail(faker.internet().emailAddress());
             player.setPassword(passwordEncoder.encode(password));
-
-
             playerRepository.save(player);
         }
-
     }
 }

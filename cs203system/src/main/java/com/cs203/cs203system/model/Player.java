@@ -18,7 +18,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ToString
 @DiscriminatorValue("ROLE_PLAYER")
 public class Player extends User {

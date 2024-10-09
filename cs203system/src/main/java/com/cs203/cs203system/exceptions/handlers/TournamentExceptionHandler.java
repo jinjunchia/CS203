@@ -1,5 +1,6 @@
 package com.cs203.cs203system.exceptions.handlers;
 
+import com.cs203.cs203system.controller.TournamentController;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

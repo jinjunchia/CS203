@@ -55,6 +55,9 @@ public class Match implements Serializable {
     @ManyToOne
     private Player winner; // Add winner field
 
+    @ManyToOne
+    private Player loser;
+
     public Player getSwissWinner() {
         if (player1Score != null && player2Score != null) {
             if (player1Score > player2Score) {
@@ -82,6 +85,8 @@ public class Match implements Serializable {
     public Player getDoubleElimWinner() {
         return this.winner;
     }
+
+    public Player getDoubleElimLoser() {return this.loser;}
 
     public boolean isDraw() {
         return player1Score != null && player2Score != null && player1Score.equals(player2Score);

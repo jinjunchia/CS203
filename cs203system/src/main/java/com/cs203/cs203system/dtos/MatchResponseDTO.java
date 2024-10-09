@@ -18,17 +18,17 @@ public class MatchResponseDTO implements Serializable {
     Integer player1Score;
     Integer player2Score;
     LocalDate matchDate;
-    PlayerDto player1;
-    PlayerDto player2;
+    Player1Dto player1;
+    Player2Dto player2;
     TournamentDto tournament;
     RoundDto round;
-    PlayerDto winner;
+    WinnerDto winner;
 
     /**
      * DTO for {@link com.cs203.cs203system.model.Player}
      */
     @Value
-    public static class PlayerDto implements Serializable {
+    public static class Player1Dto implements Serializable {
         Long id;
         String username;
         UserType userType;
