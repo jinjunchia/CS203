@@ -1,7 +1,5 @@
 package com.cs203.cs203system.utility;
 
-import com.cs203.cs203system.dtos.TournamentCreateDto;
-import com.cs203.cs203system.dtos.TournamentResponseDto;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 

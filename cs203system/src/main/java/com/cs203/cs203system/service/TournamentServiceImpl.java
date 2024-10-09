@@ -1,19 +1,16 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import jakarta.transaction.Transactional;
-import net.datafaker.providers.entertainment.SouthPark;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {

@@ -274,9 +274,6 @@
 
 package com.cs203.cs203system.utility;
 
-import com.cs203.cs203system.dtos.TournamentCreateDto;
-import com.cs203.cs203system.dtos.TournamentResponseDto;
-import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
@@ -291,7 +288,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;

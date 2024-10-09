@@ -1,21 +1,22 @@
-package com.cs203.cs203system.utility;
+package com.cs203.cs203system.utilities2;
 
 import com.cs203.cs203system.enums.*;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
-import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.model.Round;
+import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.RoundRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.EloService;
+import com.cs203.cs203system.utility.DoubleEliminationManager;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -228,15 +229,12 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 logger.debug("Player {} gets a bye in round {}", playerWithBye.getName(), round.getRoundNumber());
             }
         }
-//        List<Match> existingMatches = tournament.getMatches();
-//        existingMatches.addAll(matches);
-//        tournament.setMatches(existingMatches);
         return matches;
     }
 
     @Transactional
     //havent include draw
-    public List<Match> playMatches(List<Match> Match, int roundNumber, boolean isFinal){
+    public List<Match> ReceiveResult(List<Match> Match, int roundNumber, boolean isFinal){
         List<Match> output = new ArrayList<>();
         for(Match match: Match){
             logger.debug("List of matches: " + match.getId());
@@ -280,55 +278,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         }
         return output;
     }
-
-    @Transactional
-    //havent include draw
-    public void ReceiveResult(List<Match> Match, int roundNumber, boolean isFinal){
-
-        for(Match match: Match){
-            logger.debug("List of matches: " + match.getId());
-            Player winner = random.nextBoolean() ? match.getPlayer1() : match.getPlayer2();
-            Player loser = winner == match.getPlayer1() ? match.getPlayer2() : match.getPlayer1();
-            logger.debug("{} is the winner, {} is the loser", winner.getName(), loser.getName());
-            match.setWinner(winner);
-            loser.incrementTournamentLosses();
-            if (isFinal) {
-                loser.setStatus(PlayerStatus.ELIMINATED);
-            }
-            if (winner.getBracket() == PlayerBracket.UPPER) {
-                winner.setBracket(PlayerBracket.UPPER);
-            }
-            if (winner.getBracket() == PlayerBracket.LOWER) {
-                winner.setBracket(PlayerBracket.LOWER);
-            }
-            if (loser.getBracket() == PlayerBracket.UPPER) {
-                if (roundNumber > 1) {
-                    loser.setBracket(PlayerBracket.UPPER_TO_LOWER);
-                } else {
-                    loser.setBracket(PlayerBracket.LOWER);
-                }
-            } else{
-                //second loss
-                if (loser.getTournamentLosses() >= 2){
-                    loser.setStatus(PlayerStatus.ELIMINATED);
-                    logger.debug(loser.getName() + " has been eliminated");
-                    //delete player from tournament?
-                }
-
-                logger.debug("{} is status:{}", winner.getName(), winner.getBracket());
-                logger.debug("{} is status:{}", loser.getName(), loser.getBracket());
-                //update the status of the winner and loser
-                match.setStatus(MatchStatus.COMPLETED);
-                winner.incrementWins();
-                loser.incrementLosses();
-                updateEloRatings(match);
-                matchRepository.save(match);
-                playerRepository.save(winner);
-                playerRepository.save(loser);
-            }
-        }
-    }
-
 
     private List<Pair<Player, Player>> pairPlayers(List<Player> players) {
         logger.debug("Pairing players for the round");

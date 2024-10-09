@@ -21,7 +21,7 @@ public class EloServiceImpl implements EloService {
     @Override
     @Transactional
     public void updateEloRatings(Player player1, Player player2, Match match) {
-        Player winner = match.getWinner();
+        Player winner = match.getSwissWinner();
 
         if (winner == null) {
             return;

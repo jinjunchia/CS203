@@ -1,6 +1,5 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.TournamentUpdateRequest;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import org.springframework.stereotype.Service;

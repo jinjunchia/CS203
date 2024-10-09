@@ -55,18 +55,20 @@ public class Match implements Serializable {
     @ManyToOne
     private Player winner; // Add winner field
 
-    public Player getWinner() {
+    public Player getSwissWinner() {
         if (player1Score != null && player2Score != null) {
             if (player1Score > player2Score) {
+                this.setWinner(player1);
                 return player1;
             } else if (player2Score > player1Score) {
+                this.setWinner(player2);
                 return player2;
             }
         }
         return null; // Return null if the scores are equal or undecided
     }
 
-    public Player getLoser() {
+    public Player getSwissLoser() {
         if (player1Score != null && player2Score != null) {
             if (player1Score < player2Score) {
                 return player1;
@@ -75,6 +77,10 @@ public class Match implements Serializable {
             }
         }
         return null; // Return null if the scores are equal or undecided
+    }
+
+    public Player getDoubleElimWinner() {
+        return this.winner;
     }
 
     public boolean isDraw() {

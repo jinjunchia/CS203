@@ -134,8 +134,9 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
         for (Match match : matches) {
             if (match.getStatus() == MatchStatus.COMPLETED) {
-                Player winner = match.getWinner();
-                Player loser = match.getLoser();
+                Player winner = match.getSwissWinner();
+                Player loser = match.getSwissLoser();
+
 
                 if (winner != null) {
                     winner.addPoints(1.0); // points for a win
