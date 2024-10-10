@@ -1,13 +1,9 @@
 package com.cs203.cs203system.controller;
 
-import com.cs203.cs203system.dtos.TournamentRequestDTO;
-import com.cs203.cs203system.dtos.TournamentRequestDTOMapper;
-import com.cs203.cs203system.dtos.TournamentUpdatePlayerDTO;
+import com.cs203.cs203system.dtos.*;
+import com.cs203.cs203system.dtos.players.PlayerResponseDTOMapper;
 import com.cs203.cs203system.exceptions.NotFoundException;
-import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Tournament;
-import com.cs203.cs203system.dtos.TournamentResponseDTO;
-import com.cs203.cs203system.dtos.TournamentResponseDTOMapper;
 import com.cs203.cs203system.service.TournamentManagerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +21,19 @@ public class TournamentController {
     private final TournamentManagerService tournamentManagerService;
     private final TournamentResponseDTOMapper tournamentResponseDTOMapper;
     private final TournamentRequestDTOMapper tournamentRequestDTOMapper;
+    private final InputMatchDTOMapper inputMatchDTOMapper;
+    private final PlayerResponseDTOMapper playerResponseDTOMapper;
 
     @Autowired
     public TournamentController(TournamentManagerService tournamentManagerService, TournamentResponseDTOMapper tournamentResponseDTOMapper,
-                                TournamentRequestDTOMapper tournamentRequestDTOMapper) {
+                                TournamentRequestDTOMapper tournamentRequestDTOMapper,
+                                InputMatchDTOMapper inputMatchDTOMapper,
+                                PlayerResponseDTOMapper playerResponseDTOMapper) {
         this.tournamentManagerService = tournamentManagerService;
         this.tournamentResponseDTOMapper = tournamentResponseDTOMapper;
         this.tournamentRequestDTOMapper = tournamentRequestDTOMapper;
+        this.inputMatchDTOMapper = inputMatchDTOMapper;
+        this.playerResponseDTOMapper = playerResponseDTOMapper;
     }
 
     @GetMapping
@@ -49,6 +51,12 @@ public class TournamentController {
     public ResponseEntity<TournamentResponseDTO> findTournamentById(@PathVariable Long id) {
         Tournament tournament = tournamentManagerService.findTournamentById(id).orElseThrow(() -> new NotFoundException("Tournament not found"));
         return new ResponseEntity<>(tournamentResponseDTOMapper.toDto(tournament), HttpStatus.OK);
+    }
+
+    @GetMapping("/winner/{tournamentId}")
+    public ResponseEntity<PlayerResponseDTO> findWinnerTournamentById(@PathVariable Long tournamentId) {
+        return new ResponseEntity<>(playerResponseDTOMapper
+                .toDto(tournamentManagerService.determineWinner(tournamentId)), HttpStatus.OK);
     }
 
 
@@ -80,9 +88,11 @@ public class TournamentController {
                 .toDto(tournamentManagerService.startTournament(tournamentId)), HttpStatus.OK);
     }
 
-    @PutMapping("/{tournamentId}/match/{matchId}")
-    public ResponseEntity<TournamentResponseDTO> updateMatchResults(@PathVariable Long tournamentId, @RequestBody Match match) {
-        return null;
+    @PutMapping("/match")
+    public ResponseEntity<TournamentResponseDTO> updateMatchResults(@RequestBody InputMatchDTO matchDTO) {
+        return new ResponseEntity<>(tournamentResponseDTOMapper
+                .toDto(tournamentManagerService
+                        .inputResult(inputMatchDTOMapper.toEntity(matchDTO))), HttpStatus.OK);
     }
 
     // This simply deletes the tournament. It will delete the Orphan Match, but it should not delete the players in it.

@@ -1,10 +1,6 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.players.PlayerUpdateRequest;
-import com.cs203.cs203system.dtos.players.CreatePlayerMapper;
-import com.cs203.cs203system.dtos.players.CreateUserRequest;
-import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDtoMapper;
-import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
+import com.cs203.cs203system.dtos.players.*;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.PlayerRepository;

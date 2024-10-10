@@ -1,8 +1,8 @@
 package com.cs203.cs203system.model;
 
+import com.cs203.cs203system.enums.RoundType;
 import jakarta.persistence.*;
 import lombok.*;
-import com.cs203.cs203system.enums.RoundType;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

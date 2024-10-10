@@ -8,7 +8,9 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -49,6 +51,7 @@ public class Tournament implements Serializable {
     @JoinTable(name = "tournament_winner_bracket",
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "players_id"))
+    @ToString.Exclude
     private List<Player> winnersBracket = new ArrayList<>();
 
     @Builder.Default
@@ -56,6 +59,7 @@ public class Tournament implements Serializable {
     @JoinTable(name = "tournament_loser_bracket",
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "players_id"))
+    @ToString.Exclude
     private List<Player> losersBracket = new ArrayList<>();
 
     // -------------- Double Elimination Fields --------------
@@ -74,6 +78,7 @@ public class Tournament implements Serializable {
     @JoinTable(name = "tournament_players",
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "players_id"))
+    @ToString.Exclude
     private List<Player> players = new ArrayList<>();
 
 

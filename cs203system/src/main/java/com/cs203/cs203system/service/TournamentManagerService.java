@@ -1,6 +1,7 @@
 package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.model.Match;
+import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 
 import java.util.List;
@@ -14,8 +15,6 @@ public interface TournamentManagerService {
 
     void deleteTournamentById(Long id);
 
-    // Tournament Workflow
-
     Tournament createTournament(Tournament tournament);
 
     Tournament updatePlayersToTournament(Long tournamentId, List<Long> playerIds);
@@ -24,6 +23,7 @@ public interface TournamentManagerService {
 
     Tournament inputResult(Match match);
 
-    Tournament stopTournament(Tournament tournament);
+    Player determineWinner(Long tournamentId);
+
 
 }

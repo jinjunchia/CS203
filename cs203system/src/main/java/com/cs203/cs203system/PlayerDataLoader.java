@@ -25,10 +25,9 @@ public class PlayerDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Random random = new Random();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        for (int i = 0; i < 8; i++ ) {
+        for (int i = 0; i < 100; i++ ) {
             Player player = new Player();
             player.setName(faker.funnyName().name());
             String password = "admin";

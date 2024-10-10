@@ -2,49 +2,47 @@ package com.cs203.cs203system.utilities2;
 
 import com.cs203.cs203system.enums.MatchBracket;
 import com.cs203.cs203system.enums.MatchStatus;
-import com.cs203.cs203system.exceptions.NotFoundException;
+import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
-import com.cs203.cs203system.repository.MatchRepository;
-import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
 
+/**
+ * Implementation of the DoubleEliminationManager interface.
+ * Responsible for managing the double-elimination tournament process, including initialization,
+ * receiving match results, and determining winners.
+ */
 @Slf4j
 @Service
 public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
-    private HashMap<Integer, List<Integer>> dependencyGraph8;
-    private final PlayerRepository playerRepository;
     private final TournamentRepository tournamentRepository;
-    private final MatchRepository matchRepository;
 
+    /**
+     * Constructor for DoubleEliminationManagerImpl.
+     *
+     * @param tournamentRepository the repository used to manage Tournament data.
+     */
     @Autowired
-    public DoubleEliminationManagerImpl(TournamentRepository tournamentRepository, MatchRepository matchRepository,
-                                        PlayerRepository playerRepository) {
+    public DoubleEliminationManagerImpl(TournamentRepository tournamentRepository) {
         this.tournamentRepository = tournamentRepository;
-        this.matchRepository = matchRepository;
-        this.playerRepository = playerRepository;
     }
 
-    // To start the DoubleElimination tournament
-    // Will only be used at the start of the double elimination
-    // Will randomise and pair players in the tournament
-    // All players will be in the WinnerBracket in the Tournament Entity at the start
-    //
+    /**
+     * Initializes the double-elimination tournament by pairing players and setting initial matches.
+     * All players will start in the winner's bracket.
+     *
+     * @param tournament the tournament to be initialized.
+     * @return the initialized tournament with players assigned to matches.
+     */
     @Override
     @Transactional
     public Tournament initializeDoubleElimination(Tournament tournament) {
@@ -52,129 +50,158 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
         tournament.getPlayers().forEach(player -> tournament.getWinnersBracket().add(player));
 
-        Match[] upperMatches = new Match[tournament.getPlayers().size() - 1];
-        Match[] lowerMatches = new Match[tournament.getPlayers().size() - 1];
+        Collections.shuffle(tournament.getWinnersBracket());
 
-        // Create Upper Bracket and Lower Bracket
-        for (int i = 0; i < tournament.getPlayers().size() - 1; i++) {
-            Match upperMatch = Match.builder()
+        for (int i = 1; i < tournament.getWinnersBracket().size(); i += 2) {
+            Match match = Match.builder()
                     .tournament(tournament)
-                    .matchDate(LocalDate.now())
-                    .status(MatchStatus.WAITING)
                     .bracket(MatchBracket.UPPER)
-                    .build();
-
-            Match lowerMatch = Match.builder()
-                    .tournament(tournament)
                     .matchDate(LocalDate.now())
-                    .status(MatchStatus.WAITING)
-                    .bracket(MatchBracket.LOWER)
+                    .status(MatchStatus.SCHEDULED)
+                    .player1(tournament.getWinnersBracket().get(i))
+                    .player2(tournament.getWinnersBracket().get(i - 1))
                     .build();
-
-
-            tournament.getMatches().addAll(List.of(upperMatch, lowerMatch));
-            upperMatches[i] = upperMatch;
-            lowerMatches[i] = lowerMatch;
+            tournament.getMatches().add(match);
         }
-
-        DependencyGraph dependencyGraph = DependencyGraphMapper.run();
-        Map<String, List<Integer>> players8 = dependencyGraph.getPlayers8();
-
-        ArrayList<Player> shuffled = new ArrayList<>(tournament.getPlayers());
-        Collections.shuffle(shuffled);
-
-        Map<String, Match> map = new HashMap<>();
-        for (int i = 1; i <= tournament.getMatches().size(); i++) {
-            map.put(Integer.toString(i), tournament.getMatches().get(i - 1));
-        }
-
-        for (Map.Entry<String, Match> entry : map.entrySet()) {
-            String key = entry.getKey();
-            Match match = entry.getValue();
-
-            List<Integer> dependencies = players8.get(key);
-            dependencies.forEach(dependency -> {
-                Match matchDependency = map.get(Integer.toString(dependency));
-                match.getDependencies().add(matchDependency);
-                matchDependency.getDependentMatches().add(match);
-            });
-
-            if (dependencies.isEmpty()) {
-                match.setPlayer1(shuffled.get(0));
-                match.setPlayer2(shuffled.get(1));
-                match.setStatus(MatchStatus.SCHEDULED);
-                shuffled.remove(0);
-                shuffled.remove(0);
-            }
-        }
-
-        matchRepository.saveAll(Arrays.asList(upperMatches));
-        matchRepository.saveAll(Arrays.asList(lowerMatches));
 
         return tournamentRepository.save(tournament);  // Save tournament at the end
     }
 
-    // This method will receive the results of a completed match
-    // It will keep the winner in the same bracket, but move the loser to the loser bracket
-    // It will update winner's and loser's stats
-    // It will check the next opponent (Which is the closest player to the right in the arraylist)
-    //      a) if the next opponent is still completing previous match, still create a match that has status of WAITING
-    //      b) if the next opponent is already done (there should be a match in DB), the new match will be SCHEDULED
-    // Note that the above is done for both the winner and the loser
+    /**
+     * Records the result of a match and updates the tournament brackets accordingly.
+     * If all matches are completed, proceeds to the next round of matchmaking.
+     *
+     * @param match the match whose result is being recorded.
+     * @return the updated tournament.
+     */
     @Override
     @Transactional
     public Tournament receiveMatchResult(Match match) {
-        Tournament tournament = tournamentRepository
-                .findById(match
-                        .getTournament()
-                        .getId())
-                .orElseThrow(() -> new NotFoundException("Tournament not found"));
 
-        Player winner = match.getWinner(), loser = match.getLoser();
-        tournament.getWinnersBracket().remove(loser);
-        tournament.getLosersBracket().add(loser);
+        Player loser = match.getLoser();
+        Tournament tournament = match.getTournament();
 
-        // Here lies all the methods to update the stats of the player (both winner and loser)
+        // Move all the winners and losers the correct bracket
+        // If the loser is already in the loser bracket, he will get kicked
+        if (match.getBracket() == MatchBracket.UPPER) {
+            tournament.getWinnersBracket().remove(loser);
+            tournament.getLosersBracket().add(loser);
 
-        // I will move the winner into a next match and the loser into the next match.
-        // I need to find the next match and determine if UPPER OR LOWER
-        Set<Match> nextMatches = match.getDependentMatches();
+        } else if (match.getBracket() == MatchBracket.LOWER) {
+            tournament.getLosersBracket().remove(loser);
 
-        Match upperMatch = nextMatches.iterator().next();
-        nextMatches.remove(upperMatch);
-        Match lowerMatch = nextMatches.iterator().next();
-        nextMatches.remove(lowerMatch);
+        } else if (match.getBracket() == MatchBracket.FINAL
+                && !tournament.getLosersBracket().contains(loser)) {
+            tournament.getWinnersBracket().remove(loser);
+            tournament.getLosersBracket().add(loser);
 
-        // Move all winner to the next upper match
+        } else if ((match.getBracket() == MatchBracket.FINAL
+                && tournament.getLosersBracket().contains(loser))
+                || match.getBracket() == MatchBracket.GRAND_FINAL) {
+            tournament.getWinnersBracket().clear();
+            tournament.getLosersBracket().clear();
+            tournament.setStatus(TournamentStatus.COMPLETED);
+            return tournamentRepository.save(tournament);
 
-        tournamentRepository.save(tournament);
-        return null;
-
-    }
-
-
-}
-
-class DependencyGraphMapper {
-    public static DependencyGraph run() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        DependencyGraph dependencyGraph = null;
-        try {
-            dependencyGraph = objectMapper.readValue(new File(System.getProperty("user.dir") + "/src/main/resources/data.json"), DependencyGraph.class);
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return dependencyGraph;
-    }
-}
 
-@Setter
-@Getter
-@ToString
-class DependencyGraph {
-    private Map<String, List<Integer>> players8;
-    private Map<String, List<Integer>> players16;
+        // Update the stats here
+
+        // Do the checking
+        boolean isAllMatchCompleted = match.getTournament().getMatches()
+                .stream()
+                .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED));
+
+        if (!isAllMatchCompleted) {
+            return tournamentRepository.save(tournament);
+        }
+
+        // This will happen after match have been saved and there is only 1 player left in
+        // each bracket. This means that we can now start final and grand final match(if have)
+        if (tournament.getWinnersBracket().size() + tournament.getLosersBracket().size() <= 2) {
+            if (tournament.getLosersBracket().size() == 2) {
+                Match newMatch = Match.builder()
+                        .tournament(tournament)
+                        .bracket(MatchBracket.GRAND_FINAL)
+                        .matchDate(LocalDate.now())
+                        .status(MatchStatus.SCHEDULED)
+                        .player1(tournament.getLosersBracket().get(0))
+                        .player2(tournament.getLosersBracket().get(1))
+                        .build();
+                tournament.getMatches().add(newMatch);
+                return tournamentRepository.save(tournament);
+            }
+
+            if (tournament.getLosersBracket().size() == 1 && tournament.getWinnersBracket().size() == 1) {
+                Match newMatch = Match.builder()
+                        .tournament(tournament)
+                        .bracket(MatchBracket.FINAL)
+                        .matchDate(LocalDate.now())
+                        .status(MatchStatus.SCHEDULED)
+                        .player1(tournament.getLosersBracket().get(0))
+                        .player2(tournament.getWinnersBracket().get(0))
+                        .build();
+                tournament.getMatches().add(newMatch);
+                return tournamentRepository.save(tournament);
+            }
+
+//            if (tournament.getWinnersBracket().isEmpty() || tournament.getLosersBracket().isEmpty()) {
+//
+//                tournament.setStatus(TournamentStatus.COMPLETED);
+//                return tournamentRepository.save(tournament);
+//            }
+
+            return tournamentRepository.save(tournament);
+        }
+
+
+        // Time to do next match making
+        for (int i = 1; i < match.getTournament().getWinnersBracket().size(); i += 2) {
+            Match newMatch = Match.builder()
+                    .tournament(tournament)
+                    .bracket(MatchBracket.UPPER)
+                    .matchDate(LocalDate.now())
+                    .status(MatchStatus.SCHEDULED)
+                    .player1(tournament.getWinnersBracket().get(i - 1))
+                    .player2(tournament.getWinnersBracket().get(i))
+                    .build();
+            tournament.getMatches().add(newMatch);
+        }
+
+        for (int i = 1; i < match.getTournament().getLosersBracket().size(); i += 2) {
+            Match newMatch = Match.builder()
+                    .tournament(tournament)
+                    .bracket(MatchBracket.LOWER)
+                    .matchDate(LocalDate.now())
+                    .status(MatchStatus.SCHEDULED)
+                    .player1(tournament.getLosersBracket().get(i - 1))
+                    .player2(tournament.getLosersBracket().get(i))
+                    .build();
+            tournament.getMatches().add(newMatch);
+        }
+
+        return tournamentRepository.save(tournament);
+
+    }
+
+    /**
+     * Determines the winner of a completed tournament.
+     *
+     * @param tournament the completed tournament.
+     * @return the winner of the tournament.
+     * @throws IllegalStateException if the tournament is not completed or if no winner is found.
+     */
+    public Player determineWinner(Tournament tournament) {
+        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
+            throw new IllegalStateException("Tournament is not completed. Winner cannot be determined.");
+        }
+
+        return tournament.getMatches()
+                .stream()
+                .reduce((match1, match2) -> match1.getId() > match2.getId() ? match1 : match2)
+                .orElseThrow(() -> new IllegalStateException("There seems to be no winner"))
+                .getWinner();
+    }
 
 
 }

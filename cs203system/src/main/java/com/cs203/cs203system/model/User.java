@@ -2,13 +2,18 @@ package com.cs203.cs203system.model;
 
 import com.cs203.cs203system.enums.UserType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.*;
 
 @Entity
 @NoArgsConstructor

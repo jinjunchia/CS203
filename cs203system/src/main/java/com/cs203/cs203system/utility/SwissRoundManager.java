@@ -9,14 +9,11 @@
 //
 //public interface SwissRoundManager {
 //
-//
 //    void initializeRounds(Tournament tournament);
-//
 //
 //    List<Pair<Player, Player>> pairPlayers(List<Player> players, Round round,Tournament tournament);
 //
 //    void updateStandings(Tournament tournament);
-//
 //
 //    boolean isSwissPhaseComplete(Tournament tournament);
 //

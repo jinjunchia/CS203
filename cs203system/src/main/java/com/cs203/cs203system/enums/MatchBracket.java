@@ -28,5 +28,9 @@ public enum MatchBracket {
      * lost one match in a double-elimination tournament but are
      * still competing.
      */
-    LOWER
+    LOWER,
+
+    FINAL,
+
+    GRAND_FINAL
 }

@@ -1,7 +1,7 @@
 package com.cs203.cs203system.service;
 
-import com.cs203.cs203system.dtos.players.PlayerUpdateRequest;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
+import com.cs203.cs203system.dtos.players.PlayerUpdateRequest;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
 import com.cs203.cs203system.model.Player;
 import org.springframework.stereotype.Service;

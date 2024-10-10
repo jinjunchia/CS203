@@ -59,6 +59,7 @@ public class TournamentResponseDTO implements Serializable {
         Long id;
         Integer durationInMinutes;
         MatchStatus status;
+        MatchBracket bracket;
         Integer player1Score;
         Integer player2Score;
         LocalDate matchDate;

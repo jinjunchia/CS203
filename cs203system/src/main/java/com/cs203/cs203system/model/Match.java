@@ -8,8 +8,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -37,23 +35,6 @@ public class Match implements Serializable {
     // ---------- Double Elimination -----------
     @Enumerated(EnumType.STRING)
     private MatchBracket bracket;
-
-    // Matches this match depends on
-    @ManyToMany
-    @JoinTable(
-            name = "match_dependencies",
-            joinColumns = @JoinColumn(name = "match_id"),
-            inverseJoinColumns = @JoinColumn(name = "depends_on_id")
-    )
-    @ToString.Exclude
-    @Builder.Default
-    private Set<Match> dependencies = new LinkedHashSet<>();
-
-    // Matches that depend on this match
-    @ManyToMany(mappedBy = "dependencies")
-    @ToString.Exclude
-    @Builder.Default
-    private Set<Match> dependentMatches = new LinkedHashSet<>();
     // ---------- Double Elimination -----------
 
 
