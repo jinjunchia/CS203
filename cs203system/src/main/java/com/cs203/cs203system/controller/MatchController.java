@@ -1,7 +1,7 @@
 package com.cs203.cs203system.controller;
 
 import com.cs203.cs203system.dtos.MatchResponseDTO;
-import com.cs203.cs203system.model.MatchResponseDTOMapper;
+import com.cs203.cs203system.dtos.MatchResponseDTOMapper;
 import com.cs203.cs203system.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

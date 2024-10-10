@@ -274,42 +274,46 @@
 
 package com.cs203.cs203system.service;
 
+import com.cs203.cs203system.enums.MatchStatus;
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
-import com.cs203.cs203system.model.Round;
 import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.utilities2.DoubleEliminationManager;
-import com.cs203.cs203system.utility.SwissRoundManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class TournamentManagerServiceImpl implements TournamentManagerService {
     private static final Logger logger = LoggerFactory.getLogger(TournamentManagerServiceImpl.class);
 
-    @Autowired
-    private SwissRoundManager swissRoundManager;
+    private final DoubleEliminationManager doubleEliminationManager;
+
+    private final TournamentRepository tournamentRepository;
+
+    private final PlayerRepository playerRepository;
+
+    private final MatchRepository matchRepository;
 
     @Autowired
-    private DoubleEliminationManager doubleEliminationManager;
-
-    @Autowired
-    private TournamentRepository tournamentRepository;
-
-    @Autowired
-    private PlayerRepository playerRepository;
+    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository) {
+        this.doubleEliminationManager = doubleEliminationManager;
+        this.tournamentRepository = tournamentRepository;
+        this.playerRepository = playerRepository;
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public Optional<Tournament> findTournamentById(Long id) {
@@ -328,17 +332,46 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
     @Override
     @Transactional
     public void deleteTournamentById(Long id) {
-        // Ensure the tournament exists before deletion
-        if (!tournamentRepository.existsById(id)) {
-            throw new NotFoundException("Tournament id of " + id + " does not exist");
+        Tournament tournament = tournamentRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException("Tournament id of " + id + " does not exist"));
+
+        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
+            throw new RuntimeException("Status of the tournament can only be deleted if it is scheduled");
         }
         tournamentRepository.deleteById(id);
     }
 
+
+    // It creates the tournament in the database, however it does not start the tournament.
+    // This gives the admin the control when to start the tournament.
+    // Means that the tournament is SCHEDULED.
+    // It will not add any players to the tournament. This will be reserved for the addPlayersToTournament()
     @Override
     @Transactional
-    public Tournament createTournament(Tournament tournament, List<Long> playerIds) {
+    public Tournament createTournament(Tournament tournament) {
         tournament.setId(null);
+        tournament.setStatus(TournamentStatus.SCHEDULED);
+        tournament = tournamentRepository.save(tournament);
+        return tournament;
+    }
+
+
+    // This method will add players to the tournament based on the admin choice and timing
+    // It will check if the tournament is SCHEDULED. If not, it will reject.
+    // It will check if the player is in the database. If not, it will reject
+    @Override
+    @Transactional
+    public Tournament updatePlayersToTournament(Long tournamentId, List<Long> playerIds) {
+        Tournament tournament = findTournamentById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
+
+        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
+            throw new RuntimeException("Tournament is already ongoing or completed");
+        } else if (playerIds.isEmpty()) {
+            throw new RuntimeException("Please add at least 1 player");
+        }
+
         List<Player> players = playerIds
                 .stream()
                 .map(playerId -> playerRepository
@@ -346,43 +379,93 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
                         .orElseThrow(() -> new NotFoundException("Player " + playerId + " not found")))
                 .collect(Collectors.toList());
         tournament.setPlayers(players);
+
+        return tournamentRepository.save(tournament);
+    }
+
+    // This will start the tournament. It will do the necessary checks to ensure each tournament based on the format of the tournament.
+    // Validate if there are winner players and if the players are valid
+    // If there is a problem (e.g. A tournament that has less than 2 players will not start/A Double elimination that does not have a even number
+    // of players cannot start).
+    // Will not do any updating of the details except start the game (change from scheduled to ongoing)
+    @Override
+    public Tournament startTournament(Long tournamentId) {
+        Tournament tournament = findTournamentById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
+
+        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
+            throw new RuntimeException("Tournament needed to be scheduled");
+        } else if (tournament.getPlayers().size() < 2) {
+            throw new RuntimeException("Tournament needs at least 2 players");
+        } else if (!isPowerOfTwo(tournament.getPlayers().size())
+                && tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
+            throw new RuntimeException("Double Elimination must have total number of players to power 2");
+        }
+
         tournament.setStatus(TournamentStatus.ONGOING);
 
-        tournament = tournamentRepository.save(tournament);
-        logger.error("Tournament format: {}", tournament.getFormat());
         switch (tournament.getFormat()) {
             case SWISS:
                 logger.debug("Initializing Swiss tournament...");
-                swissRoundManager.initializeRounds(tournament);
+//                swissRoundManager.initializeRounds(tournament);
                 break;
             case DOUBLE_ELIMINATION:
                 logger.debug("Initializing Double Elimination tournament...");
-                doubleEliminationRunner(tournament);
-                break;
+                return doubleEliminationManager.initializeDoubleElimination(tournament);
             case HYBRID:
                 logger.debug("Initializing Hybrid tournament with Swiss rounds...");
-                swissRoundManager.initializeRounds(tournament);
+//                swissRoundManager.initializeRounds(tournament);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
         }
-        // Pairing
-        return tournament;
+        return null;
     }
 
-    public Tournament doubleEliminationRunner(Tournament tournament) {
-        //Stream players into respective brackets
-        //Eliminate players who have lost more than two
-        boolean is_final = false;
-        if (tournament.getPlayers().size() == 2) {
-            is_final = true;
-        }
-        if (tournament.getRoundsCompleted() > 0) {
-            doubleEliminationManager.receiveResult(tournament, tournament.getRoundsCompleted()+1, is_final);
-        }
-        doubleEliminationManager.initializeDoubleElimination(tournament);
-        Round round = doubleEliminationManager.initializeRound(tournament, tournament.getPlayers().stream().toList());
-        List<Pair<Player, Player>> pairedPlayer = doubleEliminationManager.pairPlayers(tournament.getPlayers());
-        return doubleEliminationManager.createBracketMatches(tournament, round);
+    private boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
     }
+
+    @Transactional
+    @Override
+    public Tournament inputResult(Match match) {
+        Match updatedMatch = matchRepository
+                .findById(match.getId())
+                .orElseThrow(() -> new NotFoundException("Match of id " + match.getId() + " is not found"));
+
+
+        if (match.getPlayer1Score() < 0 || match.getPlayer2Score() < 0) {
+            throw new RuntimeException("Match score cannot be negative");
+        } else if (match.getPlayer1Score() + match.getPlayer2Score() == 0) {
+            throw new RuntimeException("The total match score must be more than 0");
+        } else if (match.getPlayer1Score().equals(match.getPlayer2Score())
+                && match.getTournament().getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
+            throw new RuntimeException("Draws are not allowed for Double Elimination");
+        }
+
+        updatedMatch.setPlayer1Score(match.getPlayer1Score());
+        updatedMatch.setPlayer2Score(match.getPlayer2Score());
+        updatedMatch = matchRepository.save(updatedMatch);
+
+        switch (match.getTournament().getFormat()) {
+            case SWISS:
+//                swissRoundManager.initializeRounds(tournament);
+                break;
+            case DOUBLE_ELIMINATION:
+                return doubleEliminationManager.receiveMatchResult(updatedMatch);
+            case HYBRID:
+//                swissRoundManager.initializeRounds(tournament);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported tournament format: " + match.getTournament().getFormat());
+        }
+        return null;
+    }
+
+    @Override
+    public Tournament stopTournament(Tournament tournament) {
+        return null;
+    }
+
+
 }

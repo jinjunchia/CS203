@@ -1,14 +1,12 @@
-package com.cs203.cs203system.controller;
+package com.cs203.cs203system.dtos;
 
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.model.Tournament;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * DTO for {@link Tournament}
@@ -30,7 +28,4 @@ public class TournamentRequestDTO implements Serializable {
 
     @NotNull
     TournamentFormat format;
-
-    @Size(min = 2)
-    List<Long> playerIds;
 }

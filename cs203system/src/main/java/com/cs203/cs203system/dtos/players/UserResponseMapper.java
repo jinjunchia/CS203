@@ -1,7 +1,7 @@
 package com.cs203.cs203system.dtos.players;
 
 import com.cs203.cs203system.model.User;
-import com.cs203.cs203system.model.UserResponseDto;
+import com.cs203.cs203system.dtos.UserResponseDto;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)

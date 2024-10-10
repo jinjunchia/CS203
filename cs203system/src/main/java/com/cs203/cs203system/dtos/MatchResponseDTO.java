@@ -39,7 +39,7 @@ public class MatchResponseDTO implements Serializable {
      * DTO for {@link com.cs203.cs203system.model.Player}
      */
     @Value
-    public static class PlayerDto implements Serializable {
+    public static class Player2Dto implements Serializable {
         Long id;
         String username;
         UserType userType;
@@ -76,7 +76,7 @@ public class MatchResponseDTO implements Serializable {
      * DTO for {@link com.cs203.cs203system.model.Player}
      */
     @Value
-    public static class PlayerDto implements Serializable {
+    public static class WinnerDto implements Serializable {
         Long id;
         String username;
         UserType userType;

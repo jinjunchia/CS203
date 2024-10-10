@@ -1,5 +1,6 @@
 package com.cs203.cs203system;
 
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
@@ -46,6 +47,8 @@ public class TournamentDataLoader implements CommandLineRunner {
                     .status(TournamentStatus.ONGOING)
                     .name(faker.chess().tournament())
                     .location(faker.address().city())
+                    .format(TournamentFormat.DOUBLE_ELIMINATION)
+                    .status(TournamentStatus.SCHEDULED)
                     .build();
 
             tournamentRepository.save(tournament);

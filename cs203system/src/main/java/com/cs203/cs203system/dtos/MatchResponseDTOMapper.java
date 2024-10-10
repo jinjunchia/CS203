@@ -1,6 +1,6 @@
-package com.cs203.cs203system.model;
+package com.cs203.cs203system.dtos;
 
-import com.cs203.cs203system.dtos.MatchResponseDTO;
+import com.cs203.cs203system.model.Match;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)

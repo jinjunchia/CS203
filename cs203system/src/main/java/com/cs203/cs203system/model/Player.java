@@ -1,13 +1,10 @@
 package com.cs203.cs203system.model;
 
+import com.cs203.cs203system.enums.PlayerBracket;
+import com.cs203.cs203system.enums.PlayerStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import com.cs203.cs203system.enums.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,7 +24,7 @@ public class Player extends User {
     private double points = 0.0;
 
     private Integer ranking; //not sure how to deal with this maybe next time
-    private Integer totalGamesPlayed = 0; // Specific to players, same for this i will implement not sure when
+    private Integer totalGamesPlayed = 0; // Specific to players, same for this I will implement not sure when
 
     private int tournamentLosses = 0;
 
@@ -48,7 +45,7 @@ public class Player extends User {
     @Enumerated(EnumType.STRING)
     private PlayerStatus status;
 
-    @ManyToMany(mappedBy = "players", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(mappedBy = "players")
     @ToString.Exclude
     private Set<Tournament> tournaments = new LinkedHashSet<>();
 

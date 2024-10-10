@@ -23,29 +23,42 @@ public class Tournament implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private LocalDate startDate;
-
     private LocalDate endDate;
-
     private String location;
-
     private TournamentStatus status; // Status of the tournament (Planned, Ongoing, Completed, Cancelled)
-
     private Double minEloRating; // Minimum ELO rating allowed for participants
     private Double maxEloRating; // Maximum ELO rating allowed for participants admins can set this
+    @Enumerated(EnumType.STRING)
+    private TournamentFormat format;
 
+    // -------------- Swiss Fields --------------
+    @Builder.Default
     private Integer roundsCompleted = 0; // Track the number of completed rounds
     private Integer currentRoundNumber; // Tracks the current round of the entire tournament
     private Integer totalSwissRounds; // Total Swiss rounds, calculated dynamically
 
-    @Getter
-    private boolean doubleEliminationStarted = false;
+    // -------------- Swiss Fields --------------
 
-    @Enumerated(EnumType.STRING)
-    private TournamentFormat format;
+
+    // -------------- Double Elimination Fields --------------
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(name = "tournament_winner_bracket",
+            joinColumns = @JoinColumn(name = "tournament_id"),
+            inverseJoinColumns = @JoinColumn(name = "players_id"))
+    private List<Player> winnersBracket = new ArrayList<>();
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(name = "tournament_loser_bracket",
+            joinColumns = @JoinColumn(name = "tournament_id"),
+            inverseJoinColumns = @JoinColumn(name = "players_id"))
+    private List<Player> losersBracket = new ArrayList<>();
+
+    // -------------- Double Elimination Fields --------------
 
     @Builder.Default
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -56,13 +69,13 @@ public class Tournament implements Serializable {
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
-    @ToString.Exclude
     @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "tournament_players",
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "players_id"))
-    private Set<Player> players = new LinkedHashSet<>();
+    private List<Player> players = new ArrayList<>();
+
 
     @Override
     public final boolean equals(Object o) {

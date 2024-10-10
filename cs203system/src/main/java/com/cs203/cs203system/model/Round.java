@@ -19,6 +19,7 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
+    @Builder.Default
     private int roundNumber = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,6 +29,7 @@ public class Round {
     @Enumerated(EnumType.STRING)
     private RoundType roundType;
 
+    @Builder.Default
     @OneToMany(mappedBy = "round", orphanRemoval = true)
     private Set<Match> matches = new LinkedHashSet<>();
 

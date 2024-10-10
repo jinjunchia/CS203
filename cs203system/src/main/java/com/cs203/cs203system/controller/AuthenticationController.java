@@ -5,7 +5,7 @@ import com.cs203.cs203system.dtos.players.LoginResponse;
 import com.cs203.cs203system.dtos.players.UserResponseMapper;
 import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.model.User;
-import com.cs203.cs203system.model.UserResponseDto;
+import com.cs203.cs203system.dtos.UserResponseDto;
 import com.cs203.cs203system.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

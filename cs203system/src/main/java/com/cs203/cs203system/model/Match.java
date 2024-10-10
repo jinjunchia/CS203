@@ -8,6 +8,8 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -27,21 +29,41 @@ public class Match implements Serializable {
     @Enumerated(EnumType.STRING)
     private MatchStatus status;  // Could also be an enum: MatchStatus
 
-    @Enumerated(EnumType.STRING)
-    private MatchBracket bracket;
-
     private Integer player1Score;  // Score for player1
     private Integer player2Score;  // Score for player2
 
     private LocalDate matchDate;
 
+    // ---------- Double Elimination -----------
+    @Enumerated(EnumType.STRING)
+    private MatchBracket bracket;
+
+    // Matches this match depends on
+    @ManyToMany
+    @JoinTable(
+            name = "match_dependencies",
+            joinColumns = @JoinColumn(name = "match_id"),
+            inverseJoinColumns = @JoinColumn(name = "depends_on_id")
+    )
     @ToString.Exclude
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Builder.Default
+    private Set<Match> dependencies = new LinkedHashSet<>();
+
+    // Matches that depend on this match
+    @ManyToMany(mappedBy = "dependencies")
+    @ToString.Exclude
+    @Builder.Default
+    private Set<Match> dependentMatches = new LinkedHashSet<>();
+    // ---------- Double Elimination -----------
+
+
+    @ToString.Exclude
+    @ManyToOne
     @JoinColumn(name = "player1_id")
     private Player player1;
 
     @ToString.Exclude
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "player2_id")
     private Player player2;
 
@@ -49,47 +71,31 @@ public class Match implements Serializable {
     @JsonIgnore // Prevent Infinite Recursion
     private Tournament tournament;
 
-    @ManyToOne(cascade = {CascadeType.ALL})
+    @ManyToOne(cascade = CascadeType.ALL)
     private Round round;
 
-    @ManyToOne
-    private Player winner; // Add winner field
-
-    @ManyToOne
-    private Player loser;
-
-    public Player getSwissWinner() {
-        if (player1Score != null && player2Score != null) {
-            if (player1Score > player2Score) {
-                this.setWinner(player1);
-                return player1;
-            } else if (player2Score > player1Score) {
-                this.setWinner(player2);
-                return player2;
-            }
+    public Player getWinner() {
+        if (player1Score == null || player2Score == null) {
+            return null;
         }
-        return null; // Return null if the scores are equal or undecided
-    }
-
-    public Player getSwissLoser() {
-        if (player1Score != null && player2Score != null) {
-            if (player1Score < player2Score) {
-                return player1;
-            } else if (player2Score < player1Score) {
-                return player2;
-            }
+        if (player1Score > player2Score) {
+            return player1;
         }
-        return null; // Return null if the scores are equal or undecided
+        return player2;
     }
 
-    public Player getDoubleElimWinner() {
-        return this.winner;
+    public Player getLoser() {
+        if (player1Score == null || player2Score == null) {
+            return null;
+        }
+        if (player1Score > player2Score) {
+            return player2;
+        }
+        return player1;
     }
-
-    public Player getDoubleElimLoser() {return this.loser;}
 
     public boolean isDraw() {
-        return player1Score != null && player2Score != null && player1Score.equals(player2Score);
+        return player1Score != null && player1Score.equals(player2Score);
     }
 
 

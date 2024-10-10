@@ -19,6 +19,7 @@ import java.util.Set;
 @DiscriminatorValue("ROLE_ADMIN")
 public class Admin extends User {
     @ToString.Exclude
+    @Builder.Default
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Tournament> tournaments = new LinkedHashSet<>();
 }

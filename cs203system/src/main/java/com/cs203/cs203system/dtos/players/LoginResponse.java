@@ -1,6 +1,6 @@
 package com.cs203.cs203system.dtos.players;
 
-import com.cs203.cs203system.model.UserResponseDto;
+import com.cs203.cs203system.dtos.UserResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
