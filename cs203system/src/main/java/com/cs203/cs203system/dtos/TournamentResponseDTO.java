@@ -24,6 +24,9 @@ public class TournamentResponseDTO implements Serializable {
     Double minEloRating;
     Double maxEloRating;
     TournamentFormat format;
+    Integer roundsCompleted;
+    Integer currentRoundNumber;
+    Integer totalSwissRounds;
     List<WinnerDto> winnersBracket;
     List<LoserDto> losersBracket;
     List<MatchDto> matches;
@@ -71,6 +74,7 @@ public class TournamentResponseDTO implements Serializable {
             Long id;
             String username;
             String name;
+            double points;
         }
 
         @Value
@@ -78,6 +82,7 @@ public class TournamentResponseDTO implements Serializable {
             Long id;
             String username;
             String name;
+            double points;
         }
     }
 

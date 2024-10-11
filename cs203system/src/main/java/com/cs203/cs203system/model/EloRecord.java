@@ -6,6 +6,11 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Represents an Elo rating record for a player.
+ * This class stores information about changes in a player's Elo rating, including the date of change,
+ * old and new ratings, the reason for the change, and associations to the player and match involved.
+ */
 @Getter
 @Setter
 @Entity
@@ -18,20 +23,39 @@ public class EloRecord implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime date; // Date of the ELO change
+    /**
+     * The date and time when the Elo rating change occurred.
+     */
+    private LocalDateTime date;
 
+    /**
+     * The previous Elo rating before the change.
+     */
     private Double oldRating;
 
+    /**
+     * The new Elo rating after the change.
+     */
     private Double newRating;
 
-    private String changeReason; // e.g., "Match against Player X"
+    /**
+     * The reason for the change in Elo rating, e.g., "Match against Player X".
+     */
+    private String changeReason;
 
+    /**
+     * The player associated with this Elo rating record.
+     */
     @ManyToOne
-    @JoinColumn(name = "player_id", nullable = false) // Player association
+    @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
+    /**
+     * The match associated with this Elo rating change, if applicable.
+     * This reference can be null if the change is not tied to a specific match.
+     */
     @ManyToOne
-    @JoinColumn(name = "match_id", nullable = true) // Match reference, nullable if not tied to a match
+    @JoinColumn(name = "match_id")
     private Match match;
 
 }

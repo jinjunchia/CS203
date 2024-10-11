@@ -30,6 +30,8 @@ public enum MatchBracket {
      */
     LOWER,
 
+    SWISS,
+
     FINAL,
 
     GRAND_FINAL

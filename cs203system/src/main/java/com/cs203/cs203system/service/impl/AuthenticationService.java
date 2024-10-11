@@ -1,4 +1,4 @@
-package com.cs203.cs203system.service;
+package com.cs203.cs203system.service.impl;
 
 import com.cs203.cs203system.dtos.players.*;
 import com.cs203.cs203system.enums.UserType;
@@ -18,6 +18,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for managing user authentication and registration.
+ * Provides methods for registering users, logging in, and retrieving the current user.
+ */
 @Service
 @Transactional
 public class AuthenticationService {
@@ -37,8 +41,22 @@ public class AuthenticationService {
     private final CreateAdminMapper createAdminMapper;
 
     private final TokenService tokenService;
+
     private final UserResponseMapper userResponseMapper;
 
+    /**
+     * Constructs an AuthenticationService with the required dependencies.
+     *
+     * @param userRepository the repository for accessing user data
+     * @param passwordEncoder the encoder for hashing passwords
+     * @param authenticationManager the manager for authenticating users
+     * @param adminRepository the repository for accessing admin data
+     * @param playerRepository the repository for accessing player data
+     * @param createPlayerMapper the mapper for converting CreateUserRequest to Player entity
+     * @param createAdminMapper the mapper for converting CreateUserRequest to Admin entity
+     * @param tokenService the service for generating JWT tokens
+     * @param userResponseMapper the mapper for converting User entity to UserResponseDto
+     */
     @Autowired
     public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, AdminRepository adminRepository, PlayerRepository playerRepository,
                                  CreatePlayerMapper createPlayerMapper, CreateAdminMapper createAdminMapper, TokenService tokenService,
@@ -54,6 +72,13 @@ public class AuthenticationService {
         this.userResponseMapper = userResponseMapper;
     }
 
+
+    /**
+     * Registers a new user in the system.
+     *
+     * @param createUserRequest the request data containing user details for registration
+     * @return the registered User entity
+     */
     public User register(CreateUserRequest createUserRequest) {
         createUserRequest.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
         UserType userType = createUserRequest.getUserType();
@@ -67,6 +92,13 @@ public class AuthenticationService {
         return adminRepository.save(newAdmin);
     }
 
+    /**
+     * Authenticates a user and generates a JWT token if the credentials are valid.
+     *
+     * @param username the username of the user attempting to log in
+     * @param password the password of the user attempting to log in
+     * @return a LoginResponse containing the user details and JWT token if authentication is successful, or null if unsuccessful
+     */
     public LoginResponse loginUser(String username, String password) {
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -83,6 +115,13 @@ public class AuthenticationService {
         }
     }
 
+    /**
+     * Retrieves the currently authenticated user by their username.
+     *
+     * @param username the username of the user to retrieve
+     * @return the User entity corresponding to the provided username
+     * @throws UsernameNotFoundException if no user is found with the given username
+     */
     public User getCurrentUser(String username) {
         return userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

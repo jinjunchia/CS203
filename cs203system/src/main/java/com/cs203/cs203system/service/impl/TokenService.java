@@ -1,4 +1,4 @@
-package com.cs203.cs203system.service;
+package com.cs203.cs203system.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing JWT tokens.
+ * Provides methods to generate JWT tokens based on user authentication.
+ */
 @Service
 public class TokenService {
 
@@ -19,13 +23,24 @@ public class TokenService {
 
     private final JwtDecoder jwtDecoder;
 
+    /**
+     * Constructs a TokenService with the required JWT encoder and decoder.
+     *
+     * @param jwtEncoder the encoder for creating JWT tokens
+     * @param jwtDecoder the decoder for decoding JWT tokens
+     */
     @Autowired
     public TokenService(JwtEncoder jwtEncoder, JwtDecoder jwtDecoder) {
         this.jwtEncoder = jwtEncoder;
         this.jwtDecoder = jwtDecoder;
     }
 
-
+    /**
+     * Generates a JWT token for the authenticated user.
+     *
+     * @param auth the authentication object containing user credentials and authorities
+     * @return the generated JWT token as a String
+     */
     public String generateJwt(Authentication auth){
 
         Instant now = Instant.now();

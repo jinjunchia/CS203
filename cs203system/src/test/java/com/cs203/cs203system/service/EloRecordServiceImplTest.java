@@ -4,6 +4,7 @@ import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.EloRecordRepository;
+import com.cs203.cs203system.service.impl.EloRecordServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

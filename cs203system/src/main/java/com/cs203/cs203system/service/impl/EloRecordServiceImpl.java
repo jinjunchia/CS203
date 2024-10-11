@@ -1,9 +1,10 @@
-package com.cs203.cs203system.service;
+package com.cs203.cs203system.service.impl;
 
 import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.EloRecordRepository;
+import com.cs203.cs203system.service.EloRecordService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,12 @@ import java.util.Optional;
 @Service
 public class EloRecordServiceImpl implements EloRecordService {
 
+    private final EloRecordRepository eloRecordRepository;
+
     @Autowired
-    private EloRecordRepository eloRecordRepository;
+    public EloRecordServiceImpl(EloRecordRepository eloRecordRepository) {
+        this.eloRecordRepository = eloRecordRepository;
+    }
 
     @Override
     public List<EloRecord> findAllEloRecords() {

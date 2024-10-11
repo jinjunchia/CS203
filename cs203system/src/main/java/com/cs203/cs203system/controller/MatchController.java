@@ -3,6 +3,11 @@ package com.cs203.cs203system.controller;
 import com.cs203.cs203system.dtos.MatchResponseDTO;
 import com.cs203.cs203system.dtos.MatchResponseDTOMapper;
 import com.cs203.cs203system.service.MatchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +50,9 @@ public class MatchController {
      *
      * @return ResponseEntity containing a list of MatchResponseDTOs and an HTTP status of OK.
      */
+    @Operation(summary = "Find all matches", description = "Retrieve a list of all matches.")
+    @ApiResponse(responseCode = "200", description = "List of matches retrieved successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchResponseDTO.class)))
     @GetMapping
     public ResponseEntity<List<MatchResponseDTO>> findAllMatches() {
         return new ResponseEntity<>(matchService.
@@ -60,6 +68,13 @@ public class MatchController {
      * @param id The ID of the match to be fetched.
      * @return ResponseEntity containing the MatchResponseDTO of the found match and an HTTP status of OK.
      */
+    @Operation(summary = "Find a match by ID", description = "Retrieve details of a specific match using its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Match found successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Match not found",
+                    content = @Content)
+    })
     @GetMapping("/{id}")
     public ResponseEntity<MatchResponseDTO> findMatchById(@PathVariable Long id) {
         return new ResponseEntity<>(matchResponseDTOMapper
@@ -72,6 +87,13 @@ public class MatchController {
      * @param id The ID of the tournament.
      * @return ResponseEntity containing a list of MatchResponseDTOs and an HTTP status of OK.
      */
+    @Operation(summary = "Find all matches by tournament ID", description = "Retrieve a list of all matches related to a specific tournament using the tournament ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of matches retrieved successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Tournament not found",
+                    content = @Content)
+    })
     @GetMapping("/tournament/{id}")
     public ResponseEntity<List<MatchResponseDTO>> findTournamentMatches(@PathVariable Long id) {
         return new ResponseEntity<>(matchService

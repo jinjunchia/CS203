@@ -1,4 +1,4 @@
-package com.cs203.cs203system.utilities2;
+package com.cs203.cs203system.service.impl;
 
 import com.cs203.cs203system.enums.MatchBracket;
 import com.cs203.cs203system.enums.MatchStatus;
@@ -7,7 +7,8 @@ import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
-import lombok.extern.slf4j.Slf4j;
+import com.cs203.cs203system.service.DoubleEliminationManager;
+import com.cs203.cs203system.service.EloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +21,11 @@ import java.util.Collections;
  * Responsible for managing the double-elimination tournament process, including initialization,
  * receiving match results, and determining winners.
  */
-@Slf4j
 @Service
 public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 
     private final TournamentRepository tournamentRepository;
+    private final EloService eloService;
 
     /**
      * Constructor for DoubleEliminationManagerImpl.
@@ -32,8 +33,9 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
      * @param tournamentRepository the repository used to manage Tournament data.
      */
     @Autowired
-    public DoubleEliminationManagerImpl(TournamentRepository tournamentRepository) {
+    public DoubleEliminationManagerImpl(TournamentRepository tournamentRepository, EloService eloService) {
         this.tournamentRepository = tournamentRepository;
+        this.eloService = eloService;
     }
 
     /**
@@ -46,8 +48,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
     @Override
     @Transactional
     public Tournament initializeDoubleElimination(Tournament tournament) {
-        log.info("Initializing Double Elimination");
-
         tournament.getPlayers().forEach(player -> tournament.getWinnersBracket().add(player));
 
         Collections.shuffle(tournament.getWinnersBracket());
@@ -64,7 +64,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             tournament.getMatches().add(match);
         }
 
-        return tournamentRepository.save(tournament);  // Save tournament at the end
+        return tournamentRepository.save(tournament);
     }
 
     /**
@@ -106,6 +106,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         }
 
         // Update the stats here
+        eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
 
         // Do the checking
         boolean isAllMatchCompleted = match.getTournament().getMatches()
@@ -117,7 +118,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
         }
 
         // This will happen after match have been saved and there is only 1 player left in
-        // each bracket. This means that we can now start final and grand final match(if have)
+        // each bracket. This means that we can now start final and grand final match (if any)
         if (tournament.getWinnersBracket().size() + tournament.getLosersBracket().size() <= 2) {
             if (tournament.getLosersBracket().size() == 2) {
                 Match newMatch = Match.builder()
@@ -145,17 +146,11 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 return tournamentRepository.save(tournament);
             }
 
-//            if (tournament.getWinnersBracket().isEmpty() || tournament.getLosersBracket().isEmpty()) {
-//
-//                tournament.setStatus(TournamentStatus.COMPLETED);
-//                return tournamentRepository.save(tournament);
-//            }
-
             return tournamentRepository.save(tournament);
         }
 
 
-        // Time to do next match making
+        // Time to do usual match making
         for (int i = 1; i < match.getTournament().getWinnersBracket().size(); i += 2) {
             Match newMatch = Match.builder()
                     .tournament(tournament)

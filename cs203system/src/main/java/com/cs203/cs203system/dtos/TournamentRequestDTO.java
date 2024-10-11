@@ -21,10 +21,14 @@ public class TournamentRequestDTO implements Serializable {
     @NotNull
     LocalDate startDate;
 
-//    LocalDate endDate;
-
     @NotNull
     String location;
+
+    @NotNull
+    Double minEloRating;
+
+    @NotNull
+    Double maxEloRating;
 
     @NotNull
     TournamentFormat format;
