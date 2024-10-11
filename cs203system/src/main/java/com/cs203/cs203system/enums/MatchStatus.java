@@ -30,6 +30,11 @@ public enum MatchStatus {
     COMPLETED,
 
     /**
+     * The match has been completed and results are yet to be placed into database
+     */
+    PENDING,
+
+    /**
      * The match has been cancelled and will not take place.
      */
     CANCELLED,
