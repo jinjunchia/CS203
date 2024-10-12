@@ -61,7 +61,7 @@ public class EloServiceImpl implements EloService {
         saveEloRecord(player2, match, player2.getEloRating(), newEloPlayer2, "Match against " + player1.getName());
     }
 
-    private double expectedScore(double playerElo, double opponentElo) {
+    public double expectedScore(double playerElo, double opponentElo) {
         // Calculates the expected score based on ELO ratings
         return 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
     }

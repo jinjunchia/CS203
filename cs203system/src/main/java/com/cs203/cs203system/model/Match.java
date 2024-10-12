@@ -104,6 +104,11 @@ public class Match implements Serializable {
         if (player1Score == null || player2Score == null) {
             return null;
         }
+
+        if (player1Score - player2Score == 0) {
+            return null;
+        }
+
         if (player1Score > player2Score) {
             return player1;
         }
