@@ -7,6 +7,7 @@ import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDtoMapper;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.PlayerRepository;
+import com.cs203.cs203system.service.impl.PlayerServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

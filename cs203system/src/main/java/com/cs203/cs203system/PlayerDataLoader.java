@@ -9,8 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
-
 @Component
 @Order(3)
 public class PlayerDataLoader implements CommandLineRunner {
@@ -27,7 +25,7 @@ public class PlayerDataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        for (int i = 0; i < 100; i++ ) {
+        for (int i = 0; i < 16; i++ ) {
             Player player = new Player();
             player.setName(faker.funnyName().name());
             String password = "admin";

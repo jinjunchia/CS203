@@ -1,4 +1,4 @@
-package com.cs203.cs203system.utilities2;
+package com.cs203.cs203system.service;
 
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;

@@ -1,7 +1,6 @@
 package com.cs203.cs203system.model;
 
 import com.cs203.cs203system.enums.PlayerBracket;
-import com.cs203.cs203system.enums.PlayerStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +8,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 
-
+/**
+ * Represents a Player in the system.
+ * The Player class extends the {@link User} class and includes additional functionality,
+ * such as managing Elo ratings, tournament participation, and player-specific statistics.
+ */
 @Entity
 @Getter
 @Setter
@@ -19,67 +22,64 @@ import java.util.Set;
 @DiscriminatorValue("ROLE_PLAYER")
 public class Player extends User {
 
+    /**
+     * The name of the player.
+     */
     private String name;
 
-    private double points = 0.0;
-
-    private Integer ranking; //not sure how to deal with this maybe next time
-    private Integer totalGamesPlayed = 0; // Specific to players, same for this I will implement not sure when
-
+    /**
+     * The number of losses the player has incurred in tournaments.
+     */
     private int tournamentLosses = 0;
 
+    /**
+     * The Elo rating of the player, used to determine skill level.
+     */
     private Double eloRating = 1000.0; // Specific to players
 
-    @Column(name = "wins", nullable = false)
-    private int wins = 0;
+    // ------------- Swiss Fields ----------------
 
-    @Column(name = "losses", nullable = false)
-    private int losses = 0;
+    /**
+     * The points earned by the player during a Swiss tournament.
+     */
+    private double points = 0.0;
 
-    @Column(name = "draws", nullable = false)
-    private int draws = 0;
+    // ------------- Swiss Fields ----------------
 
+
+    // ------------- Double Elimination Fields ----------------
+
+    /**
+     * The bracket in which the player is currently playing in a double elimination tournament.
+     * Represented by the {@link PlayerBracket} enum.
+     */
     @Enumerated(EnumType.STRING)
     private PlayerBracket bracket;
 
-    @Enumerated(EnumType.STRING)
-    private PlayerStatus status;
+    // ------------- Double Elimination Fields ----------------
 
+    /**
+     * The tournaments in which the player is participating.
+     * This is a many-to-many relationship, mapped by the "players" field in the {@link Tournament} class.
+     */
     @ManyToMany(mappedBy = "players")
     @ToString.Exclude
     private Set<Tournament> tournaments = new LinkedHashSet<>();
 
+    /**
+     * The set of Elo rating records for the player.
+     * Each record represents a change in the player's Elo rating.
+     */
     @OneToMany(mappedBy = "player", orphanRemoval = true)
     @ToString.Exclude
     private Set<EloRecord> eloRecords = new LinkedHashSet<>();
 
+    /**
+     * The player's statistical data, such as performance metrics.
+     */
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "player_stats_id")
     private PlayerStats playerStats;
-
-    // Method to add points
-    public void addPoints(double points) {
-        this.points += points;
-    }
-
-    // Method to reset points
-    public void resetPoints() {
-        this.points = 0.0;
-    }
-
-    // Method to check if the player has lost twice
-    public boolean hasLostTwice() {
-        return losses >= 2;
-    }
-
-    // Method to increment losses
-    public void incrementLosses() {
-        this.losses++;
-    }
-    public void incrementWins(){this.wins++;}
-    public void incrementDraws(){this.draws++;}
-
-    public void incrementTournamentLosses(){this.tournamentLosses++;}
 
 }

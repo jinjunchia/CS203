@@ -4,6 +4,7 @@ import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.repository.EloRecordRepository;
+import com.cs203.cs203system.service.impl.EloRecordServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-public class EloRecordServiceImplTest {
+public class EloRecordServiceTest {
     @Mock
     private EloRecordRepository eloRecordRepository;
     @InjectMocks
@@ -78,7 +79,8 @@ public class EloRecordServiceImplTest {
     }
 
     @Test
-    void saveEloRecord_ShouldSaveRecord() {
+    void saveEloRecord_SavingRecord_ShouldSaveRecord() {
+
         when(eloRecordRepository.save(any(EloRecord.class))).thenReturn(eloRecord);
 
         eloRecordService.saveEloRecord(eloRecord);
@@ -87,7 +89,7 @@ public class EloRecordServiceImplTest {
     }
 
     @Test
-    void updateEloRecord_ShouldUpdateExistingRecord() {
+    void updateEloRecord_UpdatingEloRecord_ShouldUpdateExistingEloRecord() {
         when(eloRecordRepository.findById(1L)).thenReturn(Optional.of(eloRecord));
 
         EloRecord updatedDetails = EloRecord.builder()
@@ -108,7 +110,7 @@ public class EloRecordServiceImplTest {
     }
 
     @Test
-    void deleteEloRecord_ShouldDeleteRecord() {
+    void deleteEloRecord_DeletingEloRecord_ShouldDeleteEloRecord() {
         when(eloRecordRepository.findById(1L)).thenReturn(Optional.of(eloRecord));
 
         eloRecordService.deleteEloRecord(1L);

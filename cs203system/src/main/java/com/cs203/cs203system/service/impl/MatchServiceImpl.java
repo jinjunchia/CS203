@@ -1,8 +1,9 @@
-package com.cs203.cs203system.service;
+package com.cs203.cs203system.service.impl;
 
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.repository.MatchRepository;
+import com.cs203.cs203system.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

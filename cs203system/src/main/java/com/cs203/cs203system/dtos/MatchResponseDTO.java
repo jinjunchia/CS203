@@ -21,7 +21,7 @@ public class MatchResponseDTO implements Serializable {
     Player1Dto player1;
     Player2Dto player2;
     TournamentDto tournament;
-    RoundDto round;
+    Integer round;
     WinnerDto winner;
 
     /**
@@ -60,16 +60,6 @@ public class MatchResponseDTO implements Serializable {
         Double minEloRating;
         Double maxEloRating;
         TournamentFormat format;
-    }
-
-    /**
-     * DTO for {@link com.cs203.cs203system.model.Round}
-     */
-    @Value
-    public static class RoundDto implements Serializable {
-        Long Id;
-        int roundNumber;
-        RoundType roundType;
     }
 
     /**
