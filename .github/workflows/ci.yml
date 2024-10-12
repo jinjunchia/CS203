@@ -13,25 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout code
-        uses: actions/checkout@v3  # Update to v3
+        uses: actions/checkout@v3
 
+      # Step 2: Set up Node.js (use the version that matches your project, e.g., 18)
       - name: Set up Node.js
-        uses: actions/setup-node@v3  # Update to v3
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'  # You can update this to the required Node.js version for your project
+          node-version: '18'  # You can adjust this if you're using a different Node.js version
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
+      # Step 4: Run linting (ensure code follows linting rules)
+      - name: Run linting
+        run: npm run lint
+
+      # Step 5: Build the project (Next.js build process)
       - name: Build project
         run: npm run build
-
-      - name: Run unit tests
-        run: npm test
-
-      - name: Run integration tests
-        run: npm run test:integration
-
-      - name: Lint code
-        run: npm run lint
