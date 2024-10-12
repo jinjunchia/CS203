@@ -35,5 +35,5 @@ jobs:
 
       # Step 5: Build the project (Next.js build process)
       - name: Build project
-        working-directory: frontend   
+        working-directory: frontend
         run: npm run build
