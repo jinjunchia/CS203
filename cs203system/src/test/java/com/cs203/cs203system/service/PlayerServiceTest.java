@@ -193,8 +193,8 @@ class PlayerServiceTest {
         // Assert: Verify that the result matches the expected DTO
         assertNotNull(result);
         assertEquals(1L, result.getId());
-        assertEquals("John Doe", result.getName());
-        assertEquals("john@example.com", result.getEmail());
+        assertEquals("Player1", result.getName());
+        assertEquals("player1@email.com", result.getEmail());
 
         // Verify that the repository and mappers were called as expected
         verify(createPlayerMapper, times(1)).toEntity(createUserRequest);
