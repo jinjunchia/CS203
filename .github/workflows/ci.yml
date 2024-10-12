@@ -25,12 +25,15 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install dependencies
+        working-directory: frontend
         run: npm install
 
       # Step 4: Run linting (ensure code follows linting rules)
       - name: Run linting
+        working-directory: frontend
         run: npm run lint
 
       # Step 5: Build the project (Next.js build process)
       - name: Build project
+        working-directory: frontend   
         run: npm run build
