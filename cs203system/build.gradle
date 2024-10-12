@@ -59,6 +59,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 jacoco {
 	toolVersion = "0.8.8" // Optional: Set JaCoCo tool version
 }
