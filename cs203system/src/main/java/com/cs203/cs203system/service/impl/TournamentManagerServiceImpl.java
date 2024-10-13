@@ -202,6 +202,8 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
                 .findById(match.getId())
                 .orElseThrow(() -> new NotFoundException("Match of id " + match.getId() + " is not found"));
 
+        //validation of scores and match statuses
+
         if (match.getPlayer1Score() < 0 || match.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
 
@@ -223,7 +225,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         // if match statue = PENDING -> match has completed but results have yet to be inserted
         // therefore, we need to insert results into repository and set the match status from PENDING to COMPLETED
         } else if (match.getStatus() == MatchStatus.PENDING) {
-
+            //inputting of the match result
             updatedMatch.setPlayer1Score(match.getPlayer1Score());
             updatedMatch.setPlayer2Score(match.getPlayer2Score());
             updatedMatch.setStatus(MatchStatus.COMPLETED);
