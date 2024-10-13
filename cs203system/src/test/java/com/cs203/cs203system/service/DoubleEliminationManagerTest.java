@@ -306,4 +306,52 @@ public class DoubleEliminationManagerTest {
         assertNotNull(result);
         assertEquals(player1, result);  // match1 has the highest ID, and player1 won match1 based on the scores
     }
+
+    @Test
+    void testMatchmakingForWinnersAndLosersBracket() {
+        // Arrange: Create a tournament and add players to the winners' and losers' bracket
+        Tournament tournament = new Tournament();
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setPoints(3.0);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setPoints(3.0);
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setPoints(2.0);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setPoints(2.0);
+
+        // Add players to the winners' bracket
+        tournament.setWinnersBracket(Arrays.asList(player1, player2));
+        // Add players to the losers' bracket
+        tournament.setLosersBracket(Arrays.asList(player3, player4));
+
+        // Initialize tournament matches list
+        tournament.setMatches(new ArrayList<>());
+
+        Match match = Match.builder()
+                .tournament(tournament)
+                .status(MatchStatus.COMPLETED)
+                .build();
+
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+
+        // Act: Call the method to perform matchmaking
+        Tournament result = doubleEliminationManagerImpl.receiveMatchResult(match);
+
+        // Assert: Verify that matches were created for both winners' and losers' brackets
+        assertEquals(2, result.getMatches().size()); // Expect 2 matches (one for each bracket)
+        assertEquals(MatchBracket.UPPER, result.getMatches().get(0).getBracket());
+        assertEquals(MatchBracket.LOWER, result.getMatches().get(1).getBracket());
+
+        // Verify that the tournament is saved
+        verify(tournamentRepository, times(1)).save(any(Tournament.class));
+    }
 }

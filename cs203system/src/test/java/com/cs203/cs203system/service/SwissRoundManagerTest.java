@@ -179,6 +179,123 @@ public class SwissRoundManagerTest {
         verify(tournamentRepository, times(1)).save(any(Tournament.class));
     }
 
+    @Test
+    void testReceiveMatchResult_NoDraw() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        Player player1 = new Player();
+        Player player2 = new Player();
+        player1.setPoints(3.0);
+        player2.setPoints(2.0);
+        tournament.setPlayers(Arrays.asList(player1, player2));
+        tournament.setCurrentRoundNumber(1);
+        tournament.setTotalSwissRounds(3);
+
+        Match match = Match.builder()
+                .tournament(tournament)
+                .player1(player1)
+                .player2(player2)
+                .status(MatchStatus.COMPLETED)
+                .build();
+        match.setPlayer1Score(2);
+        match.setPlayer2Score(1);  // No draw, player1 is the winner
+
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
+
+        // Assert
+        assertEquals(4.0, player1.getPoints());  // Winner's points should increase
+        assertEquals(2.0, player2.getPoints());  // Loser's points remain the same
+        verify(eloService, times(1)).updateEloRatings(player1, player2, match);
+        verify(tournamentRepository, times(1)).save(any(Tournament.class));
+    }
+
+//    @Test
+//    void testReceiveMatchResult_Draw() {
+//        // Arrange
+//        // Arrange
+//        Tournament tournament = new Tournament();
+//        Player player1 = new Player();
+//        Player player2 = new Player();
+//
+//        // Initialize player fields
+//        player1.setId(1L);  // Ensure each player has an ID
+//        player1.setPoints(3.0);  // Starting points
+//        player2.setId(2L);
+//        player2.setPoints(2.0);
+//
+//        // Set the players in the tournament
+//        tournament.setPlayers(Arrays.asList(player1, player2));
+//        tournament.setCurrentRoundNumber(1);
+//        tournament.setTotalSwissRounds(1);
+//
+//        Match match = Match.builder()
+//                .tournament(tournament)
+//                .player1(player1)
+//                .player2(player2)
+//                .status(MatchStatus.COMPLETED)
+//                .build();
+//        match.setPlayer1Score(1);
+//        match.setPlayer2Score(1);  // Simulate a draw
+//
+//        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+//        System.out.println("Match:" + match);
+//        // Act
+//        Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
+//
+//
+//        // Assert
+//        assertEquals(3.5, player1.getPoints());  // Both players get points for a draw
+//        assertEquals(2.5, player2.getPoints());
+//        verify(eloService, times(1)).updateEloRatings(player1, player2, match);
+//        verify(tournamentRepository, times(1)).save(any(Tournament.class));
+//    }
+
+    @Test
+    void testReceiveMatchResult_NormalMatchmaking() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Player player3 = new Player();  // Odd number of players for BYE
+        player1.setPoints(3.0);
+        player2.setPoints(2.0);
+        player3.setPoints(1.0);
+        tournament.setPlayers(Arrays.asList(player1, player2, player3));
+        tournament.setTotalSwissRounds(3);
+        tournament.setCurrentRoundNumber(1);
+
+        Match match = Match.builder()
+                .tournament(tournament)
+                .player1(player1)
+                .player2(player2)
+                .status(MatchStatus.COMPLETED)
+                .build();
+        match.setPlayer1Score(1);
+        match.setPlayer2Score(0);
+
+        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+        try (MockedStatic<SwissRoundUtils> mockedUtils = mockStatic(SwissRoundUtils.class)) {
+            mockedUtils.when(() -> SwissRoundUtils.createMatchHistory(any(Tournament.class)))
+                    .thenReturn(new HashMap<>());
+
+            // Act
+            Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
+
+            // Assert
+            assertEquals(2, result.getMatches().size());  // Should create 2 new matches (1 real match, 1 BYE)
+            long byeMatches = result.getMatches().stream().filter(m -> m.getStatus() == MatchStatus.BYE).count();
+            assertEquals(1, byeMatches);  // One player should get a BYE
+            verify(tournamentRepository, times(1)).save(any(Tournament.class));
+        }
+    }
+
+
+
+
+
 //    @Test
 //    void testReceiveMatchResult_TiebreakerFinals() {
 //        // Arrange
@@ -299,8 +416,6 @@ public class SwissRoundManagerTest {
 //                .player2(player2)
 //                .status(MatchStatus.COMPLETED)
 //                .build();
-//        match.setPlayer1Score(1);
-//        match.setPlayer2Score(0);
 //
 //        tournament.setMatches(List.of(match));
 //        tournament.setCurrentRoundNumber(1);

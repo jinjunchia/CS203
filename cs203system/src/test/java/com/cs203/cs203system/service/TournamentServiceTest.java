@@ -84,6 +84,7 @@ public class TournamentServiceTest {
         // Verify the repository interaction
         verify(tournamentRepository, times(1)).findById(tournamentId);
     }
+
     @Test
     void findTournamentById_TournamentNotFound_ThrowsNotFoundException() {
 
@@ -715,5 +716,54 @@ public class TournamentServiceTest {
         verify(doubleEliminationManager, times(1)).determineWinner(tournament);
     }
 
+    @Test
+    void testDeleteTournamentById_Success() {
+        // Arrange
+        Long tournamentId = 1L;
+        Tournament tournament = new Tournament();
+        tournament.setId(tournamentId);
+        tournament.setStatus(TournamentStatus.SCHEDULED);  // Only scheduled tournaments can be deleted
 
+        // Mock the repository to return the tournament when findById() is called
+        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+
+        // Act
+        tournamentManagerServiceImpl.deleteTournamentById(tournamentId);
+
+        // Assert
+        verify(tournamentRepository, times(1)).deleteById(tournamentId);  // Ensure deleteById was called
+    }
+
+    @Test
+    void testDeleteTournamentById_NotFound() {
+        // Arrange
+        Long tournamentId = 1L;
+
+        // Mock the repository to return empty Optional when findById() is called
+        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            tournamentManagerServiceImpl.deleteTournamentById(tournamentId);
+        });
+        assertEquals("Tournament id of " + tournamentId + " does not exist", exception.getMessage());
+    }
+
+    @Test
+    void testDeleteTournamentById_NotScheduled() {
+        // Arrange
+        Long tournamentId = 1L;
+        Tournament tournament = new Tournament();
+        tournament.setId(tournamentId);
+        tournament.setStatus(TournamentStatus.ONGOING);  // Not in SCHEDULED status, so it can't be deleted
+
+        // Mock the repository to return the tournament when findById() is called
+        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            tournamentManagerServiceImpl.deleteTournamentById(tournamentId);
+        });
+        assertEquals("Status of the tournament can only be deleted if it is scheduled", exception.getMessage());
+    }
 }
