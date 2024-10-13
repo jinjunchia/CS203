@@ -11,6 +11,7 @@ import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.DoubleEliminationManager;
+import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
 import com.cs203.cs203system.service.SwissRoundManager;
 import com.cs203.cs203system.service.TournamentManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +35,26 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
 
     private final SwissRoundManager swissRoundManager;
 
+    private final SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager;
+
     /**
      * Constructor for TournamentManagerServiceImpl.
      *
-     * @param doubleEliminationManager the double elimination manager for handling double elimination workflows.
-     * @param tournamentRepository     the repository used to manage Tournament data.
-     * @param playerRepository         the repository used to manage Player data.
-     * @param matchRepository          the repository used to manage Match data.
+     * @param doubleEliminationManager            the double elimination manager for handling double elimination workflows.
+     * @param tournamentRepository                the repository used to manage Tournament data.
+     * @param playerRepository                    the repository used to manage Player data.
+     * @param matchRepository                     the repository used to manage Match data.
+     * @param swissRoundManager                   the manager used to handle Swiss-style tournament rounds.
+     * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
      */
     @Autowired
-    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager) {
+    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager) {
         this.doubleEliminationManager = doubleEliminationManager;
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
         this.matchRepository = matchRepository;
         this.swissRoundManager = swissRoundManager;
+        this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
     }
 
     /**
@@ -179,70 +185,68 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             case DOUBLE_ELIMINATION:
                 return doubleEliminationManager.initializeDoubleElimination(tournament);
             case HYBRID:
-//                swissRoundManager.initializeRounds(tournament);
-                break;
+                return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
             default:
                 throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
         }
-        return null;
     }
 
     /**
      * Inputs the result of a match and updates the tournament status accordingly.
      *
-     * @param match the match with updated results.
+     * @param matchInRequest the match with updated results.
      * @return the updated tournament.
      * @throws NotFoundException if the match does not exist.
      * @throws RuntimeException  if the match results are invalid.
      */
     @Transactional
     @Override
-    public Tournament inputResult(Match match) {
-        Match updatedMatch = matchRepository
-                .findById(match.getId())
-                .orElseThrow(() -> new NotFoundException("Match of id " + match.getId() + " is not found"));
+    public Tournament inputResult(Match matchInRequest) {
+        Match matchInDatabase = matchRepository
+                .findById(matchInRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Match of id " + matchInRequest.getId() + " is not found"));
 
-        if (match.getPlayer1Score() < 0 || match.getPlayer2Score() < 0) {
+        if (matchInRequest.getPlayer1Score() < 0 || matchInRequest.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
 
-        } else if (match.getPlayer1Score() + match.getPlayer2Score() == 0) {
+        } else if (matchInRequest.getPlayer1Score() + matchInRequest.getPlayer2Score() == 0) {
             throw new RuntimeException("The total match score must be more than 0");
 
-        } else if (match.getPlayer1Score().equals(match.getPlayer2Score())
-                && updatedMatch.getTournament().getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
+        } else if (matchInRequest.getPlayer1Score().equals(matchInRequest.getPlayer2Score())
+                && matchInDatabase.getTournament().getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
             throw new RuntimeException("Draws are not allowed for Double Elimination");
 
-        // if match status = SCHEDULED or WAITING -> match has not started
-        } else if (match.getStatus() == MatchStatus.SCHEDULED || match.getStatus() == MatchStatus.WAITING) {
+            // if match status = SCHEDULED or WAITING (IN THE RESPONSE BODY) -> match has not started
+        } else if (matchInRequest.getStatus() == MatchStatus.SCHEDULED || matchInRequest.getStatus() == MatchStatus.WAITING) {
             throw new RuntimeException("Please input a valid match status");
 
-        // if match status = COMPLETED -> match has completed and results have been inserted
-        } else if (updatedMatch.getStatus() == MatchStatus.COMPLETED) {
+            // if match status = COMPLETED (IN THE DATABASE) -> match has completed and results have been inserted
+        } else if (matchInDatabase.getStatus() == MatchStatus.COMPLETED) {
             throw new RuntimeException("Match has completed");
 
-        // if match statue = PENDING -> match has completed but results have yet to be inserted
-        // therefore, we need to insert results into repository and set the match status from PENDING to COMPLETED
-        } else if (match.getStatus() == MatchStatus.PENDING) {
+            // if match status = PENDING (IN THE RESPONSE BODY) -> match has completed but results have yet to be inserted
+            // therefore, we need to insert results into repository and set the match status from PENDING to COMPLETED
+            // Note: Only the system has the final authority to change the status to completed
+        } else if (matchInRequest.getStatus() == MatchStatus.PENDING) {
 
-            updatedMatch.setPlayer1Score(match.getPlayer1Score());
-            updatedMatch.setPlayer2Score(match.getPlayer2Score());
-            updatedMatch.setStatus(MatchStatus.COMPLETED);
-            updatedMatch = matchRepository.save(updatedMatch);
+            matchInDatabase.setPlayer1Score(matchInRequest.getPlayer1Score());
+            matchInDatabase.setPlayer2Score(matchInRequest.getPlayer2Score());
+            matchInDatabase.setStatus(MatchStatus.COMPLETED);
+            matchInDatabase = matchRepository.save(matchInDatabase);
 
-            switch (updatedMatch.getTournament().getFormat()) {
+            switch (matchInDatabase.getTournament().getFormat()) {
                 case SWISS:
-                    return swissRoundManager.receiveMatchResult(updatedMatch);
+                    return swissRoundManager.receiveMatchResult(matchInDatabase);
                 case DOUBLE_ELIMINATION:
-                    return doubleEliminationManager.receiveMatchResult(updatedMatch);
+                    return doubleEliminationManager.receiveMatchResult(matchInDatabase);
                 case HYBRID:
-//                swissRoundManager.receiveMatchResult();
-                    break;
+                    return swissDoubleEliminationHybridManager.receiveMatchResult(matchInDatabase);
                 default:
-                    throw new IllegalArgumentException("Unsupported tournament format: " + match.getTournament().getFormat());
+                    throw new IllegalArgumentException("Unsupported tournament format: " + matchInRequest.getTournament().getFormat());
             }
         }
-            return null;
-        }
+        return null;
+    }
 
 
     /**
@@ -267,12 +271,10 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             case DOUBLE_ELIMINATION:
                 return doubleEliminationManager.determineWinner(tournament);
             case HYBRID:
-//                swissRoundManager.initializeRounds(tournament);
-                break;
+                return swissDoubleEliminationHybridManager.determineWinner(tournament);
             default:
                 throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
         }
-        return null;
     }
 
     /**

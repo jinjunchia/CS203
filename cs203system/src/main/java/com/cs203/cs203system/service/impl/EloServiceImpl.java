@@ -43,6 +43,9 @@ public class EloServiceImpl implements EloService {
             actualScorePlayer2 = 1.0; // player2 wins
         }
 
+        // Store old EloRating
+        double oldEloPlayer1 = player1.getEloRating();
+        double oldEloPlayer2 = player2.getEloRating();
 
         // Calculate expected scores
         double expectedScorePlayer1 = expectedScore(player1.getEloRating(), player2.getEloRating());
@@ -57,8 +60,8 @@ public class EloServiceImpl implements EloService {
         player2.setEloRating(newEloPlayer2);
 
         // Save ELO records for historical tracking
-        saveEloRecord(player1, match, player1.getEloRating(), newEloPlayer1, "Match against " + player2.getName());
-        saveEloRecord(player2, match, player2.getEloRating(), newEloPlayer2, "Match against " + player1.getName());
+        saveEloRecord(player1, match, oldEloPlayer1, newEloPlayer1, "Match against " + player2.getName());
+        saveEloRecord(player2, match, oldEloPlayer2, newEloPlayer2, "Match against " + player1.getName());
     }
 
     public double expectedScore(double playerElo, double opponentElo) {

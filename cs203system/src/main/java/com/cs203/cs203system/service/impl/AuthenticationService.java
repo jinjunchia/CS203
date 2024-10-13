@@ -36,10 +36,6 @@ public class AuthenticationService {
 
     private final PlayerRepository playerRepository;
 
-    private final CreatePlayerMapper createPlayerMapper;
-
-    private final CreateAdminMapper createAdminMapper;
-
     private final TokenService tokenService;
 
     private final UserResponseMapper userResponseMapper;
@@ -47,27 +43,23 @@ public class AuthenticationService {
     /**
      * Constructs an AuthenticationService with the required dependencies.
      *
-     * @param userRepository the repository for accessing user data
-     * @param passwordEncoder the encoder for hashing passwords
+     * @param userRepository        the repository for accessing user data
+     * @param passwordEncoder       the encoder for hashing passwords
      * @param authenticationManager the manager for authenticating users
-     * @param adminRepository the repository for accessing admin data
-     * @param playerRepository the repository for accessing player data
-     * @param createPlayerMapper the mapper for converting CreateUserRequest to Player entity
-     * @param createAdminMapper the mapper for converting CreateUserRequest to Admin entity
-     * @param tokenService the service for generating JWT tokens
-     * @param userResponseMapper the mapper for converting User entity to UserResponseDto
+     * @param adminRepository       the repository for accessing admin data
+     * @param playerRepository      the repository for accessing player data
+     * @param tokenService          the service for generating JWT tokens
+     * @param userResponseMapper    the mapper for converting User entity to UserResponseDto
      */
     @Autowired
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, AdminRepository adminRepository, PlayerRepository playerRepository,
-                                 CreatePlayerMapper createPlayerMapper, CreateAdminMapper createAdminMapper, TokenService tokenService,
-                                 UserResponseMapper userResponseMapper) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                                 AuthenticationManager authenticationManager, AdminRepository adminRepository, PlayerRepository playerRepository,
+                                 TokenService tokenService, UserResponseMapper userResponseMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.adminRepository = adminRepository;
         this.playerRepository = playerRepository;
-        this.createPlayerMapper = createPlayerMapper;
-        this.createAdminMapper = createAdminMapper;
         this.tokenService = tokenService;
         this.userResponseMapper = userResponseMapper;
     }
@@ -79,16 +71,31 @@ public class AuthenticationService {
      * @param createUserRequest the request data containing user details for registration
      * @return the registered User entity
      */
+    @Transactional
     public User register(CreateUserRequest createUserRequest) {
+        if (userRepository.existsUserByUsernameIgnoreCase(createUserRequest.getUsername())
+                || userRepository.existsUserByEmailIgnoreCase(createUserRequest.getEmail())) {
+            throw new RuntimeException("Username or Email is already in use");
+        }
+
         createUserRequest.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
         UserType userType = createUserRequest.getUserType();
 
         if (userType.equals(UserType.ROLE_PLAYER)) {
-            Player newPlayer = createPlayerMapper.toEntity(createUserRequest);
+            Player newPlayer = new Player();
+            newPlayer.setUsername(createUserRequest.getUsername());
+            newPlayer.setPassword(createUserRequest.getPassword());
+            newPlayer.setName(createUserRequest.getName());
+            newPlayer.setEmail(createUserRequest.getEmail());
+            newPlayer.setUserType(UserType.ROLE_PLAYER);
             return playerRepository.save(newPlayer);
         }
 
-        Admin newAdmin = createAdminMapper.toEntity(createUserRequest);
+        Admin newAdmin = new Admin();
+        newAdmin.setUsername(createUserRequest.getUsername());
+        newAdmin.setPassword(createUserRequest.getPassword());
+        newAdmin.setEmail(createUserRequest.getEmail());
+        newAdmin.setUserType(UserType.ROLE_ADMIN);
         return adminRepository.save(newAdmin);
     }
 
@@ -99,6 +106,7 @@ public class AuthenticationService {
      * @param password the password of the user attempting to log in
      * @return a LoginResponse containing the user details and JWT token if authentication is successful, or null if unsuccessful
      */
+    @Transactional
     public LoginResponse loginUser(String username, String password) {
         try {
             Authentication auth = authenticationManager.authenticate(

@@ -16,6 +16,6 @@ public class PlayerWithOutStatsDto implements Serializable {
     String email;
     UserType userType;
     String name;
-    Integer totalGamesPlayed;
+//    Integer totalGamesPlayed;
     Double eloRating;
 }

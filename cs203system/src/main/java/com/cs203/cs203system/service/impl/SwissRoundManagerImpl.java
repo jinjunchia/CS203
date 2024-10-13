@@ -2,6 +2,7 @@ package com.cs203.cs203system.service.impl;
 
 import com.cs203.cs203system.enums.MatchBracket;
 import com.cs203.cs203system.enums.MatchStatus;
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
@@ -43,8 +44,8 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
      * Constructs the SwissRoundManagerImpl with the necessary repositories and services.
      *
      * @param tournamentRepository Repository to manage tournament data.
-     * @param playerRepository Repository to manage player data.
-     * @param eloService Service to manage player ELO ratings.
+     * @param playerRepository     Repository to manage player data.
+     * @param eloService           Service to manage player ELO ratings.
      */
     @Autowired
     public SwissRoundManagerImpl(TournamentRepository tournamentRepository, PlayerRepository playerRepository, EloService eloService) {
@@ -81,6 +82,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
                     .player1(tournament.getPlayers().get(i - 1))
                     .player2(tournament.getPlayers().get(i))
                     .status(MatchStatus.SCHEDULED)
+                    .bracket(MatchBracket.SWISS)
                     .round(tournament.getCurrentRoundNumber())
                     .build();
             tournament.getMatches().add(newMatch);
@@ -100,18 +102,20 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
     @Transactional
     public Tournament receiveMatchResult(Match match) {
         Tournament tournament = match.getTournament();
-        Player winner = match.getWinner(), loser = match.getLoser();
         if (!match.isDraw()) {
+            Player winner = match.getWinner(), loser = match.getLoser();
             winner.setPoints(winner.getPoints() + scoreMap.get("WIN"));
             loser.setPoints(loser.getPoints() + scoreMap.get("LOSE"));
+            playerRepository.saveAll(List.of(winner, loser));
         } else {
-            winner.setPoints(winner.getPoints() + scoreMap.get("DRAW"));
-            loser.setPoints(loser.getPoints() + scoreMap.get("DRAW"));
+            Player player1 = match.getPlayer1(), player2 = match.getPlayer2();
+            player1.setPoints(player1.getPoints() + scoreMap.get("DRAW"));
+            player2.setPoints(player2.getPoints() + scoreMap.get("DRAW"));
+            playerRepository.saveAll(List.of(player1, player2));
         }
-        playerRepository.saveAll(List.of(winner, loser));
 
         // Update elo here
-        eloService.updateEloRatings(winner, loser, match);
+        eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
 
         // Check if all the previous matches are either completed or Bye (for odd number of people)
         boolean isAllMatchCompleted = match.getTournament().getMatches()
@@ -125,11 +129,15 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
         // End tournament/Finals Case (if the number of current rounds == total possible rounds)
         if (tournament.getCurrentRoundNumber() >= tournament.getTotalSwissRounds()) {
+
             List<Player> winners = SwissRoundUtils.findWinners(tournament);
 
-            if (winners.size() <= 1) {
+            // It will end the swiss tournament if
+            //      a) There is only 1 winner (No draws)
+            //      b) If it's a hybrid (need to start the double elimination)
+            if (winners.size() <= 1 || tournament.getFormat().equals(TournamentFormat.HYBRID)) {
                 tournament.setStatus(TournamentStatus.COMPLETED);
-                tournament.setEndDate(LocalDate.now());
+                if (tournament.getFormat().equals(TournamentFormat.SWISS)) tournament.setEndDate(LocalDate.now());
                 return tournamentRepository.save(tournament);
             }
 

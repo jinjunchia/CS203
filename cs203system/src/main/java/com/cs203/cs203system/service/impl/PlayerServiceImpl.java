@@ -57,6 +57,20 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     /**
+     * Retrieves a list of all players and ordered by elo rating.
+     *
+     * @return a list of PlayerWithOutStatsDto representing all players
+     */
+    @Override
+    public List<PlayerWithOutStatsDto> findAllPlayersOrderByEloRating() {
+        return playerRepository
+                .findAllByOrderByEloRatingDesc()
+                .stream()
+                .map(playerWithOutStatsDtoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Finds a player by their ID.
      *
      * @param id the ID of the player to find

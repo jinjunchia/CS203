@@ -193,4 +193,63 @@ public class SwissRoundUtils {
         return winners;
     }
 
+    /**
+     * Retrieves the top players based on their rankings from the given tournament.
+     * <p>
+     * This method calculates the ranking for each player in the tournament based on the outcomes
+     * of the matches. Player scores are initialized to 0.0, and are updated based on whether
+     * they won or drew a match. The method returns a list of players with the highest scores,
+     * sorted in descending order of their ranking.
+     * </p>
+     *
+     * @param tournament      The tournament from which players and matches are retrieved.
+     * @param numberOfPlayers The number of top players to retrieve.
+     * @return A list of the top players, sorted by their ranking in descending order.
+     */
+    private static List<Player> getTopPlayers(Tournament tournament, int numberOfPlayers) {
+        Map<Player, Double> ranking = tournament.getPlayers()
+                .stream()
+                .collect(Collectors.toMap(
+                        player -> player,
+                        player -> 0.0
+                ));
+
+        // Update rankings based on match results
+        for (Match match : tournament.getMatches()) {
+            Player player1 = match.getPlayer1();
+            Player player2 = match.getPlayer2();
+
+            if (match.isDraw()) {
+                ranking.put(player1, ranking.get(player1) + scoreMap.get("DRAW"));
+                ranking.put(player2, ranking.get(player2) + scoreMap.get("DRAW"));
+            } else {
+                Player winner = match.getWinner();
+                ranking.put(winner, ranking.get(winner) + scoreMap.get("WIN"));
+            }
+        }
+
+        // Use a priority queue to keep track of the top N players
+        PriorityQueue<Map.Entry<Player, Double>> minHeap = new PriorityQueue<>(
+                Comparator.comparingDouble(Map.Entry::getValue)
+        );
+
+        // Remove the player with the lowest score if heap exceeds size
+        for (Map.Entry<Player, Double> entry : ranking.entrySet()) {
+            minHeap.offer(entry);
+            if (minHeap.size() > numberOfPlayers) {
+                minHeap.poll();
+            }
+        }
+
+        // Extract top players from the priority queue
+        List<Player> topPlayers = new ArrayList<>();
+        while (!minHeap.isEmpty()) {
+            topPlayers.add(minHeap.poll().getKey());
+        }
+
+        // Since the priority queue gives players in ascending order, reverse the list for descending order.
+        Collections.reverse(topPlayers);
+
+        return topPlayers;
+    }
 }

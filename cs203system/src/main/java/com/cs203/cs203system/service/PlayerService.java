@@ -14,6 +14,8 @@ public interface PlayerService {
 
     List<PlayerWithOutStatsDto> findAllPlayers();
 
+    List<PlayerWithOutStatsDto> findAllPlayersOrderByEloRating();
+
     Optional<PlayerWithOutStatsDto> findPlayerById(Long id);
 
     Player updatePlayer(Long id, PlayerUpdateRequest player);

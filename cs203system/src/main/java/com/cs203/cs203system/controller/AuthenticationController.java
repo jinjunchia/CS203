@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * Controller for managing user authentication and registration.
  */
 @RestController
-@RequestMapping("auth")
+@RequestMapping("api/auth")
 @CrossOrigin("*")
 public class AuthenticationController {
 
@@ -56,8 +56,9 @@ public class AuthenticationController {
                     content = @Content)
     })
     @PostMapping("/register")
-    public User registerUser(@RequestBody CreateUserRequest body){
-        return authenticationService.register(body);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDto registerUser(@RequestBody CreateUserRequest body){
+        return userResponseMapper.toDto(authenticationService.register(body));
     }
 
     /**
@@ -74,6 +75,7 @@ public class AuthenticationController {
                     content = @Content)
     })
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest body){
         LoginResponse loginResponse = authenticationService.loginUser(body.getUsername(), body.getPassword());
         if (loginResponse.getUser() == null) {
@@ -97,6 +99,7 @@ public class AuthenticationController {
                     content = @Content)
     })
     @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

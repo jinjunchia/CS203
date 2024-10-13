@@ -119,6 +119,18 @@ public class Tournament implements Serializable {
 
     // -------------- Double Elimination Fields --------------
 
+
+    // -------------- Hybrid Fields --------------
+
+    /**
+     * Indicates if the tournament is currently using the second format (applicable for hybrid tournaments).
+     * For example, a tournament might start with Swiss rounds and then transition to a double elimination phase.
+     */
+    @Builder.Default
+    private Boolean isOnSecondFormat = false;
+
+    // -------------- Hybrid Fields --------------
+
     /**
      * The list of matches in the tournament.
      */
@@ -126,7 +138,6 @@ public class Tournament implements Serializable {
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Match> matches = new ArrayList<>();
-
 
     /**
      * The administrator managing the tournament.

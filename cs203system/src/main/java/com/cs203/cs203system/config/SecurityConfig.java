@@ -76,8 +76,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "api/tournament", "api/tournament/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/player", "api/player/**").permitAll()
-                        .requestMatchers("auth/me").permitAll()
-                        .requestMatchers("auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"api/auth/**").permitAll()
+//                        .requestMatchers("api/auth/login").permitAll()
+//                        .requestMatchers("api/auth/register").permitAll()
                         .anyRequest().authenticated()
                 );
 

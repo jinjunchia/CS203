@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/tournament")
+@CrossOrigin("*")
 public class TournamentController {
 
     private final TournamentManagerService tournamentManagerService;
@@ -185,7 +186,7 @@ public class TournamentController {
                     content = @Content)
     })
     @PutMapping("/match")
-    public ResponseEntity<TournamentResponseDTO> updateMatchResults(@RequestBody InputMatchDTO matchDTO) {
+    public ResponseEntity<TournamentResponseDTO> updateMatchResults(@RequestBody @Valid InputMatchDTO matchDTO) {
         return new ResponseEntity<>(tournamentResponseDTOMapper
                 .toDto(tournamentManagerService
                         .inputResult(inputMatchDTOMapper.toEntity(matchDTO))), HttpStatus.ACCEPTED);

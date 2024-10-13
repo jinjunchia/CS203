@@ -20,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/elo-records")
+@CrossOrigin("*")
 public class EloRecordController {
     private final EloRecordService eloRecordService;
 
