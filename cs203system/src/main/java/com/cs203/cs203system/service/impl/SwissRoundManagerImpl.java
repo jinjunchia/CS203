@@ -104,6 +104,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
         Tournament tournament = match.getTournament();
         if (!match.isDraw()) {
             Player winner = match.getWinner(), loser = match.getLoser();
+            System.out.println("Winner is: " + winner);
             winner.setPoints(winner.getPoints() + scoreMap.get("WIN"));
             loser.setPoints(loser.getPoints() + scoreMap.get("LOSE"));
             playerRepository.saveAll(List.of(winner, loser));

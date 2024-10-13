@@ -7,6 +7,7 @@ import com.cs203.cs203system.repository.EloRecordRepository;
 import com.cs203.cs203system.service.impl.EloRecordServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -117,4 +118,35 @@ public class EloRecordServiceTest {
 
         verify(eloRecordRepository, times(1)).delete(eloRecord);
     }
+
+    @Test
+    void testSaveEloRecord() {
+        // Arrange: set up the test data
+        Player player = new Player();  // You might need to populate this with relevant data
+        Match match = new Match();    // You might need to populate this with relevant data
+        double oldRating = 1200.0;
+        double newRating = 1250.0;
+        String reason = "Won Match";
+
+        // Act: call the method under test
+        eloRecordService.saveEloRecord(player, match, oldRating, newRating, reason);
+
+        // Capture the argument passed to eloRecordRepository.save()
+        ArgumentCaptor<EloRecord> eloRecordCaptor = ArgumentCaptor.forClass(EloRecord.class);
+        verify(eloRecordRepository, times(1)).save(eloRecordCaptor.capture());
+
+        // Get the actual EloRecord that was passed to the save method
+        EloRecord savedRecord = eloRecordCaptor.getValue();
+
+        // Assert: check the fields of the saved EloRecord
+        assertEquals(player, savedRecord.getPlayer());
+        assertEquals(match, savedRecord.getMatch());
+        assertEquals(oldRating, savedRecord.getOldRating());
+        assertEquals(newRating, savedRecord.getNewRating());
+        assertEquals(reason, savedRecord.getChangeReason());
+
+        // Ignore date comparison as LocalDateTime.now() may have minor differences in timing
+        assertNotNull(savedRecord.getDate());  // Just check that a date was set
+    }
 }
+

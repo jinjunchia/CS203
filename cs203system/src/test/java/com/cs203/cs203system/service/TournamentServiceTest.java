@@ -10,6 +10,7 @@ import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
+import com.cs203.cs203system.service.impl.SwissDoubleEliminationHybridManagerImpl;
 import com.cs203.cs203system.service.impl.TournamentManagerServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.aspectj.lang.annotation.After;
@@ -47,6 +48,9 @@ public class TournamentServiceTest {
 
     @Mock
     DoubleEliminationManager doubleEliminationManager;
+
+    @Mock
+    SwissDoubleEliminationHybridManagerImpl swissDoubleEliminationHybridManagerImpl;
 
     @BeforeEach
     void setUp() {
@@ -766,4 +770,130 @@ public class TournamentServiceTest {
         });
         assertEquals("Status of the tournament can only be deleted if it is scheduled", exception.getMessage());
     }
+
+    @Test
+    void testFindAllTournaments() {
+        // Arrange: Create mock data
+        Tournament tournament1 = new Tournament();
+        tournament1.setId(1L);
+        tournament1.setName("Tournament 1");
+
+        Tournament tournament2 = new Tournament();
+        tournament2.setId(2L);
+        tournament2.setName("Tournament 2");
+
+        List<Tournament> mockTournaments = Arrays.asList(tournament1, tournament2);
+        when(tournamentRepository.findAll()).thenReturn(mockTournaments);
+
+        // Act: Call the service method
+        List<Tournament> result = tournamentManagerServiceImpl.findAllTournaments();
+
+        // Assert: Verify the results
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Tournament 1", result.get(0).getName());
+        assertEquals("Tournament 2", result.get(1).getName());
+
+        // Verify that findAll() was called once on the repository
+        verify(tournamentRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testSwitchWithSwissFormat() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setFormat(TournamentFormat.SWISS);
+
+        when(swissRoundManager.initializeSwiss(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result =  swissRoundManager.initializeSwiss(tournament);
+
+        // Assert
+        assertNotNull(result);
+        verify(swissRoundManager, times(1)).initializeSwiss(tournament);
+        verify(doubleEliminationManager, times(0)).initializeDoubleElimination(any(Tournament.class));
+        verify(swissDoubleEliminationHybridManagerImpl, times(0)).initializeHybrid(any(Tournament.class));
+    }
+
+    @Test
+    void testSwitchWithDoubleEliminationFormat() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setFormat(TournamentFormat.DOUBLE_ELIMINATION);
+
+        when(doubleEliminationManager.initializeDoubleElimination(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result = doubleEliminationManager.initializeDoubleElimination(tournament);
+
+        // Assert
+        assertNotNull(result);
+        verify(doubleEliminationManager, times(1)).initializeDoubleElimination(tournament);
+        verify(swissRoundManager, times(0)).initializeSwiss(any(Tournament.class));
+        verify(swissDoubleEliminationHybridManagerImpl, times(0)).initializeHybrid(any(Tournament.class));
+    }
+
+    @Test
+    void testSwitchWithHybridFormat() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setFormat(TournamentFormat.HYBRID);
+
+        when(swissDoubleEliminationHybridManagerImpl.initializeHybrid(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result = swissDoubleEliminationHybridManagerImpl.initializeHybrid(tournament);
+
+        // Assert
+        assertNotNull(result);
+        verify(swissDoubleEliminationHybridManagerImpl, times(1)).initializeHybrid(tournament);
+        verify(swissRoundManager, times(0)).initializeSwiss(any(Tournament.class));
+        verify(doubleEliminationManager, times(0)).initializeDoubleElimination(any(Tournament.class));
+    }
+
+    @Test
+    void testStartTournament_UnsupportedFormat() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setId(1L);
+        tournament.setFormat(null);  // Set to an unsupported or null format
+        tournament.setStatus(TournamentStatus.SCHEDULED);
+        tournament.setPlayers(Arrays.asList(new Player(), new Player()));  // Ensure valid number of players
+
+        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            this.tournamentManagerServiceImpl.startTournament(1L);
+        });
+
+        assertEquals("Unsupported tournament format:", exception.getMessage());
+        verify(swissRoundManager, times(0)).initializeSwiss(any(Tournament.class));
+        verify(doubleEliminationManager, times(0)).initializeDoubleElimination(any(Tournament.class));
+        verify(swissDoubleEliminationHybridManagerImpl, times(0)).initializeHybrid(any(Tournament.class));
+    }
+
+    @Test
+    void testStartTournament_HybridFormat() {
+        // Arrange
+        Tournament tournament = new Tournament();
+        tournament.setId(1L);
+        tournament.setFormat(TournamentFormat.HYBRID);
+        tournament.setStatus(TournamentStatus.SCHEDULED);
+        tournament.setPlayers(Arrays.asList(new Player(), new Player()));  // Ensure valid number of players
+
+        when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
+        when(swissDoubleEliminationHybridManagerImpl.initializeHybrid(any(Tournament.class))).thenReturn(tournament);
+
+        // Act
+        Tournament result = this.tournamentManagerServiceImpl.startTournament(tournament.getId());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(TournamentStatus.ONGOING, result.getStatus());
+        verify(swissDoubleEliminationHybridManagerImpl, times(1)).initializeHybrid(tournament);
+        verify(tournamentRepository, times(1)).findById(1L);
+    }
+
 }

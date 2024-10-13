@@ -178,17 +178,21 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         }
 
         tournament.setStatus(TournamentStatus.ONGOING);
-
-        switch (tournament.getFormat()) {
-            case SWISS:
-                return swissRoundManager.initializeSwiss(tournament);
-            case DOUBLE_ELIMINATION:
-                return doubleEliminationManager.initializeDoubleElimination(tournament);
-            case HYBRID:
-                return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
-            default:
-                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+        try {
+            switch (tournament.getFormat()) {
+                case SWISS:
+                    return swissRoundManager.initializeSwiss(tournament);
+                case DOUBLE_ELIMINATION:
+                    return doubleEliminationManager.initializeDoubleElimination(tournament);
+                case HYBRID:
+                    return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
+                default:
+                    throw new IllegalArgumentException("Unsupported tournament format:" + tournament.getFormat());
+            }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Unsupported tournament format:");
         }
+
     }
 
     /**
