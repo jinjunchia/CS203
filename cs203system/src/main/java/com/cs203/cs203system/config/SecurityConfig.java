@@ -14,6 +14,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -81,7 +82,11 @@ public class SecurityConfig {
 //                        .requestMatchers("api/auth/login").permitAll()
 //                        .requestMatchers("api/auth/register").permitAll()
                         .anyRequest().authenticated()
-                );
+
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
+        ;
+
 
         http.httpBasic(withDefaults());
 
