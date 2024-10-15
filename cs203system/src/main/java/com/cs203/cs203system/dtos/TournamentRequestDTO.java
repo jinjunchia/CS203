@@ -24,10 +24,9 @@ public class TournamentRequestDTO implements Serializable {
     @NotNull
     String location;
 
-    @NotNull
+
     Double minEloRating;
 
-    @NotNull
     Double maxEloRating;
 
     @NotNull
