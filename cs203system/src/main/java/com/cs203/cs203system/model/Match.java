@@ -127,6 +127,9 @@ public class Match implements Serializable {
      * Indicates if the match ended in a knockout (KO).
      */
     private boolean isKO;
+    private boolean koByPlayer1;
+    private boolean koByPlayer2;
+
 
     // --------- New Fields for Punches, KO, and Dodge -----------
     public Player getWinner() {

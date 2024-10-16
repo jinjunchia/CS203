@@ -27,52 +27,59 @@ public class EloServiceImpl implements EloService {
     @Override
     @Transactional
     public void updateEloRatings(Player player1, Player player2, Match match) {
-        Player winner = match.getWinner();
+        // Get player scores from the match (entered by the admin)
+        Integer player1Score = match.getPlayer1Score();
+        Integer player2Score = match.getPlayer2Score();
 
-        if (winner == null) {
-            return;
+        if (player1Score == null || player2Score == null) {
+            throw new IllegalArgumentException("Player scores must not be null.");
         }
 
-        double actualScorePlayer1;
-        double actualScorePlayer2;
+        // Determine actual scores for ELO calculation based on input scores
+        double actualScorePlayer1 = player1Score > player2Score ? 1.0 : (player1Score < player2Score ? 0.0 : 0.5);
+        double actualScorePlayer2 = 1.0 - actualScorePlayer1;
 
-        if (winner.equals(player1)) {
-            actualScorePlayer1 = 1.0; // player1 wins
-            actualScorePlayer2 = 0.0; // player2 loses
-        } else {
-            actualScorePlayer1 = 0.0; // player1 loses
-            actualScorePlayer2 = 1.0; // player2 wins
-        }
 
-        // retrieve additional metrics
+
+        // Retrieve additional metrics
         int punchesPlayer1 = match.getPunchesPlayer1();
         int punchesPlayer2 = match.getPunchesPlayer2();
         int dodgesPlayer1 = match.getDodgesPlayer1();
         int dodgesPlayer2 = match.getDodgesPlayer2();
-        boolean isKO = match.isKO();
 
-        // store old EloRating
+        // Get who performed the KO
+        boolean koByPlayer1 = match.isKoByPlayer1();
+        boolean koByPlayer2 = match.isKoByPlayer2();
+
+        // Store old EloRating
         double oldEloPlayer1 = player1.getEloRating();
         double oldEloPlayer2 = player2.getEloRating();
 
-        // calculate expected scores based on ELO ratings
+        // Calculate expected scores based on ELO ratings
         double expectedScorePlayer1 = expectedScore(player1.getEloRating(), player2.getEloRating());
         double expectedScorePlayer2 = expectedScore(player2.getEloRating(), player1.getEloRating());
 
-        // calculate factors based on punches, dodges, and KO
-        double punchFactor = calculatePunchFactor(punchesPlayer1, punchesPlayer2);
-        double dodgeFactor = calculateDodgeFactor(dodgesPlayer1, dodgesPlayer2);
-        double koFactor = calculateKOFactor(isKO);
+        // Calculate factors based on punches, dodges, and KO
+        double punchFactorPlayer1 = calculatePunchFactor(punchesPlayer1, punchesPlayer2);
+        double punchFactorPlayer2 = calculatePunchFactor(punchesPlayer2, punchesPlayer1);
+        double dodgeFactorPlayer1 = calculateDodgeFactor(dodgesPlayer1, dodgesPlayer2);
+        double dodgeFactorPlayer2 = calculateDodgeFactor(dodgesPlayer2, dodgesPlayer1);
+        double koFactorPlayer1 = koByPlayer1 ? calculateKOFactor(true) : 0;
+        double koFactorPlayer2 = koByPlayer2 ? calculateKOFactor(true) : 0;
 
-        // calculate new ELO ratings with the added factors
-        double newEloPlayer1 = player1.getEloRating() + K_FACTOR * (actualScorePlayer1 - expectedScorePlayer1) + punchFactor + dodgeFactor + koFactor;
-        double newEloPlayer2 = player2.getEloRating() + K_FACTOR * (actualScorePlayer2 - expectedScorePlayer2) - punchFactor - dodgeFactor - koFactor;
+        if (koByPlayer1 && koByPlayer2) {
+            throw new IllegalStateException("Both players cannot perform a KO in the same match.");
+        }
 
-        // update players' ELO ratings
+        // Calculate new ELO ratings with the added factors
+        double newEloPlayer1 = player1.getEloRating() + K_FACTOR * (actualScorePlayer1 - expectedScorePlayer1) + punchFactorPlayer1 + dodgeFactorPlayer1 + koFactorPlayer1;
+        double newEloPlayer2 = player2.getEloRating() + K_FACTOR * (actualScorePlayer2 - expectedScorePlayer2) + punchFactorPlayer2 + dodgeFactorPlayer2 + koFactorPlayer2;
+
+        // Update players' ELO ratings
         player1.setEloRating(newEloPlayer1);
         player2.setEloRating(newEloPlayer2);
 
-        // save ELO records for historical tracking
+        // Save ELO records for historical tracking
         saveEloRecord(player1, match, oldEloPlayer1, newEloPlayer1, "Match against " + player2.getName());
         saveEloRecord(player2, match, oldEloPlayer2, newEloPlayer2, "Match against " + player1.getName());
     }

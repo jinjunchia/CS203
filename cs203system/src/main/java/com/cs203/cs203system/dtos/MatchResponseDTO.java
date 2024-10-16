@@ -24,6 +24,16 @@ public class MatchResponseDTO implements Serializable {
     Integer round;
     WinnerDto winner;
 
+    // New fields for punches and dodges
+    Integer punchesPlayer1;
+    Integer punchesPlayer2;
+    Integer dodgesPlayer1;
+    Integer dodgesPlayer2;
+
+    // New fields for KO information
+    boolean koByPlayer1;   // Whether Player 1 performed a KO
+    boolean koByPlayer2;   // Whether Player 2 performed a KO
+
     /**
      * DTO for {@link com.cs203.cs203system.model.Player}
      */
