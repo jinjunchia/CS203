@@ -197,8 +197,6 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 .orElseThrow(() -> new IllegalStateException("There seems to be no winner"))
                 .getWinner();
     }
-
-
 }
 
 
