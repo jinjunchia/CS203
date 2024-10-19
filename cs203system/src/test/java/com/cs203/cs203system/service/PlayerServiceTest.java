@@ -87,6 +87,7 @@ class PlayerServiceTest {
         verify(playerWithOutStatsDtoMapper, times(1)).toDto(player1);
         verify(playerWithOutStatsDtoMapper, times(1)).toDto(player2);
     }
+
     @Test
     void findAllPlayers_NoPlayers_ReturnEmptyList() {
 
