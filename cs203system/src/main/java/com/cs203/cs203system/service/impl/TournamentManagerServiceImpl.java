@@ -210,8 +210,10 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
                 .findById(matchInRequest.getId())
                 .orElseThrow(() -> new NotFoundException("Match of id " + matchInRequest.getId() + " is not found"));
 
-        //validation of scores and match statuses
 
+
+
+        //validation of scores and match statuses
         if (matchInRequest.getPlayer1Score() < 0 || matchInRequest.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
 

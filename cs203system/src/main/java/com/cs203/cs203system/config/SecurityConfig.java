@@ -14,6 +14,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -55,7 +56,7 @@ public class SecurityConfig {
      * Configures the security filter chain, defining security settings such as session management,
      * permitted requests, and request matchers.
      *
-     * @param http The {@link HttpSecurity} instance used to configure HTTP security.
+     * @param http         The {@link HttpSecurity} instance used to configure HTTP security.
      * @param introspector The {@link HandlerMappingIntrospector} for managing MVC request mappings.
      * @return The configured {@link SecurityFilterChain}.
      * @throws Exception if an error occurs while configuring the security filter chain.
@@ -74,13 +75,15 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "api/tournament", "api/tournament/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/player", "api/player/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"api/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
 //                        .requestMatchers("api/auth/login").permitAll()
 //                        .requestMatchers("api/auth/register").permitAll()
-                        .anyRequest().authenticated()
-                );
+                                .anyRequest().authenticated()
+                ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
 
         http.httpBasic(withDefaults());
 

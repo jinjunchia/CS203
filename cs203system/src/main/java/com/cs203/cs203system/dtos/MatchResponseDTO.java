@@ -18,10 +18,10 @@ public class MatchResponseDTO implements Serializable {
     Integer player1Score;
     Integer player2Score;
     LocalDate matchDate;
+    Integer round;
     Player1Dto player1;
     Player2Dto player2;
     TournamentDto tournament;
-    Integer round;
     WinnerDto winner;
 
     /**

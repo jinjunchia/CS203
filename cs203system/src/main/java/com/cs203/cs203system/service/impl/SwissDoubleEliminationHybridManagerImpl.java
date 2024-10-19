@@ -1,8 +1,10 @@
 package com.cs203.cs203system.service.impl;
 
+import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
 import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.DoubleEliminationManager;
 import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
 import com.cs203.cs203system.service.SwissRoundManager;
@@ -14,11 +16,13 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
     private final SwissRoundManager swissRoundManager;
 
     private final DoubleEliminationManager doubleEliminationManager;
+    private final TournamentRepository tournamentRepository;
 
     @Autowired
-    public SwissDoubleEliminationHybridManagerImpl(SwissRoundManager swissRoundManager, DoubleEliminationManager doubleEliminationManager) {
+    public SwissDoubleEliminationHybridManagerImpl(SwissRoundManager swissRoundManager, DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository) {
         this.swissRoundManager = swissRoundManager;
         this.doubleEliminationManager = doubleEliminationManager;
+        this.tournamentRepository = tournamentRepository;
     }
 
     // This simply run the Swiss tournament first
@@ -27,10 +31,23 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
         return swissRoundManager.initializeSwiss(tournament);
     }
 
-    // It will move all the results to Swiss until the swiss part has been completed
-    // then it will move it to Double Elimination
+    // It will move all the results from Swiss to Double elimination until the swiss part has been completed
+    // then it will move the top half to Double Elimination (winner bracket)
+    // 1) it will check if its still running with SWISS
     @Override
     public Tournament receiveMatchResult(Match match) {
+        Tournament tournament = match.getTournament();
+
+        // if isOnSecondFormat is false
+//        if (!tournament.getIsOnSecondFormat()) {
+//            // if isOnSecondFormat
+//            if (tournament.getStatus() == TournamentStatus.COMPLETED) {
+//                return swissRoundManager.receiveMatchResult(match);
+//            } else {
+//                tournament.getWinnersBracket() =
+//                return doubleEliminationManager.receiveMatchResult(match);
+//            }
+//        }
 
         return null;
     }

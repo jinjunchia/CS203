@@ -68,7 +68,7 @@ public class Tournament implements Serializable {
      * Administrators can set this value.
      */
     @Builder.Default
-    private Double maxEloRating = 1000.0;
+    private Double maxEloRating = 1200.0;
 
     /**
      * The format of the tournament, represented by the {@link TournamentFormat} enum.
