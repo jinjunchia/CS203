@@ -1,9 +1,8 @@
 package com.cs203.cs203system;
 
-import com.cs203.cs203system.enums.Role;
+import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.model.Tournament;
-import com.cs203.cs203system.model.User;
 import com.cs203.cs203system.repository.TournamentRepository;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Random;
 
 @Component
@@ -36,11 +34,11 @@ public class TournamentDataLoader implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         LocalDate startDate = LocalDate.of(1950, 1, 1);
         LocalDate endDate = LocalDate.of(2027, 12, 31);
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 1; i++) {
             LocalDate randomDate = getRandomDateBetween(startDate, endDate);
 
             Tournament tournament = Tournament.builder()
@@ -49,6 +47,8 @@ public class TournamentDataLoader implements CommandLineRunner {
                     .status(TournamentStatus.ONGOING)
                     .name(faker.chess().tournament())
                     .location(faker.address().city())
+                    .format(TournamentFormat.SWISS)
+                    .status(TournamentStatus.SCHEDULED)
                     .build();
 
             tournamentRepository.save(tournament);

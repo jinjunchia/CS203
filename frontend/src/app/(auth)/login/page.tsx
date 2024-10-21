@@ -13,7 +13,7 @@ export default function Login() {
 				Don&apos;t have an account?
 				<span
 					className="pl-1 underline cursor-pointer"
-					onClick={() => router.push("/register/player")}
+					onClick={() => router.push("/register")}
 				>
 					Sign Up
 				</span>

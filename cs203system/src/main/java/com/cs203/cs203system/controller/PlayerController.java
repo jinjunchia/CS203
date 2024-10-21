@@ -1,18 +1,17 @@
 package com.cs203.cs203system.controller;
 
-import com.cs203.cs203system.dtos.players.CreateUserRequest;
 import com.cs203.cs203system.dtos.players.PlayerWithOutStatsDto;
+import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.service.PlayerService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/player")
+@RequestMapping("api/player")
 @CrossOrigin("*")
 public class PlayerController {
 
@@ -23,37 +22,18 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
+    @GetMapping("/{playerId}")
+    public ResponseEntity<PlayerWithOutStatsDto> getPlayerById(@PathVariable Long playerId) {
+        return new ResponseEntity<>(playerService.findPlayerById(playerId).orElseThrow(NotFoundException::new), HttpStatus.OK);
+    }
+
     @GetMapping
-    public ResponseEntity<List<PlayerWithOutStatsDto>> findAllPlayers() {
+    public ResponseEntity<List<PlayerWithOutStatsDto>> getAllPlayer() {
         return new ResponseEntity<>(playerService.findAllPlayers(), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PlayerWithOutStatsDto> findPlayerById(@PathVariable Long id) {
-        Optional<PlayerWithOutStatsDto> Player = playerService.findPlayerById(id);
-        return Player
-                .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @GetMapping("/ranking")
+    public ResponseEntity<List<PlayerWithOutStatsDto>> getPlayerRanking() {
+        return new ResponseEntity<>(playerService.findAllPlayersOrderByEloRating(), HttpStatus.OK);
     }
-
-//    @PutMapping("/{id}")
-//    public ResponseEntity<PlayerWithOutStatsDto> updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerUpdateRequest updatedPlayer) {
-//        Player savedPlayer = playerService.updatePlayer(id, updatedPlayer);
-//        return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
-//    }
-
-    @PostMapping
-    public ResponseEntity<PlayerWithOutStatsDto> createPlayer(@Valid @RequestBody CreateUserRequest createUserRequest) {
-        PlayerWithOutStatsDto savedPlayer = playerService.createPlayer(createUserRequest);
-        return new ResponseEntity<>(savedPlayer, HttpStatus.OK);
-    }
-
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<String> deletePlayer(@PathVariable Long id) {
-//        playerService.deletePlayer(id);
-//        return new ResponseEntity<>("Player deleted", HttpStatus.OK);
-//    }
-
-
-
 }

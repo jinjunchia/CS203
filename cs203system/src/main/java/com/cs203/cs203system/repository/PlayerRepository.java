@@ -4,10 +4,9 @@ import com.cs203.cs203system.model.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.List;
 
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Long> {
-
-    List<Player> findByTournaments_Id(Long tournamentId);
+    List<Player> findAllByOrderByEloRatingDesc();
 }
