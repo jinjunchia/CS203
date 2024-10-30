@@ -6,6 +6,7 @@ import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * DTO for {@link com.cs203.cs203system.model.Match}
@@ -21,5 +22,5 @@ public class InputMatchDTO implements Serializable {
     Integer player1Score;
     @NotNull
     Integer player2Score;
-    LocalDate matchDate;
+    LocalDateTime matchDate;
 }
