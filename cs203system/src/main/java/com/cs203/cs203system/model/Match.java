@@ -106,25 +106,25 @@ public class Match implements Serializable {
     /**
      * Number of punches thrown by player 1.
      */
-    @Builder.Default
+
     private Integer punchesPlayer1;
 
     /**
      * Number of punches thrown by player 2.
      */
-    @Builder.Default
+
     private Integer punchesPlayer2;
 
     /**
      * Number of successful dodges by player 1.
      */
-    @Builder.Default
+
     private Integer dodgesPlayer1;
 
     /**
      * Number of successful dodges by player 2.
      */
-    @Builder.Default
+
     private Integer dodgesPlayer2;
 
     /**
