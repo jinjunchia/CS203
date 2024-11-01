@@ -206,7 +206,7 @@ public class SwissRoundUtils {
      * @param numberOfPlayers The number of top players to retrieve.
      * @return A list of the top players, sorted by their ranking in descending order.
      */
-    private static List<Player> getTopPlayers(Tournament tournament, int numberOfPlayers) {
+    public static List<Player> getTopPlayers(Tournament tournament, int numberOfPlayers) {
         Map<Player, Double> ranking = tournament.getPlayers()
                 .stream()
                 .collect(Collectors.toMap(

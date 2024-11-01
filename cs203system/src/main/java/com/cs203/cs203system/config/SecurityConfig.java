@@ -80,8 +80,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
-//                        .requestMatchers("api/auth/login").permitAll()
-//                        .requestMatchers("api/auth/register").permitAll()
                                 .anyRequest().authenticated()
                 ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
 

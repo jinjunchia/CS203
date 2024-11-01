@@ -8,8 +8,12 @@ import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.DoubleEliminationManager;
 import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
 import com.cs203.cs203system.service.SwissRoundManager;
+import com.cs203.cs203system.utility.SwissRoundUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleEliminationHybridManager {
@@ -37,19 +41,54 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
     @Override
     public Tournament receiveMatchResult(Match match) {
         Tournament tournament = match.getTournament();
-
-        // if isOnSecondFormat is false
-//        if (!tournament.getIsOnSecondFormat()) {
-//            // if isOnSecondFormat
-//            if (tournament.getStatus() == TournamentStatus.COMPLETED) {
-//                return swissRoundManager.receiveMatchResult(match);
-//            } else {
-//                tournament.getWinnersBracket() =
-//                return doubleEliminationManager.receiveMatchResult(match);
-//            }
+        //Base case to ensure that tournament does not run anymore
+//        if (!tournament.getIsOnSecondFormat())
+//        {
+//            returnTournament = swissRoundManager.receiveMatchResult(match);
 //        }
+//        if (!tournament.getIsOnSecondFormat() && tournament.getStatus() == TournamentStatus.COMPLETED) {
+//            tournament.setIsOnSecondFormat(Boolean.TRUE);
+//            tournament.setStatus(TournamentStatus.ONGOING);
+//            //Get players out
+//
+//            List<Player> topPlayers = SwissRoundUtils.getTopPlayers(tournament, tournament.getPlayers().size() / 2);
+//            //Put them into double elimination
+//            tournament.setPlayers(topPlayers);
+//            doubleEliminationManager.initializeDoubleElimination(tournament);
+//            return doubleEliminationManager.receiveMatchResult(match);
+//        }
+//        if (!tournament.getIsOnSecondFormat() && tournament.getStatus() == TournamentStatus.ONGOING) {
+//            return doubleEliminationManager.receiveMatchResult(match);
+//        }
+//        return returnTournament;
 
-        return null;
+        // If Completed and True (On Second format): means the entire tournament has been completed, it will do NOTHING
+        if (tournament.getStatus() == TournamentStatus.COMPLETED && tournament.getIsOnSecondFormat()) {
+            return tournament;
+        }
+
+        // If Ongoing and False (On first format)
+        if (tournament.getStatus() == TournamentStatus.ONGOING && !tournament.getIsOnSecondFormat()) {
+            // Give to swiss and return a tournament
+            Tournament updatedTournament = swissRoundManager.receiveMatchResult(match);
+
+            // Check if Swiss has changed the state of the tournament from ongoing to completed?
+            // If yes, then get top players and DE needs to start
+            if (updatedTournament.getStatus() == TournamentStatus.COMPLETED) {
+                updatedTournament.setStatus(TournamentStatus.ONGOING); // Need to change it back as tournament is still ongoing
+                updatedTournament.setPlayers(SwissRoundUtils.getTopPlayers(updatedTournament, updatedTournament.getPlayers().size() / 2));
+                tournament.setIsOnSecondFormat(true);
+                return doubleEliminationManager.initializeDoubleElimination(updatedTournament);
+
+            }
+
+            return updatedTournament;
+        }
+
+        // If Ongoing and True (On second format): means we will continue with DE
+        // Note that while the code might seem that it will reach this case with it can also be Completed and False,
+        // this would be impossible as the moment that happens the next if statement above will catch it
+        return doubleEliminationManager.receiveMatchResult(match);
     }
 
     // It will use the Double Elimination method to find the winner
