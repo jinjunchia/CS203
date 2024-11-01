@@ -41,26 +41,6 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
     @Override
     public Tournament receiveMatchResult(Match match) {
         Tournament tournament = match.getTournament();
-        //Base case to ensure that tournament does not run anymore
-//        if (!tournament.getIsOnSecondFormat())
-//        {
-//            returnTournament = swissRoundManager.receiveMatchResult(match);
-//        }
-//        if (!tournament.getIsOnSecondFormat() && tournament.getStatus() == TournamentStatus.COMPLETED) {
-//            tournament.setIsOnSecondFormat(Boolean.TRUE);
-//            tournament.setStatus(TournamentStatus.ONGOING);
-//            //Get players out
-//
-//            List<Player> topPlayers = SwissRoundUtils.getTopPlayers(tournament, tournament.getPlayers().size() / 2);
-//            //Put them into double elimination
-//            tournament.setPlayers(topPlayers);
-//            doubleEliminationManager.initializeDoubleElimination(tournament);
-//            return doubleEliminationManager.receiveMatchResult(match);
-//        }
-//        if (!tournament.getIsOnSecondFormat() && tournament.getStatus() == TournamentStatus.ONGOING) {
-//            return doubleEliminationManager.receiveMatchResult(match);
-//        }
-//        return returnTournament;
 
         // If Completed and True (On Second format): means the entire tournament has been completed, it will do NOTHING
         if (tournament.getStatus() == TournamentStatus.COMPLETED && tournament.getIsOnSecondFormat()) {

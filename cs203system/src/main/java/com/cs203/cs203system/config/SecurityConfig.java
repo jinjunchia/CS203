@@ -75,12 +75,14 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
+                        .requestMatchers("swagger-ui/**").permitAll().requestMatchers("/api-docs/**",
+                                "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated()
                 ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
 
         http.httpBasic(withDefaults());
