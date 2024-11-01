@@ -100,6 +100,42 @@ public class Match implements Serializable {
      *
      * @return The player who won the match, or null if the scores are not available or the match is a draw.
      */
+
+    // --------- New Fields for Punches, KO, and Dodge -----------
+
+    /**
+     * Number of punches thrown by player 1.
+     */
+
+    private Integer punchesPlayer1;
+
+    /**
+     * Number of punches thrown by player 2.
+     */
+
+    private Integer punchesPlayer2;
+
+    /**
+     * Number of successful dodges by player 1.
+     */
+
+    private Integer dodgesPlayer1;
+
+    /**
+     * Number of successful dodges by player 2.
+     */
+
+    private Integer dodgesPlayer2;
+
+    /**
+     * Indicates if the match ended in a knockout (KO).
+     */
+    private boolean isKO;
+    private boolean koByPlayer1;
+    private boolean koByPlayer2;
+
+
+    // --------- New Fields for Punches, KO, and Dodge -----------
     public Player getWinner() {
         if (player1Score == null || player2Score == null) {
             return null;
