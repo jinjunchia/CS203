@@ -4,14 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const Homepage = () => {
-	const router = useRouter();
+  const router = useRouter();
 
-	useEffect(() => {
-		// Redirect to the new page
-		router.replace("/matches");
-	}, [router]);
+  useEffect(() => {
+    // Redirect to the new page
+    router.replace("/tournaments");
+  }, [router]);
 
-	return null;
+  return null;
 };
 
 export default Homepage;

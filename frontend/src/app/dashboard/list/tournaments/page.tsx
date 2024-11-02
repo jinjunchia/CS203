@@ -102,7 +102,7 @@ const TournamentPage = () => {
       <td className="hidden lg:table-cell">{item.maxEloRating}</td>
       <td>
         <div className="flex items-center gap-2">
-          <Link href={`/list/tournaments/${item.id}`}>
+          <Link href={`/dashboard/list/tournaments/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
