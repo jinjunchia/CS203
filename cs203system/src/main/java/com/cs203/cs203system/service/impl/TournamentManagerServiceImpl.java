@@ -241,6 +241,13 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             //inputting of the match result
             matchInDatabase.setPlayer1Score(matchInRequest.getPlayer1Score());
             matchInDatabase.setPlayer2Score(matchInRequest.getPlayer2Score());
+            // Update punches, dodges, and KOs
+            matchInDatabase.setPunchesPlayer1(matchInRequest.getPunchesPlayer1());
+            matchInDatabase.setPunchesPlayer2(matchInRequest.getPunchesPlayer2());
+            matchInDatabase.setDodgesPlayer1(matchInRequest.getDodgesPlayer1());
+            matchInDatabase.setDodgesPlayer2(matchInRequest.getDodgesPlayer2());
+            matchInDatabase.setKoByPlayer1(matchInRequest.isKoByPlayer1());
+            matchInDatabase.setKoByPlayer2(matchInRequest.isKoByPlayer2());
             matchInDatabase.setStatus(MatchStatus.COMPLETED);
             matchInDatabase = matchRepository.save(matchInDatabase);
 
