@@ -106,6 +106,7 @@ public class Tournament implements Serializable {
     @ToString.Exclude
     private List<Player> winnersBracket = new ArrayList<>();
 
+
     /**
      * The list of players in the losers bracket for a double elimination tournament.
      */

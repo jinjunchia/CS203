@@ -75,12 +75,12 @@ public class SecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/ws/**").permitAll()  // Explicitly allow WebSocket access
                         .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
-                        .requestMatchers("/api/tournament/ws/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
                         .requestMatchers("swagger-ui/**").permitAll()
                         .requestMatchers("/api-docs/**",
