@@ -80,7 +80,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
-                        .requestMatchers("swagger-ui/**").permitAll().requestMatchers("/api-docs/**",
+                        .requestMatchers("/api/tournament/ws/**").permitAll()
+                        .requestMatchers("/socket.io/**").permitAll()
+                        .requestMatchers("swagger-ui/**").permitAll()
+                        .requestMatchers("/api-docs/**",
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));

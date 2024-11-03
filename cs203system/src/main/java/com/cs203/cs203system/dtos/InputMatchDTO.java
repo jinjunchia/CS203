@@ -24,13 +24,19 @@ public class InputMatchDTO implements Serializable {
     LocalDate matchDate;
 
     // New fields for punches and dodges
+    @NotNull
     Integer punchesPlayer1;
+    @NotNull
     Integer punchesPlayer2;
+    @NotNull
     Integer dodgesPlayer1;
+    @NotNull
     Integer dodgesPlayer2;
 
     // New fields for KO information
+    @NotNull
     boolean koByPlayer1;   // Whether Player 1 performed a KO
+    @NotNull
     boolean koByPlayer2;   // Whether Player 2 performed a KO
 
 }
