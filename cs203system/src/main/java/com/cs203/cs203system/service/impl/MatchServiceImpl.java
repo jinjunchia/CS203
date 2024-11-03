@@ -62,4 +62,22 @@ public class MatchServiceImpl implements MatchService {
     public List<Match> findAllMatchesByTournamentId(Long tournamentId) {
         return matchRepository.findByTournamentId(tournamentId);
     }
+
+    public void updateAndSaveMatchStats(Long matchId, Integer punchesPlayer1, Integer punchesPlayer2,
+                                        Integer dodgesPlayer1, Integer dodgesPlayer2,
+                                        boolean koByPlayer1, boolean koByPlayer2) {
+        Match match = findMatchById(matchId); // Assumes findMatchById throws NotFoundException if not found
+
+        // Update punches and dodges
+        match.setPunchesPlayer1(match.getPunchesPlayer1() + (punchesPlayer1 != null ? punchesPlayer1 : 0));
+        match.setPunchesPlayer2(match.getPunchesPlayer2() + (punchesPlayer2 != null ? punchesPlayer2 : 0));
+        match.setDodgesPlayer1(match.getDodgesPlayer1() + (dodgesPlayer1 != null ? dodgesPlayer1 : 0));
+        match.setDodgesPlayer2(match.getDodgesPlayer2() + (dodgesPlayer2 != null ? dodgesPlayer2 : 0));
+
+        // Update KOs based on boolean flags
+        match.setKoByPlayer1(koByPlayer1);
+        match.setKoByPlayer2(koByPlayer2);
+
+        matchRepository.save(match);
+    }
 }
