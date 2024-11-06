@@ -895,5 +895,4 @@ public class TournamentServiceTest {
         verify(swissDoubleEliminationHybridManagerImpl, times(1)).initializeHybrid(tournament);
         verify(tournamentRepository, times(1)).findById(1L);
     }
-
 }

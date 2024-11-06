@@ -9,6 +9,7 @@ import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.DoubleEliminationManager;
 import com.cs203.cs203system.service.EloService;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,8 @@ import java.util.Collections;
  * Responsible for managing the double-elimination tournament process, including initialization,
  * receiving match results, and determining winners.
  */
+
+@Builder
 @Service
 public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
 

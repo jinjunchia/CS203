@@ -2,7 +2,10 @@ package com.cs203.cs203system.controller;
 
 import com.cs203.cs203system.dtos.MatchResponseDTO;
 import com.cs203.cs203system.dtos.MatchResponseDTOMapper;
+import com.cs203.cs203system.dtos.MatchStatsUpdateRequest;
+import com.cs203.cs203system.dtos.players.PlayerStatsDTO;
 import com.cs203.cs203system.service.MatchService;
+import com.cs203.cs203system.service.PlayerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,6 +32,8 @@ public class MatchController {
 
     private final MatchService matchService;
     private final MatchResponseDTOMapper matchResponseDTOMapper;
+    @Autowired
+    private PlayerStatsService playerStatsService;
 
     /**
      * Constructor for MatchController.
@@ -100,5 +105,21 @@ public class MatchController {
                 .map(matchResponseDTOMapper::toDto)
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
+
+
+    @PutMapping("/match/{id}/stats")
+    public ResponseEntity<Void> updateMatchStats(@PathVariable Long id,
+                                                 @RequestBody MatchStatsUpdateRequest request) {
+        matchService.updateAndSaveMatchStats(id, request.getPunchesPlayer1(), request.getPunchesPlayer2(),
+                request.getDodgesPlayer1(), request.getDodgesPlayer2(),
+                request.isKoByPlayer1(), request.isKoByPlayer2());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/player-stats")
+    public List<PlayerStatsDTO> getAllPlayerStats() {
+        return playerStatsService.getAllPlayerStats();
+    }
+
 
 }
