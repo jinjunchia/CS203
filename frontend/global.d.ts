@@ -80,3 +80,11 @@ interface TournamentDetails {
   maxEloRating: number;
   format: "SWISS" | "DOUBLE_ELIMINATION";
 }
+
+interface PlayerLeaderBoard {
+  id: number;
+  username: string;
+  userType?: "ROLE_PLAYER" | "ROLE_ADMIN";
+  name: string;
+  eloRating: number;
+}

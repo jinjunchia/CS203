@@ -3,9 +3,8 @@
 import CountChart from "@/components/CountChart";
 import UserCard from "@/components/UserCard";
 
-const AdminPage = () => {
+const PlayerPage = () => {
   return (
-    // <ProtectedRoute>
     <div className="p-4 flex gap-4 flex-col md:flex-row">
       {/* LEFT */}
       <div className="w-full lg:w-2/3 flex flex-col gap-8">
@@ -35,8 +34,7 @@ const AdminPage = () => {
       {/* RIGHT */}
       <div className="w-full lg:w-1/3"></div>
     </div>
-    // </ProtectedRoute>
   );
 };
 
-export default AdminPage;
+export default PlayerPage;

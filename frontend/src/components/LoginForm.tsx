@@ -43,8 +43,6 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-
     setLoading(true);
 
     try {
@@ -52,8 +50,10 @@ const LoginForm = () => {
         username: values.username,
         password: values.password,
         redirect: false,
-        callbackUrl: "/dashboard/admin",
+        callbackUrl: "/dashboard",
       });
+
+      console.log(result);
 
       if (result?.error) {
         // Display error toast if authentication fails
@@ -65,7 +65,7 @@ const LoginForm = () => {
         });
       } else {
         // Redirect manually if authentication is successful
-        router.push("/dashboard/admin");
+        router.push("/dashboard");
       }
     } catch (err) {
       toast({
@@ -74,8 +74,6 @@ const LoginForm = () => {
         description: "Please check your connection.",
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -33,8 +33,8 @@ const menuItems = [
       },
       {
         icon: <CiBullhorn size={20} />,
-        label: "Announcement",
-        href: "/announcement",
+        label: "Leaderboard",
+        href: "/dashboard/leaderboard",
         visible: ["admin", "player"],
       },
     ],

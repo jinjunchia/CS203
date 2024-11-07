@@ -72,6 +72,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.formLogin(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -80,7 +81,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
-                        .requestMatchers("swagger-ui/**").permitAll().requestMatchers("/api-docs/**",
+                        .requestMatchers("swagger-ui/**").permitAll()
+                        .requestMatchers("/api-docs/**",
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));

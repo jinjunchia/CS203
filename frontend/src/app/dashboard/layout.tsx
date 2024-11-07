@@ -23,7 +23,7 @@ export default function DashboardLayout({
             <Image src="/logo.svg" alt="logo" width={32} height={32} />
             <span className="hidden lg:block">TournaX</span>
           </Link>
-          <Menu makeOthersVisible={true} />
+          <Menu />
         </div>
 
         {/* RIGHT */}

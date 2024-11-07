@@ -33,7 +33,7 @@ public class PlayerDataLoader implements CommandLineRunner {
             Player player = new Player();
             player.setName(faker.funnyName().name());
             String password = "admin";
-            player.setUsername(faker.funnyName().name());
+            player.setUsername(faker.twitter().userName());
             player.setEmail(faker.internet().emailAddress());
             player.setPassword(passwordEncoder.encode(password));
             playerRepository.save(player);
