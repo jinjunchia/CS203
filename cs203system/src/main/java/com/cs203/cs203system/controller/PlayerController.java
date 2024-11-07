@@ -27,6 +27,7 @@ public class PlayerController {
         return new ResponseEntity<>(playerService.findPlayerById(playerId).orElseThrow(NotFoundException::new), HttpStatus.OK);
     }
 
+
     @GetMapping
     public ResponseEntity<List<PlayerWithOutStatsDto>> getAllPlayer() {
         return new ResponseEntity<>(playerService.findAllPlayers(), HttpStatus.OK);

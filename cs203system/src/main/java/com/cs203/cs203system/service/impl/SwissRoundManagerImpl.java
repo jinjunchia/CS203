@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -78,7 +79,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
             Match newMatch = Match.builder()
                     .tournament(tournament)
-                    .matchDate(LocalDate.now())
+                    .matchDate(LocalDateTime.now())
                     .player1(tournament.getPlayers().get(i - 1))
                     .player2(tournament.getPlayers().get(i))
                     .status(MatchStatus.SCHEDULED)
@@ -147,7 +148,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
             Match newMatch = Match.builder()
                     .tournament(tournament)
                     .bracket(MatchBracket.GRAND_FINAL)
-                    .matchDate(LocalDate.now())
+                    .matchDate(LocalDateTime.now())
                     .player1(winners.get(0))
                     .player2(winners.get(1))
                     .status(MatchStatus.SCHEDULED)
@@ -194,7 +195,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
 
                 Match newMatch = Match.builder()
                         .tournament(tournament)
-                        .matchDate(LocalDate.now())
+                        .matchDate(LocalDateTime.now())
                         .bracket(MatchBracket.SWISS)
                         .player1(player)
                         .player2(possibleOpponent)
@@ -211,7 +212,7 @@ public class SwissRoundManagerImpl implements SwissRoundManager {
             if (!paired) {
                 Match newMatch = Match.builder()
                         .tournament(tournament)
-                        .matchDate(LocalDate.now())
+                        .matchDate(LocalDateTime.now())
                         .bracket(MatchBracket.SWISS)
                         .player1(player)
                         .status(MatchStatus.BYE)

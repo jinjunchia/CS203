@@ -1,5 +1,7 @@
 package com.cs203.cs203system.service.impl;
 
+import com.cs203.cs203system.Notification.Notification;
+import com.cs203.cs203system.Notification.NotificationStatus;
 import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
@@ -18,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +41,8 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
 
     private final SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager;
 
+    private final NotificationService notficationService;
+
     /**
      * Constructor for TournamentManagerServiceImpl.
      *
@@ -48,13 +54,14 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
      */
     @Autowired
-    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager) {
+    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService) {
         this.doubleEliminationManager = doubleEliminationManager;
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
         this.matchRepository = matchRepository;
         this.swissRoundManager = swissRoundManager;
         this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
+        this.notficationService = notficationService;
     }
 
     /**
@@ -180,6 +187,12 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             throw new RuntimeException("Hybrid must have total number of players to power 2");
         }
         tournament.setStatus(TournamentStatus.ONGOING);
+        List<Player> players = tournament.getPlayers();
+        List<Long> playerIDs = new ArrayList<>();
+        for (Player P1: players) {
+            playerIDs.add(P1.getId());
+        }
+        sendNotification(playerIDs,NotificationStatus.START,"Tournament is starting!");
         try {
             switch (tournament.getFormat()) {
                 case SWISS:
@@ -211,10 +224,6 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         Match matchInDatabase = matchRepository
                 .findById(matchInRequest.getId())
                 .orElseThrow(() -> new NotFoundException("Match of id " + matchInRequest.getId() + " is not found"));
-
-
-
-
         //validation of scores and match statuses
         if (matchInRequest.getPlayer1Score() < 0 || matchInRequest.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
@@ -234,6 +243,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         } else if (matchInDatabase.getStatus() == MatchStatus.COMPLETED) {
             throw new RuntimeException("Match has completed");
 
+
             // if match status = PENDING (IN THE RESPONSE BODY) -> match has completed but results have yet to be inserted
             // therefore, we need to insert results into repository and set the match status from PENDING to COMPLETED
             // Note: Only the system has the final authority to change the status to completed
@@ -241,6 +251,16 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             //inputting of the match result
             matchInDatabase.setPlayer1Score(matchInRequest.getPlayer1Score());
             matchInDatabase.setPlayer2Score(matchInRequest.getPlayer2Score());
+
+            matchInDatabase.setPunchesPlayer1(matchInRequest.getPunchesPlayer1());
+            matchInDatabase.setPunchesPlayer2(matchInRequest.getPunchesPlayer2());
+
+            matchInDatabase.setDodgesPlayer1(matchInRequest.getDodgesPlayer1());
+            matchInDatabase.setDodgesPlayer2(matchInRequest.getDodgesPlayer2());
+
+            matchInDatabase.setKoByPlayer1(matchInRequest.isKoByPlayer1());
+            matchInDatabase.setKoByPlayer2(matchInRequest.isKoByPlayer2());
+
             matchInDatabase.setStatus(MatchStatus.COMPLETED);
             matchInDatabase = matchRepository.save(matchInDatabase);
 
@@ -274,17 +294,26 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
             throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
         }
-
+        Player winner = null;
         switch (tournament.getFormat()) {
             case SWISS:
-                return swissRoundManager.determineWinner(tournament);
+                winner = swissRoundManager.determineWinner(tournament);
+                break;
             case DOUBLE_ELIMINATION:
-                return doubleEliminationManager.determineWinner(tournament);
+                winner = doubleEliminationManager.determineWinner(tournament);
+                break;
             case HYBRID:
-                return swissDoubleEliminationHybridManager.determineWinner(tournament);
+                winner = swissDoubleEliminationHybridManager.determineWinner(tournament);
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
         }
+        if (winner != null) {
+            System.out.println("Winner is " + winner.getName());
+            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED,winner.getName() + " is the winner!");
+            return winner;
+        }
+        return null;
     }
 
     /**
@@ -295,5 +324,15 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      */
     private boolean isPowerOfTwo(int n) {
         return n > 0 && (n & (n - 1)) == 0;
+    }
+
+    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus ,String message) {
+        notficationService.sendNotification(
+                playerIDs,
+                Notification.builder()
+                        .status(notificationStatus)
+                        .message(message)
+                        .build()
+        );
     }
 }

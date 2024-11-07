@@ -1,55 +1,52 @@
-import React from "react";
-import MatchBox from "./MatchBox";
+"use client"
 
-const Test = () => {
-  return (
-    <div className="h-full flex justify-center items-center gap-10">
-      <div className="h-full flex flex-col justify-center items-center gap-5">
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          {/* <MatchBox /> */}
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          {/* <MatchBox /> */}
-        </div>
-      </div>
+import React, { useEffect, useState } from 'react';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 
-      <div className="h-full flex flex-col justify-center items-center gap-5">
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-        <div className="h-1/2 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
-        </div>
-      </div>
+const WebSocketListener = ({ userId }) => {
+    const [messages, setMessages] = useState([]);
+    const socketUrl = 'http://localhost:8080/ws';
 
-      <div className="h-full flex flex-col justify-center items-center gap-5">
-        <div className="h-2/3 flex flex-col justify-center items-center gap-5">
-          <MatchBox />
+    useEffect(() => {
+        // Establish a WebSocket connection
+        const socket = new SockJS(socketUrl);
+        const stompClient = Stomp.over(socket);
+
+        // Connect and subscribe to the user's notification channel
+        stompClient.connect({}, (frame) => {
+            console.log('Connected: ' + frame);
+            userId = 1;
+            // Subscribe to the specific user notifications
+            stompClient.subscribe(`/user/${userId}/notifications`, (message) => {
+                const receivedMessage = JSON.parse(message.body);
+                setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+                console.log('Received notification:', receivedMessage);
+            });
+        }, (error) => {
+            console.error('Error connecting to WebSocket:', error);
+        });
+
+        // Cleanup function to disconnect WebSocket on unmount
+        return () => {
+            if (stompClient.connected) {
+                stompClient.disconnect(() => {
+                    console.log('Disconnected from WebSocket');
+                });
+            }
+        };
+    }, [userId]);
+
+    return (
+        <div>
+            <h3>Notifications</h3>
+            <ul>
+                {messages.map((msg, index) => (
+                    <li key={index}>{msg.message}</li>
+                ))}
+            </ul>
         </div>
-        <div className="h-1/3 flex flex-col justify-center items-center gap-5">
-          {/* <MatchBox /> */}
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
-export default Test;
+export default WebSocketListener;

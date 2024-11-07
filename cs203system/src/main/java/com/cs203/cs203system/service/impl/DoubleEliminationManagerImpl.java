@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 /**
@@ -59,7 +60,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             Match match = Match.builder()
                     .tournament(tournament)
                     .bracket(MatchBracket.UPPER)
-                    .matchDate(LocalDate.now())
+                    .matchDate(LocalDateTime.now())
                     .status(MatchStatus.SCHEDULED)
                     .player1(tournament.getWinnersBracket().get(i))
                     .player2(tournament.getWinnersBracket().get(i - 1))
@@ -127,7 +128,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 Match newMatch = Match.builder()
                         .tournament(tournament)
                         .bracket(MatchBracket.GRAND_FINAL)
-                        .matchDate(LocalDate.now())
+                        .matchDate(LocalDateTime.now())
                         .status(MatchStatus.SCHEDULED)
                         .player1(tournament.getLosersBracket().get(0))
                         .player2(tournament.getLosersBracket().get(1))
@@ -140,7 +141,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
                 Match newMatch = Match.builder()
                         .tournament(tournament)
                         .bracket(MatchBracket.FINAL)
-                        .matchDate(LocalDate.now())
+                        .matchDate(LocalDateTime.now())
                         .status(MatchStatus.SCHEDULED)
                         .player1(tournament.getLosersBracket().get(0))
                         .player2(tournament.getWinnersBracket().get(0))
@@ -158,7 +159,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             Match newMatch = Match.builder()
                     .tournament(tournament)
                     .bracket(MatchBracket.UPPER)
-                    .matchDate(LocalDate.now())
+                    .matchDate(LocalDateTime.now())
                     .status(MatchStatus.SCHEDULED)
                     .player1(tournament.getWinnersBracket().get(i - 1))
                     .player2(tournament.getWinnersBracket().get(i))
@@ -170,7 +171,7 @@ public class DoubleEliminationManagerImpl implements DoubleEliminationManager {
             Match newMatch = Match.builder()
                     .tournament(tournament)
                     .bracket(MatchBracket.LOWER)
-                    .matchDate(LocalDate.now())
+                    .matchDate(LocalDateTime.now())
                     .status(MatchStatus.SCHEDULED)
                     .player1(tournament.getLosersBracket().get(i - 1))
                     .player2(tournament.getLosersBracket().get(i))

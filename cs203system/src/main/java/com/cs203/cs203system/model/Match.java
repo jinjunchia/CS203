@@ -7,6 +7,8 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.logging.Formatter;
 
 /**
  * Represents a Match in a tournament.
@@ -45,12 +47,13 @@ public class Match implements Serializable {
     /**
      * Score of player 2 in the match.
      */
-    private Integer player2Score;  // Score for player2
+    private Integer player2Score ;  // Score for player2
 
     /**
-     * The date on which the match was held.
+     * The date and time on which the match was held.
      */
-    private LocalDate matchDate;
+    @Getter
+    private LocalDateTime matchDate;
 
     // ---------- Swiss -----------
 
@@ -107,25 +110,25 @@ public class Match implements Serializable {
      * Number of punches thrown by player 1.
      */
 
-    private Integer punchesPlayer1;
+    private Integer punchesPlayer1 = 0;
 
     /**
      * Number of punches thrown by player 2.
      */
 
-    private Integer punchesPlayer2;
+    private Integer punchesPlayer2 = 0 ;
 
     /**
      * Number of successful dodges by player 1.
      */
 
-    private Integer dodgesPlayer1;
+    private Integer dodgesPlayer1 = 0;
 
     /**
      * Number of successful dodges by player 2.
      */
 
-    private Integer dodgesPlayer2;
+    private Integer dodgesPlayer2 = 0;
 
     /**
      * Indicates if the match ended in a knockout (KO).
@@ -175,5 +178,31 @@ public class Match implements Serializable {
         return player1Score != null && player1Score.equals(player2Score);
     }
 
+    public static class MatchBuilder {
+        private Integer punchesPlayer1 = 0;
+        private Integer punchesPlayer2 = 0;
+        private Integer dodgesPlayer1 = 0;
+        private Integer dodgesPlayer2 = 0;
+
+        public MatchBuilder punchesPlayer1(Integer punchesPlayer1) {
+            this.punchesPlayer1 = punchesPlayer1 != null ? punchesPlayer1 : 0;
+            return this;
+        }
+
+        public MatchBuilder punchesPlayer2(Integer punchesPlayer2) {
+            this.punchesPlayer2 = punchesPlayer2 != null ? punchesPlayer2 : 0;
+            return this;
+        }
+
+        public MatchBuilder dodgesPlayer1(Integer dodgesPlayer1) {
+            this.dodgesPlayer1 = dodgesPlayer1 != null ? dodgesPlayer1 : 0;
+            return this;
+        }
+
+        public MatchBuilder dodgesPlayer2(Integer dodgesPlayer2) {
+            this.dodgesPlayer2 = dodgesPlayer2 != null ? dodgesPlayer2 : 0;
+            return this;
+        }
+    }
 
 }
