@@ -7,6 +7,8 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.logging.Formatter;
 
 /**
  * Represents a Match in a tournament.
@@ -48,9 +50,10 @@ public class Match implements Serializable {
     private Integer player2Score ;  // Score for player2
 
     /**
-     * The date on which the match was held.
+     * The date and time on which the match was held.
      */
-    private LocalDate matchDate;
+    @Getter
+    private LocalDateTime matchDate;
 
     // ---------- Swiss -----------
 

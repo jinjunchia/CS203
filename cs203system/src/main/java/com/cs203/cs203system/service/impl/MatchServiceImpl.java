@@ -7,6 +7,7 @@ import com.cs203.cs203system.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -63,6 +64,16 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findByTournamentId(tournamentId);
     }
 
+
+    public List<Match> getMatchesOneDayBeforeMatch() {
+        // Calculate start and end times for one day before now
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endDate = now.plusDays(1).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
+        // Retrieve matches within this date range across all tournaments
+        return matchRepository.findMatchesWithinDateRange(startDate, endDate);
+    }
     public void updateAndSaveMatchStats(Long matchId, Integer punchesPlayer1, Integer punchesPlayer2,
                                         Integer dodgesPlayer1, Integer dodgesPlayer2,
                                         boolean koByPlayer1, boolean koByPlayer2) {
@@ -79,5 +90,6 @@ public class MatchServiceImpl implements MatchService {
         match.setKoByPlayer2(koByPlayer2);
 
         matchRepository.save(match);
+
     }
 }

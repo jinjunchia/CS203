@@ -6,12 +6,14 @@ import lombok.Setter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@EnableScheduling
 @SpringBootApplication
 public class Cs203systemApplication implements CommandLineRunner {
 

@@ -4,6 +4,7 @@ import com.cs203.cs203system.dtos.*;
 import com.cs203.cs203system.dtos.players.PlayerResponseDTOMapper;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.service.MailService;
 import com.cs203.cs203system.service.TournamentManagerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +33,9 @@ public class TournamentController {
     private final TournamentRequestDTOMapper tournamentRequestDTOMapper;
     private final InputMatchDTOMapper inputMatchDTOMapper;
     private final PlayerResponseDTOMapper playerResponseDTOMapper;
+
+    @Autowired
+    private MailService mailService;
 
     /**
      * Constructs a TournamentController with the required services and mappers.
@@ -211,5 +215,11 @@ public class TournamentController {
     public ResponseEntity<TournamentResponseDTO> deleteTournamentById(@PathVariable Long id) {
         tournamentManagerService.deleteTournamentById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/remind/{playerEmail}")
+    public String sendMatchReminder(@PathVariable String playerEmail) {
+        mailService.sendEmail(playerEmail, "Match Reminder", "Your match is coming up soon!");
+        return "Reminder email sent successfully!";
     }
 }
