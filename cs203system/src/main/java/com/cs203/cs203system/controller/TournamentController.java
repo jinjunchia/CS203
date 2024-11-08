@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/tournament")
-@CrossOrigin("*")
+@CrossOrigin
 public class TournamentController {
 
     private final TournamentManagerService tournamentManagerService;

@@ -62,17 +62,19 @@ const TournamentCreateForm = () => {
     setLoading(true);
 
     try {
-        const result = await axiosInstance.post("/api/tournament", {
-        name: values.name,
-        startDate: values.startDate,
-        location: values.location,
-        minEloRating: values.minEloRating,
-        maxEloRating: values.maxEloRating,
-        format: values.format,
-      });
+      const result = await axiosInstance.post(
+        "/api/tournament",
+        {
+          name: values.name,
+          startDate: values.startDate,
+          location: values.location,
+          minEloRating: values.minEloRating,
+          maxEloRating: values.maxEloRating,
+          format: values.format,
+        },
+        { withCredentials: true }
+      );
       console.log(result);
-
-
     } catch (err) {
       toast({
         variant: "destructive",

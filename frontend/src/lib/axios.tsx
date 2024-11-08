@@ -13,8 +13,6 @@ axiosInstance.interceptors.request.use(
   async (config) => {
     const token = await getToken({ req: { cookies: document.cookie } }); // or simply getToken() if this is server-side
 
-    console.log(document.cookie);
-
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
