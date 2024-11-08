@@ -19,6 +19,28 @@ import { useRouter } from "next/navigation";
 import { ToastAction } from "../ui/toast";
 import axiosInstance from "@/lib/axios";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+// import * as dialog from "@/components/ui/dialog";
+import Image from "next/image";
+
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Please input your Tournament Name.",
@@ -29,10 +51,10 @@ const formSchema = z.object({
   location: z.string().min(1, {
     message: "Please input your location.",
   }),
-  minEloRating: z.number().min(1, {
+  minEloRating: z.string().min(1, {
     message: "Please input your minimum elo rating.",
   }),
-  maxEloRating: z.number().min(1, {
+  maxEloRating: z.string().min(1, {
     message: "Please input your maximum elo rating.",
   }),
   format: z.enum(["SWISS", "DOUBLE_ELIMINATION", "HYBRID"], {
@@ -52,8 +74,8 @@ const TournamentCreateForm = () => {
       name: "",
       startDate: "",
       location: "",
-      minEloRating: 600,
-      maxEloRating: 1200,
+      minEloRating: "600",
+      maxEloRating: "1200",
       format: "SWISS",
     },
   });
@@ -79,105 +101,148 @@ const TournamentCreateForm = () => {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "Please check your connection.",
+        description: "Please check your input!",
         action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-6 ">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Tournament Name</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Start Date</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Location</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="minEloRating"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Minimum Elo Rating</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="maxEloRating"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Max Elo Rating</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="format"
-            render={({ field }) => (
-              <FormItem className="grid grid-cols-4 items-center gap-4">
-                <FormLabel className="text-right">Format</FormLabel>
-                <FormControl className="col-span-3">
-                  <Input placeholder="" {...field} />
-                </FormControl>
-                <FormMessage className="col-span-3 col-start-2" />
-              </FormItem>
-            )}
-          />
-        </div>
+    <Dialog>
+      <DialogTrigger>
+        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+          <Image src="/plus.png" alt="" width={14} height={14} />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[640px]">
+        <DialogHeader>
+          <DialogTitle>Create Tournament</DialogTitle>
+          <DialogDescription>
+            The journey starts now!
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-6 ">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">
+                        Tournament Name
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Start Date</FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Location</FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="minEloRating"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">
+                        Minimum Elo Rating
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="maxEloRating"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">
+                        Maximum Elo Rating
+                      </FormLabel>
+                      <FormControl className="col-span-3">
+                        <Input placeholder="" {...field} />
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="format"
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Format</FormLabel>
+                      <FormControl className="col-span-3">
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select Format" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SWISS">SWISS</SelectItem>
+                            <SelectItem value="DOUBLE_ELIMINATION">
+                              Double Elimination
+                            </SelectItem>
+                            <SelectItem value="HYBRID">Hybrid</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage className="col-span-3 col-start-2" />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="hover:bg-lamaSky hover:text-gray-600 mt-5"
-        >
-          {loading ? "Adding Tournament..." : "Add Tournament"}
-        </Button>
-      </form>
-    </Form>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="hover:bg-lamaSky hover:text-gray-600 mt-5"
+                  >
+                    {loading ? "Adding Tournament..." : "Add Tournament"}
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

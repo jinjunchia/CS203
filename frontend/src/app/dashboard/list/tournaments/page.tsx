@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import TournamentCreateForm from "@/components/forms/TournamentCreateForm";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import TournamentCreateForm from "@/components/forms/TournamentCreateForm";
+} from "@/components/ui/dialog"
 
 const columns = [
   { header: "Info", accessor: "info" },
@@ -63,6 +59,7 @@ const TournamentPage = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  
   // Fetch data using Axios
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -79,6 +76,7 @@ const TournamentPage = () => {
 
     fetchTournaments();
   }, []);
+  
 
   const renderRow = (item: Tournament) => (
     <tr
@@ -147,23 +145,7 @@ const TournamentPage = () => {
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
 
-            {/* Dialog */}
-            <Dialog>
-              <DialogTrigger>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-                  <Image src="/plus.png" alt="" width={14} height={14} />
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[640px]">
-                <DialogHeader>
-                  <DialogTitle>Create Tournament</DialogTitle>
-                  <DialogDescription>The journey starts now!</DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <TournamentCreateForm />
-                </div>
-              </DialogContent>
-            </Dialog>
+            <TournamentCreateForm />
           </div>
         </div>
       </div>
