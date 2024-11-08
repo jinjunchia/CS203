@@ -32,8 +32,7 @@ public class MatchController {
 
     private final MatchService matchService;
     private final MatchResponseDTOMapper matchResponseDTOMapper;
-    @Autowired
-    private PlayerStatsService playerStatsService;
+    private final PlayerStatsService playerStatsService;
 
     /**
      * Constructor for MatchController.
@@ -43,9 +42,10 @@ public class MatchController {
      */
     @Autowired
     public MatchController(MatchService matchService,
-                           MatchResponseDTOMapper matchResponseDTOMapper) {
+                           MatchResponseDTOMapper matchResponseDTOMapper, PlayerStatsService playerStatsService) {
         this.matchService = matchService;
         this.matchResponseDTOMapper = matchResponseDTOMapper;
+        this.playerStatsService = playerStatsService;
     }
 
     /**

@@ -43,6 +43,7 @@ public class MatchResponseDTO implements Serializable {
         String username;
         UserType userType;
         String name;
+        Double eloRating;
     }
 
     /**
@@ -54,6 +55,7 @@ public class MatchResponseDTO implements Serializable {
         String username;
         UserType userType;
         String name;
+        Double eloRating;
     }
 
     /**

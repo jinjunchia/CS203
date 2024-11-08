@@ -67,6 +67,7 @@ interface Player {
   username: string;
   userType?: "ROLE_PLAYER" | "ROLE_ADMIN";
   name: string;
+  eloRating: number;
 }
 
 interface TournamentDetails {

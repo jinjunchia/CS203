@@ -30,8 +30,7 @@ public class TournamentResponseDTO implements Serializable {
     List<WinnerDto> winnersBracket;
     List<LoserDto> losersBracket;
     List<MatchDto> matches;
-    Long adminId;
-    String adminUsername;
+    AdminDto admin;
     List<PlayerDto> players;
 
     /**
@@ -42,6 +41,14 @@ public class TournamentResponseDTO implements Serializable {
         Long id;
         String username;
         String name;
+        Double eloRating;
+    }
+
+    @Value
+    public static class AdminDto implements Serializable {
+        Long id;
+        String username;
+        String email;
     }
 
     /**
@@ -52,6 +59,7 @@ public class TournamentResponseDTO implements Serializable {
         Long id;
         String username;
         String name;
+        Double eloRating;
     }
 
     /**

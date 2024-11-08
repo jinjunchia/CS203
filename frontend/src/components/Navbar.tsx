@@ -25,15 +25,12 @@ const Navbar = () => {
           <CiChat1 size={20} />
         </div>
 
-        <Link
-          href="/announcement"
-          className="bg-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer relative"
-        >
+        <div className="bg-white rounded-full w-9 h-9 flex items-center justify-center cursor-pointer relative">
           <CiBullhorn size={20} />
           <div className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-purple-500 text-white rounded-full text-xs">
             1
           </div>
-        </Link>
+        </div>
 
         <Link
           href="/dashboard/profile"

@@ -69,17 +69,22 @@ public class SecurityConfig {
                 httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
         MvcRequestMatcher h2RequestMatcher = new MvcRequestMatcher(introspector, "/**");
         h2RequestMatcher.setServletPath("/h2-console");
-        http.csrf(AbstractHttpConfigurer::disable);
 
         http.formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(withDefaults())
                 .cors(withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/ws/**").permitAll()  // Explicitly allow WebSocket access
                         .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/tournament/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/tournament/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/tournament/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/match/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
@@ -87,9 +92,8 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**",
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
-                ).oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
-
-        http.httpBasic(withDefaults());
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
     }

@@ -2,10 +2,8 @@
 
 import FormModal from "@/components/FormModel";
 import Table from "@/components/Table";
-import { Badge } from "@/components/ui/badge";
 import axiosInstance from "@/lib/axios";
-import { formatReadableDate, toTitleCase } from "@/lib/utils";
-import clsx from "clsx";
+import { formatReadableDate } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,14 +22,15 @@ const SingleTournamentPage = ({
 
   // Fetch data using Axios
   useEffect(() => {
-    const fetchTournaments = async () => {
+    const fetchMatch = async () => {
       try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const id = await params.id;
-        const response = await axiosInstance.get("/api/player/" + id); // change to /api/user
+        const response = await axiosInstance.get("/api/match/" + id); // change to /api/user
         setMatch(response.data);
-        setPlayers(response.data.matches);
+        console.log(response.data);
+        setPlayers([response.data.player1, response.data.player2]);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching match:", err);
@@ -40,7 +39,7 @@ const SingleTournamentPage = ({
       }
     };
 
-    fetchTournaments();
+    fetchMatch();
   }, []);
 
   console.log(players);
@@ -86,9 +85,9 @@ const SingleTournamentPage = ({
           </div>
           <div className="w-9/12 flex flex-col justify-between gap-4">
             <div className="flex items-center gap-4">
-              {/* <h1 className="text-xl font-semibold">
-                {match?.tournament.name}
-              </h1> */}
+              <h1 className="text-xl font-semibold">
+                {match?.player1.name} vs {match?.player2.name}
+              </h1>
               {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
                 <FormModal
                   table="tournamentUpdate"
@@ -136,7 +135,7 @@ const columns = [
   { header: "Info", accessor: "info" },
   {
     header: "Elo",
-    accessor: "tournament",
+    accessor: "elo",
     className: "hidden lg:table-cell",
   },
   {

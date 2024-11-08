@@ -6,9 +6,8 @@ import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.enums.TournamentFormat;
 import com.cs203.cs203system.enums.TournamentStatus;
 import com.cs203.cs203system.exceptions.NotFoundException;
-import com.cs203.cs203system.model.Match;
-import com.cs203.cs203system.model.Player;
-import com.cs203.cs203system.model.Tournament;
+import com.cs203.cs203system.model.*;
+import com.cs203.cs203system.repository.AdminRepository;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
@@ -17,6 +16,8 @@ import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
 import com.cs203.cs203system.service.SwissRoundManager;
 import com.cs203.cs203system.service.TournamentManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,8 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
 
     private final NotificationService notficationService;
 
+    private final AdminRepository adminRepository;
+
     /**
      * Constructor for TournamentManagerServiceImpl.
      *
@@ -54,7 +57,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
      */
     @Autowired
-    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService) {
+    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService, AdminRepository adminRepository) {
         this.doubleEliminationManager = doubleEliminationManager;
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
@@ -62,6 +65,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         this.swissRoundManager = swissRoundManager;
         this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
         this.notficationService = notficationService;
+        this.adminRepository = adminRepository;
     }
 
     /**
@@ -122,8 +126,12 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
     public Tournament createTournament(Tournament tournament) {
         tournament.setId(null);
         tournament.setStatus(TournamentStatus.SCHEDULED);
-        tournament = tournamentRepository.save(tournament);
-        return tournament;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long adminId = ((Admin) authentication.getPrincipal()).getId();
+        tournament.setAdmin(adminRepository.findById(adminId).get());
+
+        return tournamentRepository.save(tournament);
     }
 
     /**
@@ -141,7 +149,12 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         Tournament tournament = findTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
 
-        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long adminId = ((Admin) authentication.getPrincipal()).getId();
+
+        if (!tournament.getAdmin().getId().equals(adminId)) {
+            throw new RuntimeException("Unauthorized to update this tournament");
+        } else if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
             throw new RuntimeException("Tournament is already ongoing or completed");
         } else if (playerIds.isEmpty()) {
             throw new RuntimeException("Please add at least 1 player");
@@ -224,6 +237,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         Match matchInDatabase = matchRepository
                 .findById(matchInRequest.getId())
                 .orElseThrow(() -> new NotFoundException("Match of id " + matchInRequest.getId() + " is not found"));
+
         //validation of scores and match statuses
         if (matchInRequest.getPlayer1Score() < 0 || matchInRequest.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
