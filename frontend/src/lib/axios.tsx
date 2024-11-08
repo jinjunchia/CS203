@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "next-auth/jwt";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL, // Replace with your actual backend URL
@@ -9,8 +10,11 @@ const axiosInstance = axios.create({
 
 // Request interceptor to add the token
 axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+  async (config) => {
+    const token = await getToken({ req: { cookies: document.cookie } }); // or simply getToken() if this is server-side
+
+    console.log(document.cookie);
+
     if (token && config.headers) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }

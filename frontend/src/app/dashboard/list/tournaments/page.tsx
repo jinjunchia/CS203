@@ -11,6 +11,19 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import TournamentCreateForm from "@/components/forms/TournamentCreateForm";
 
 const columns = [
   { header: "Info", accessor: "info" },
@@ -133,9 +146,24 @@ const TournamentPage = () => {
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/plus.png" alt="" width={14} height={14} />
-            </button>
+
+            {/* Dialog */}
+            <Dialog>
+              <DialogTrigger>
+                <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+                  <Image src="/plus.png" alt="" width={14} height={14} />
+                </button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[640px]">
+                <DialogHeader>
+                  <DialogTitle>Create Tournament</DialogTitle>
+                  <DialogDescription>The journey starts now!</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <TournamentCreateForm />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
