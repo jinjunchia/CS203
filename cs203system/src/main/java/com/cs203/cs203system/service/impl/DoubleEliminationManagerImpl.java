@@ -80,12 +80,24 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
 ////        return tournamentRepository.save(tournament);
 //    }
 
+    /**
+     * Creates initial matches for the players in the winner's bracket.
+     *
+     * @param tournament the tournament where matches will be created.
+     */
     private void createIntitalMatches(Tournament tournament){
         for(int i = 1; i < tournament.getWinnersBracket().size(); i += 2){
             tournament.getMatches().add(buildMatch(tournament,MatchBracket.UPPER, tournament.getWinnersBracket().get(i-1),tournament.getWinnersBracket().get(i)));
         }
     }
 
+    /**
+     * Handles the movement of the loser to the correct bracket after a match result.
+     * Moves players between winner and loser brackets based on the match outcome.
+     *
+     * @param match the match containing the losing player.
+     * @param tournament the tournament being updated.
+     */
     private void handleLoserMovement(Match match, Tournament tournament) {
         Player loser = match.getLoser();
 
@@ -107,7 +119,15 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
     }
 
 
-
+    /**
+     * Builds and returns a Match object with specified players and tournament details.
+     *
+     * @param tournament the tournament the match belongs to.
+     * @param bracket the bracket type of the match (e.g., UPPER, LOWER, FINAL).
+     * @param player1 the first player in the match.
+     * @param player2 the second player in the match.
+     * @return the constructed Match object.
+     */
     private Match buildMatch(Tournament tournament, MatchBracket bracket, Player player1, Player player2) {
         return Match.builder()
                 .tournament(tournament)
@@ -119,15 +139,33 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
                 .build();
     }
 
+    /**
+     * Checks if all matches in the tournament have been completed.
+     *
+     * @param tournament the tournament to check.
+     * @return true if all matches are completed; otherwise, false.
+     */
     private boolean areAllMatchesCompleted(Tournament tournament){
         return tournament.getMatches().stream().allMatch(m->m.getStatus().equals(MatchStatus.COMPLETED));
     }
 
+    /**
+     * Determines if final matches should be created, based on the number of remaining players.
+     *
+     * @param tournament the tournament to check.
+     * @return true if the final matches should be created; otherwise, false.
+     */
     private boolean shouldCreateFinalMatches(Tournament tournament){
         int totalPlayers = tournament.getWinnersBracket().size() + tournament.getLosersBracket().size();
         return totalPlayers <= 2;
     }
 
+    /**
+     * Creates final matches in the tournament if conditions are met, based on the number of players
+     * remaining in the winner's and loser's brackets.
+     *
+     * @param tournament the tournament to update.
+     */
     private void createFinalMatches(Tournament tournament){
         if (tournament.getLosersBracket().size() == 2) {
             tournament.getMatches().add(buildMatch(tournament, MatchBracket.GRAND_FINAL,
@@ -138,10 +176,23 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
         }
     }
 
+    /**
+     * Creates regular matches for the remaining players in the tournament brackets.
+     *
+     * @param tournament the tournament to update.
+     */
     private void createRegularMatches(Tournament tournament){
         createBracketMatches(tournament,tournament.getWinnersBracket(),MatchBracket.UPPER);
         createBracketMatches(tournament,tournament.getLosersBracket(),MatchBracket.LOWER);
     }
+
+    /**
+     * Creates matches within a specified bracket for a list of players in the tournament.
+     *
+     * @param tournament the tournament being updated.
+     * @param bracket the list of players in the bracket.
+     * @param matchBracket the type of the bracket for the matches (e.g., UPPER or LOWER).
+     */
     private void createBracketMatches(Tournament tournament, List<Player> bracket, MatchBracket matchBracket) {
         for (int i = 1; i < bracket.size(); i += 2) {
             tournament.getMatches().add(buildMatch(tournament, matchBracket, bracket.get(i - 1), bracket.get(i)));

@@ -118,14 +118,31 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
 ////        return tournamentRepository.save(tournament);
 //    }
 
+    /**
+     * Calculates the total number of rounds needed for the tournament.
+     *
+     * @param tournament The tournament whose rounds are calculated.
+     * @return The total number of rounds.
+     */
     private int calculateTotalRounds(Tournament tournament) {
         return (int) Math.ceil(Math.log(tournament.getPlayers().size()) / Math.log(2));
     }
 
+    /**
+     * Initializes each player's points to zero at the start of the tournament.
+     *
+     * @param players List of players in the tournament.
+     */
     private void initializePlayersPoints(List<Player> players) {
         players.forEach(player -> player.setPoints(0.0));
     }
 
+    /**
+     * Creates the initial matches for the tournament's first round.
+     *
+     * @param tournament The tournament where matches will be created.
+     * @return A list of created matches for the first round.
+     */
     private List<Match> createInitialMatches(Tournament tournament) {
         List<Match> matches = new ArrayList<>();
         for (int i = 1; i < tournament.getPlayers().size(); i += 2) {
@@ -135,6 +152,15 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
         return matches;
     }
 
+    /**
+     * Builds and returns a match object for the specified players.
+     *
+     * @param tournament The tournament the match belongs to.
+     * @param player1    The first player in the match.
+     * @param player2    The second player in the match (can be null for a bye match).
+     * @param status     The status of the match.
+     * @return The constructed match object.
+     */
     private Match createMatch(Tournament tournament, Player player1, Player player2, MatchStatus status) {
         return Match.builder()
                 .tournament(tournament)
@@ -306,7 +332,12 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
 //    }
 
 
-
+    /**
+     * Updates player scores based on match results.
+     * Adds points to the winner and loser, or both players in case of a draw.
+     *
+     * @param match The match from which results are used to update player scores.
+     */
     //update player score
     private void updatePlayerScores(Match match){
         if(!match.isDraw()){
@@ -324,17 +355,35 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
             playerRepository.saveAll(List.of(player1,player2));
         }
     }
-
+    /**
+     * Checks if all matches in the tournament are completed or marked as a bye.
+     *
+     * @param tournament The tournament to check.
+     * @return True if all matches are completed or a bye; otherwise, false.
+     */
     //check all match complete
     private boolean allMatchesCompleted(Tournament tournament) {
         return tournament.getMatches().stream()
                 .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED) || m.getStatus().equals(MatchStatus.BYE));
     }
+    /**
+     * Checks if the tournament has reached the final round.
+     *
+     * @param tournament The tournament to check.
+     * @return True if it is the final round; otherwise, false.
+     */
     //isFinalRound
     private boolean isFinalRound(Tournament tournament){
         return tournament.getCurrentRoundNumber() >= tournament.getTotalSwissRounds();
     }
 
+    /**
+     * Handles the logic for the final round of the tournament.
+     * If there are multiple winners, a grand final match is created; otherwise, the tournament is marked as completed.
+     *
+     * @param tournament The tournament to update.
+     * @return The updated tournament after handling the final round.
+     */
     //handle final round
     private Tournament handleFinalRound(Tournament tournament) {
         List<Player> winners = SwissRoundUtils.findWinners(tournament);
@@ -354,6 +403,13 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
         return tournamentRepository.save(tournament);
     }
 
+    /**
+     * Creates matches for the next round by pairing players based on their points.
+     * Ensures that players do not face the same opponent twice.
+     *
+     * @param tournament The tournament to update.
+     * @return A list of new matches created for the next round.
+     */
     //createMatchforNextRound
     private List<Match> createMatchesForNextRound(Tournament tournament) {
         tournament.getPlayers().sort(Comparator.comparingDouble(Player::getPoints).reversed());
@@ -380,8 +436,18 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
         }
         return newMatches;
     }
-    //find opponent
 
+    /**
+     * Finds the best opponent for a player who has not yet been paired in the round.
+     *
+     * @param player        The player seeking an opponent.
+     * @param tournament    The tournament in progress.
+     * @param pairedPlayers Set of players already paired in the round.
+     * @param matchHistory  Record of past matches to avoid repeat pairings.
+     * @param startIdx      Index to start searching for an opponent.
+     * @return An Optional containing the found opponent, or empty if no suitable opponent is found.
+     */
+    //find opponent
     private Optional<Player> findOpponent(Player player, Tournament tournament, Set<Player> pairedPlayers, Map<Player, Set<Player>> matchHistory, int startIdx) {
         for (int j = startIdx + 1; j < tournament.getPlayers().size(); j++) {
             Player potentialOpponent = tournament.getPlayers().get(j);
