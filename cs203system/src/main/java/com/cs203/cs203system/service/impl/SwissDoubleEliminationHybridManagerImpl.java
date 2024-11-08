@@ -8,6 +8,7 @@ import com.cs203.cs203system.repository.TournamentRepository;
 import com.cs203.cs203system.service.DoubleEliminationManager;
 import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
 import com.cs203.cs203system.service.SwissRoundManager;
+import com.cs203.cs203system.service.TournamentFormatManager;
 import com.cs203.cs203system.utility.SwissRoundUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
@@ -16,14 +17,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleEliminationHybridManager {
-    private final SwissRoundManager swissRoundManager;
-
-    private final DoubleEliminationManager doubleEliminationManager;
+public class SwissDoubleEliminationHybridManagerImpl implements TournamentFormatManager {
+//    private final SwissRoundManager swissRoundManager;
+//
+//    private final DoubleEliminationManager doubleEliminationManager;
+    private final SwissRoundManagerImpl swissRoundManager;
+    private final DoubleEliminationManagerImpl doubleEliminationManager;
     private final TournamentRepository tournamentRepository;
-
     @Autowired
-    public SwissDoubleEliminationHybridManagerImpl(SwissRoundManager swissRoundManager, DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository) {
+    public SwissDoubleEliminationHybridManagerImpl(SwissRoundManagerImpl swissRoundManager,
+                                                   DoubleEliminationManagerImpl doubleEliminationManager,
+                                                   TournamentRepository tournamentRepository) {
         this.swissRoundManager = swissRoundManager;
         this.doubleEliminationManager = doubleEliminationManager;
         this.tournamentRepository = tournamentRepository;
@@ -31,8 +35,8 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
 
     // This simply run the Swiss tournament first
     @Override
-    public Tournament initializeHybrid(Tournament tournament) {
-        return swissRoundManager.initializeSwiss(tournament);
+    public Tournament initializeTournament(Tournament tournament) {
+        return swissRoundManager.initializeTournament(tournament);
     }
 
     // It will move all the results from Swiss to Double elimination until the swiss part has been completed
@@ -58,7 +62,7 @@ public class SwissDoubleEliminationHybridManagerImpl implements SwissDoubleElimi
                 updatedTournament.setStatus(TournamentStatus.ONGOING); // Need to change it back as tournament is still ongoing
                 updatedTournament.setPlayers(SwissRoundUtils.getTopPlayers(updatedTournament, updatedTournament.getPlayers().size() / 2));
                 tournament.setIsOnSecondFormat(true);
-                return doubleEliminationManager.initializeDoubleElimination(updatedTournament);
+                return doubleEliminationManager.initializeTournament(updatedTournament);
 
             }
 

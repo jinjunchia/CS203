@@ -12,57 +12,81 @@ import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
-import com.cs203.cs203system.service.DoubleEliminationManager;
-import com.cs203.cs203system.service.SwissDoubleEliminationHybridManager;
-import com.cs203.cs203system.service.SwissRoundManager;
-import com.cs203.cs203system.service.TournamentManagerService;
+import com.cs203.cs203system.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Service
 public class TournamentManagerServiceImpl implements TournamentManagerService {
-    private final DoubleEliminationManager doubleEliminationManager;
 
+//    private final Map<TournamentFormat, TournamentFormatManager> formatManagers;
+
+//    private final DoubleEliminationManager doubleEliminationManager;
+//
+//    private final TournamentRepository tournamentRepository;
+//
+//    private final PlayerRepository playerRepository;
+//
+//    private final MatchRepository matchRepository;
+//
+//    private final SwissRoundManager swissRoundManager;
+//
+//    private final SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager;
+//
+//    private final NotificationService notficationService;
+
+    private final Map<TournamentFormat, TournamentFormatManager> formatManagers;
     private final TournamentRepository tournamentRepository;
-
     private final PlayerRepository playerRepository;
-
     private final MatchRepository matchRepository;
+    private final NotificationService notificationService;
 
-    private final SwissRoundManager swissRoundManager;
-
-    private final SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager;
-
-    private final NotificationService notficationService;
-
-    /**
-     * Constructor for TournamentManagerServiceImpl.
-     *
-     * @param doubleEliminationManager            the double elimination manager for handling double elimination workflows.
-     * @param tournamentRepository                the repository used to manage Tournament data.
-     * @param playerRepository                    the repository used to manage Player data.
-     * @param matchRepository                     the repository used to manage Match data.
-     * @param swissRoundManager                   the manager used to handle Swiss-style tournament rounds.
-     * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
-     */
+//    /**
+//     * Constructor for TournamentManagerServiceImpl.
+//     *
+//     * @param doubleEliminationManager            the double elimination manager for handling double elimination workflows.
+//     * @param tournamentRepository                the repository used to manage Tournament data.
+//     * @param playerRepository                    the repository used to manage Player data.
+//     * @param matchRepository                     the repository used to manage Match data.
+//     * @param swissRoundManager                   the manager used to handle Swiss-style tournament rounds.
+//     * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
+//     */
+//    @Autowired
+//    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService) {
+//        this.doubleEliminationManager = doubleEliminationManager;
+//        this.tournamentRepository = tournamentRepository;
+//        this.playerRepository = playerRepository;
+//        this.matchRepository = matchRepository;
+//        this.swissRoundManager = swissRoundManager;
+//        this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
+//        this.notficationService = notficationService;
+//    }
     @Autowired
-    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService) {
-        this.doubleEliminationManager = doubleEliminationManager;
+    public TournamentManagerServiceImpl(
+            SwissRoundManagerImpl swissRoundManagerImpl,
+            DoubleEliminationManagerImpl doubleEliminationManagerImpl,
+            SwissDoubleEliminationHybridManagerImpl hybridManagerImpl,
+            TournamentRepository tournamentRepository,
+            PlayerRepository playerRepository,
+            MatchRepository matchRepository,
+            NotificationService notificationService) {
+
+        this.formatManagers = new HashMap<>();
+        this.formatManagers.put(TournamentFormat.SWISS, swissRoundManagerImpl);
+        this.formatManagers.put(TournamentFormat.DOUBLE_ELIMINATION, doubleEliminationManagerImpl);
+        this.formatManagers.put(TournamentFormat.HYBRID, hybridManagerImpl);
+
         this.tournamentRepository = tournamentRepository;
         this.playerRepository = playerRepository;
         this.matchRepository = matchRepository;
-        this.swissRoundManager = swissRoundManager;
-        this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
-        this.notficationService = notficationService;
+        this.notificationService = notificationService;
     }
+
 
     /**
      * Retrieves all tournaments.
@@ -170,6 +194,43 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      */
     @Override
     public Tournament startTournament(Long tournamentId) {
+//        Tournament tournament = findTournamentById(tournamentId)
+//                .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
+//
+//        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
+//            throw new RuntimeException("Tournament needs to be scheduled");
+//        } else if (tournament.getPlayers().size() < 2) {
+//            throw new RuntimeException("Tournament needs at least 2 players");
+//        } else if (tournament.getPlayers().size() % 2 != 0) {
+//            throw new RuntimeException("Tournament needs an even number of players");
+//        } else if (!isPowerOfTwo(tournament.getPlayers().size())
+//                && (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION)) {
+//            throw new RuntimeException("Double Elimination must have total number of players to power 2");
+//        } else if (!isPowerOfTwo(tournament.getPlayers().size())
+//                && (tournament.getFormat() == TournamentFormat.HYBRID)) {
+//            throw new RuntimeException("Hybrid must have total number of players to power 2");
+//        }
+//        tournament.setStatus(TournamentStatus.ONGOING);
+//        List<Player> players = tournament.getPlayers();
+//        List<Long> playerIDs = new ArrayList<>();
+//        for (Player P1: players) {
+//            playerIDs.add(P1.getId());
+//        }
+//        sendNotification(playerIDs,NotificationStatus.START,"Tournament is starting!");
+//        try {
+//            switch (tournament.getFormat()) {
+//                case SWISS:
+//                    return swissRoundManager.initializeSwiss(tournament);
+//                case DOUBLE_ELIMINATION:
+//                    return doubleEliminationManager.initializeDoubleElimination(tournament);
+//                case HYBRID:
+//                    return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
+//                default:
+//                    throw new IllegalArgumentException("Unsupported tournament format:" + tournament.getFormat());
+//            }
+//        } catch (NullPointerException e) {
+//            throw new IllegalArgumentException("Unsupported tournament format:");
+//        }
         Tournament tournament = findTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
 
@@ -180,34 +241,20 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         } else if (tournament.getPlayers().size() % 2 != 0) {
             throw new RuntimeException("Tournament needs an even number of players");
         } else if (!isPowerOfTwo(tournament.getPlayers().size())
-                && (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION)) {
-            throw new RuntimeException("Double Elimination must have total number of players to power 2");
-        } else if (!isPowerOfTwo(tournament.getPlayers().size())
-                && (tournament.getFormat() == TournamentFormat.HYBRID)) {
-            throw new RuntimeException("Hybrid must have total number of players to power 2");
-        }
-        tournament.setStatus(TournamentStatus.ONGOING);
-        List<Player> players = tournament.getPlayers();
-        List<Long> playerIDs = new ArrayList<>();
-        for (Player P1: players) {
-            playerIDs.add(P1.getId());
-        }
-        sendNotification(playerIDs,NotificationStatus.START,"Tournament is starting!");
-        try {
-            switch (tournament.getFormat()) {
-                case SWISS:
-                    return swissRoundManager.initializeSwiss(tournament);
-                case DOUBLE_ELIMINATION:
-                    return doubleEliminationManager.initializeDoubleElimination(tournament);
-                case HYBRID:
-                    return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
-                default:
-                    throw new IllegalArgumentException("Unsupported tournament format:" + tournament.getFormat());
-            }
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Unsupported tournament format:");
+                && (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION || tournament.getFormat() == TournamentFormat.HYBRID)) {
+            throw new RuntimeException("Double Elimination and Hybrid must have total number of players to power 2");
         }
 
+        tournament.setStatus(TournamentStatus.ONGOING);
+
+        sendNotification(tournament.getPlayers().stream().map(Player::getId).collect(Collectors.toList()),
+                NotificationStatus.START, "Tournament is starting!");
+
+        TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
+        if (manager == null) {
+            throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+        }
+        return manager.initializeTournament(tournament);
     }
 
     /**
@@ -264,57 +311,84 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             matchInDatabase.setStatus(MatchStatus.COMPLETED);
             matchInDatabase = matchRepository.save(matchInDatabase);
 
-            switch (matchInDatabase.getTournament().getFormat()) {
-                case SWISS:
-                    return swissRoundManager.receiveMatchResult(matchInDatabase);
-                case DOUBLE_ELIMINATION:
-                    return doubleEliminationManager.receiveMatchResult(matchInDatabase);
-                case HYBRID:
-                    return swissDoubleEliminationHybridManager.receiveMatchResult(matchInDatabase);
-                default:
-                    throw new IllegalArgumentException("Unsupported tournament format: " + matchInRequest.getTournament().getFormat());
+//            switch (matchInDatabase.getTournament().getFormat()) {
+//                case SWISS:
+//                    return swissRoundManager.receiveMatchResult(matchInDatabase);
+//                case DOUBLE_ELIMINATION:
+//                    return doubleEliminationManager.receiveMatchResult(matchInDatabase);
+//                case HYBRID:
+//                    return swissDoubleEliminationHybridManager.receiveMatchResult(matchInDatabase);
+//                default:
+//                    throw new IllegalArgumentException("Unsupported tournament format: " + matchInRequest.getTournament().getFormat());
+//            }
+//        }
+//        return null;
+            TournamentFormatManager manager = formatManagers.get(matchInDatabase.getTournament().getFormat());
+            if (manager == null) {
+                throw new IllegalArgumentException("Unsupported tournament format: " + matchInDatabase.getTournament().getFormat());
             }
+            return manager.receiveMatchResult(matchInDatabase);
         }
-        return null;
+        return matchInDatabase.getTournament();
     }
 
+//    /**
+//     * Determines the winner of a completed tournament.
+//     *
+//     * @param tournamentId the ID of the tournament.
+//     * @return the winner player.
+//     * @throws NotFoundException if the tournament does not exist.
+//     * @throws RuntimeException  if the tournament is not completed.
+//     */
+//    public Player determineWinner(Long tournamentId) {
+//        Tournament tournament = tournamentRepository
+//                .findById(tournamentId)
+//                .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
+//        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
+//            throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
+//        }
+//        Player winner = null;
+//        switch (tournament.getFormat()) {
+//            case SWISS:
+//                winner = swissRoundManager.determineWinner(tournament);
+//                break;
+//            case DOUBLE_ELIMINATION:
+//                winner = doubleEliminationManager.determineWinner(tournament);
+//                break;
+//            case HYBRID:
+//                winner = swissDoubleEliminationHybridManager.determineWinner(tournament);
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+//        }
+//        if (winner != null) {
+//            System.out.println("Winner is " + winner.getName());
+//            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED,winner.getName() + " is the winner!");
+//            return winner;
+//        }
+//        return null;
+//    }
+        public Player determineWinner(Long tournamentId) {
+            Tournament tournament = tournamentRepository
+                    .findById(tournamentId)
+                    .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
 
-    /**
-     * Determines the winner of a completed tournament.
-     *
-     * @param tournamentId the ID of the tournament.
-     * @return the winner player.
-     * @throws NotFoundException if the tournament does not exist.
-     * @throws RuntimeException  if the tournament is not completed.
-     */
-    public Player determineWinner(Long tournamentId) {
-        Tournament tournament = tournamentRepository
-                .findById(tournamentId)
-                .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
-        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
-            throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
-        }
-        Player winner = null;
-        switch (tournament.getFormat()) {
-            case SWISS:
-                winner = swissRoundManager.determineWinner(tournament);
-                break;
-            case DOUBLE_ELIMINATION:
-                winner = doubleEliminationManager.determineWinner(tournament);
-                break;
-            case HYBRID:
-                winner = swissDoubleEliminationHybridManager.determineWinner(tournament);
-                break;
-            default:
+            if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
+                throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
+            }
+
+            TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
+            if (manager == null) {
                 throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+            }
+            Player winner = manager.determineWinner(tournament);
+
+            if (winner != null) {
+                sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED, winner.getName() + " is the winner!");
+                return winner;
+            }
+            return null;
         }
-        if (winner != null) {
-            System.out.println("Winner is " + winner.getName());
-            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED,winner.getName() + " is the winner!");
-            return winner;
-        }
-        return null;
-    }
 
     /**
      * Determines if a given number is a power of two.
@@ -322,17 +396,31 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param n the number to check.
      * @return true if the number is a power of two, false otherwise.
      */
-    private boolean isPowerOfTwo(int n) {
-        return n > 0 && (n & (n - 1)) == 0;
-    }
+//    private boolean isPowerOfTwo(int n) {
+//        return n > 0 && (n & (n - 1)) == 0;
+//    }
+//
+//    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus ,String message) {
+//        notificationService.sendNotification(
+//                playerIDs,
+//                Notification.builder()
+//                        .status(notificationStatus)
+//                        .message(message)
+//                        .build()
+//        );
+//    }
 
-    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus ,String message) {
-        notficationService.sendNotification(
-                playerIDs,
-                Notification.builder()
-                        .status(notificationStatus)
-                        .message(message)
-                        .build()
-        );
-    }
+        private boolean isPowerOfTwo(int n) {
+            return n > 0 && (n & (n - 1)) == 0;
+        }
+
+        public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus, String message) {
+            notificationService.sendNotification(
+                    playerIDs,
+                    Notification.builder()
+                            .status(notificationStatus)
+                            .message(message)
+                            .build()
+            );
+        }
 }
