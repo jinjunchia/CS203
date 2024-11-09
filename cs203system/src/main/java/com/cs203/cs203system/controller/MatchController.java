@@ -1,5 +1,6 @@
 package com.cs203.cs203system.controller;
 
+import com.cs203.cs203system.dtos.InputMatchDTOMapper;
 import com.cs203.cs203system.dtos.MatchResponseDTO;
 import com.cs203.cs203system.dtos.MatchResponseDTOMapper;
 import com.cs203.cs203system.dtos.MatchStatsUpdateRequest;
@@ -27,12 +28,13 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/match")
-@CrossOrigin("*")
+@CrossOrigin
 public class MatchController {
 
     private final MatchService matchService;
     private final MatchResponseDTOMapper matchResponseDTOMapper;
     private final PlayerStatsService playerStatsService;
+    private final InputMatchDTOMapper inputMatchDTOMapper;
 
     /**
      * Constructor for MatchController.
@@ -42,10 +44,12 @@ public class MatchController {
      */
     @Autowired
     public MatchController(MatchService matchService,
-                           MatchResponseDTOMapper matchResponseDTOMapper, PlayerStatsService playerStatsService) {
+                           MatchResponseDTOMapper matchResponseDTOMapper, PlayerStatsService playerStatsService,
+                           InputMatchDTOMapper inputMatchDTOMapper) {
         this.matchService = matchService;
         this.matchResponseDTOMapper = matchResponseDTOMapper;
         this.playerStatsService = playerStatsService;
+        this.inputMatchDTOMapper = inputMatchDTOMapper;
     }
 
     /**
@@ -107,7 +111,7 @@ public class MatchController {
     }
 
 
-    @PutMapping("/match/{id}/stats")
+    @PutMapping("/{id}/stats")
     public ResponseEntity<Void> updateMatchStats(@PathVariable Long id,
                                                  @RequestBody MatchStatsUpdateRequest request) {
         matchService.updateAndSaveMatchStats(id, request.getPunchesPlayer1(), request.getPunchesPlayer2(),
@@ -121,5 +125,12 @@ public class MatchController {
         return playerStatsService.getAllPlayerStats();
     }
 
+    @GetMapping("/player/{playerId}")
+    public List<MatchResponseDTO> getAllMatchesByPlayerId(@PathVariable Long playerId) {
+        return matchService.findMatchesByPlayerId(playerId)
+                .stream()
+                .map(matchResponseDTOMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
 }

@@ -11,6 +11,8 @@ public interface EloRecordService {
 
     List<EloRecord> findAllEloRecords();
 
+    List<EloRecord> findAllEloRecordsForPlayer(Long playerId);
+
     EloRecord findEloRecordById(Long id);
 
     void saveEloRecord(EloRecord eloRecord);

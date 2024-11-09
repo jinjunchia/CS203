@@ -3,10 +3,7 @@
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
-import { Badge } from "@/components/ui/badge";
 import axiosInstance from "@/lib/axios";
-import { formatReadableDate, toTitleCase } from "@/lib/utils";
-import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,7 +31,9 @@ const LeaderBoardPage = () => {
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const response = await axiosInstance.get("/api/player/ranking");
+        const response = await axiosInstance.get("/api/player/ranking", {
+          withCredentials: true,
+        });
         setMatches(response.data);
         setLoading(false);
       } catch (err) {
@@ -58,7 +57,7 @@ const LeaderBoardPage = () => {
           <p className="text-xs text-gray-500">{item.username}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.eloRating}</td>
+      <td className="hidden md:table-cell">{Math.trunc(item.eloRating)}</td>
       <td>
         <div className="flex items-center gap-2">
           <Link href={`/dashboard/list/users/${item.id}`}>
@@ -78,7 +77,7 @@ const LeaderBoardPage = () => {
         <h1 className="hidden md:block text-lg font-semibold">LeaderBoard</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
-          <div className="flex items-center gap-4 self-end">
+          {/* <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/filter.png" alt="" width={14} height={14} />
             </button>
@@ -88,7 +87,7 @@ const LeaderBoardPage = () => {
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/plus.png" alt="" width={14} height={14} />
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
       {/* LIST */}

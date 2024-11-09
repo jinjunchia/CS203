@@ -1,8 +1,9 @@
 "use client";
 
-import FormModal from "@/components/FormModel";
+import TournamentUpdateForm from "@/components/forms/TournamentUpdateForm";
 import Table from "@/components/Table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axiosInstance from "@/lib/axios";
 import { formatReadableDate, toTitleCase } from "@/lib/utils";
 import clsx from "clsx";
@@ -19,6 +20,7 @@ const SingleTournamentPage = ({
   const { data: session, status } = useSession();
   const [tournament, setTournaments] = useState<Tournament>();
   const [matches, setMatches] = useState<Match[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   // Fetch data using Axios
@@ -28,10 +30,10 @@ const SingleTournamentPage = ({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const id = await params.id;
-        const response = await axiosInstance.get("/api/tournament/" + id);
-        setTournaments(response.data);
-        setMatches(response.data.matches);
-        setLoading(false);
+        const tournamentRes = await axiosInstance.get("/api/tournament/" + id);
+        setTournaments(tournamentRes.data);
+        setMatches(tournamentRes.data.matches);
+        setPlayers(tournamentRes.data.players);
       } catch (err) {
         console.error("Error fetching tournaments:", err);
         setError("Failed to load tournaments.");
@@ -42,7 +44,7 @@ const SingleTournamentPage = ({
     fetchTournaments();
   }, []);
 
-  console.log(matches);
+  console.log(tournament);
 
   const renderRow = (item: Match) => (
     <tr
@@ -93,6 +95,29 @@ const SingleTournamentPage = ({
     </tr>
   );
 
+  const renderPlayerRow = (item: PlayerLeaderBoard) => (
+    <tr
+      key={item.id}
+      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
+    >
+      <td className="flex items-center gap-4 p-4">
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item.name}</h3>
+          <p className="text-xs text-gray-500">{item.username}</p>
+        </div>
+      </td>
+      <td>
+        <div className="flex items-center gap-2">
+          <Link href={`/dashboard/list/users/${item.id}`}>
+            <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
+              <Image src="/view.png" alt="" width={16} height={16} />
+            </button>
+          </Link>
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
     <div className="flex-1 p-4 flex flex-col gap-4 xl:flex-row">
       {/* LEFT */}
@@ -112,11 +137,7 @@ const SingleTournamentPage = ({
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-semibold">{tournament?.name}</h1>
               {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
-                <FormModal
-                  table="tournamentUpdate"
-                  type="update"
-                  data={tournament}
-                />
+                <TournamentUpdateForm />
               )}
             </div>
             <p className="text-sm text-gray-500">
@@ -145,9 +166,23 @@ const SingleTournamentPage = ({
           </div>
         </div>
         {/* BOTTOM */}
-        <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-          <h1>Matches</h1>
-          <Table columns={columns} renderRow={renderRow} data={matches} />
+        <div className="mt-4 bg-white rounded-md p-4 min-h-[800px]">
+          <Tabs defaultValue="players" className="w-full">
+            <TabsList className="mb-1">
+              <TabsTrigger value="players">Players</TabsTrigger>
+              <TabsTrigger value="match">Matches</TabsTrigger>
+            </TabsList>
+            <TabsContent value="players">
+              <Table
+                columns={playerColumns}
+                renderRow={renderPlayerRow}
+                data={players}
+              />
+            </TabsContent>
+            <TabsContent value="match">
+              <Table columns={columns} renderRow={renderRow} data={matches} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -176,6 +211,19 @@ const columns = [
     accessor: "tournament",
     className: "hidden lg:table-cell",
   },
+  {
+    header: "Actions",
+    accessor: "action",
+  },
+];
+
+const playerColumns = [
+  { header: "Info", accessor: "info" },
+  // {
+  //   header: "Elo",
+  //   accessor: "tournament",
+  //   className: "hidden lg:table-cell",
+  // },
   {
     header: "Actions",
     accessor: "action",

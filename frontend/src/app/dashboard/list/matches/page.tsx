@@ -49,7 +49,9 @@ const MatchPage = () => {
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const response = await axiosInstance.get("/api/match");
+        const response = await axiosInstance.get("/api/match", {
+          withCredentials: true,
+        });
         setMatches(response.data);
         setLoading(false);
       } catch (err) {
@@ -112,7 +114,7 @@ const MatchPage = () => {
         <h1 className="hidden md:block text-lg font-semibold">All Matches</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
-          <div className="flex items-center gap-4 self-end">
+          {/* <div className="flex items-center gap-4 self-end">
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/filter.png" alt="" width={14} height={14} />
             </button>
@@ -122,7 +124,7 @@ const MatchPage = () => {
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/plus.png" alt="" width={14} height={14} />
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
       {/* LIST */}

@@ -26,8 +26,7 @@ const columns = [
 ];
 
 const PlayerPage = () => {
-  const { data: session, status } = useSession();
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   // Fetch data using Axios
@@ -35,7 +34,7 @@ const PlayerPage = () => {
     const fetchTournaments = async () => {
       try {
         const response = await axiosInstance.get("/api/player");
-        setMatches(response.data);
+        setUsers(response.data);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching rankings:", err);
@@ -92,7 +91,7 @@ const PlayerPage = () => {
         </div>
       </div>
       {/* LIST */}
-      <Table columns={columns} renderRow={renderRow} data={matches} />
+      <Table columns={columns} renderRow={renderRow} data={users} />
       {/* PAGINATION */}
       <Pagination />
     </div>

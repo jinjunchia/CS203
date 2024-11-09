@@ -8,7 +8,7 @@ const Homepage = () => {
 
   useEffect(() => {
     // Redirect to the new page
-    router.replace("/tournaments");
+    router.replace("/login");
   }, [router]);
 
   return null;

@@ -1,5 +1,6 @@
 package com.cs203.cs203system.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

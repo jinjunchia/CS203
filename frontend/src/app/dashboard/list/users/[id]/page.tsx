@@ -1,64 +1,106 @@
 "use client";
 
-import FormModal from "@/components/FormModel";
 import Table from "@/components/Table";
+import EloLineGraph from "@/components/charts/EloLineGraphPlayer";
+import PieChartGraph from "@/components/charts/PieChartPlayer";
+import RadialGraph from "@/components/charts/RadialGraphsPlayer";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axiosInstance from "@/lib/axios";
-import { formatReadableDate } from "@/lib/utils";
+import { formatReadableDate, toTitleCase } from "@/lib/utils";
+import clsx from "clsx";
+import { Link } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const SingleTournamentPage = ({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) => {
+const SingleUserPage = ({ params }: { params: Promise<{ slug: string }> }) => {
   const { data: session, status } = useSession();
-  const [match, setMatch] = useState<Match>();
-  const [players, setPlayers] = useState<PlayerLeaderBoard[]>([]);
+  const [user, setUser] = useState<User>();
+  const [eloRecords, setEloRecords] = useState<any[]>([]);
+  const [playerStats, setPlayerStats] = useState<any[]>([]);
+  const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch data using Axios
   useEffect(() => {
-    const fetchMatch = async () => {
+    const fetchUser = async () => {
       try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const id = await params.id;
-        const response = await axiosInstance.get("/api/match/" + id); // change to /api/user
-        setMatch(response.data);
-        console.log(response.data);
-        setPlayers([response.data.player1, response.data.player2]);
-        setLoading(false);
+        const userRes = await axiosInstance.get("/api/user/" + id, {
+          withCredentials: true,
+        });
+        setUser(userRes.data);
+
+        const eloRecordRes = await axiosInstance.get(
+          "/api/elo-records/player/" + id,
+          {
+            withCredentials: true,
+          }
+        );
+        setEloRecords(eloRecordRes.data);
+
+        const playerStatsRes = await axiosInstance.get(
+          "/api/player-stats/player/" + id,
+          {
+            withCredentials: true,
+          }
+        );
+        setPlayerStats(playerStatsRes.data);
+
+        const matchRes = await axiosInstance.get("/api/match/player/" + id, {
+          withCredentials: true,
+        });
+        setMatches(matchRes.data);
+        // console.log(matchRes.data);
       } catch (err) {
         console.error("Error fetching match:", err);
         setError("Failed to load match.");
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchMatch();
+    fetchUser();
   }, []);
 
-  console.log(players);
-
-  const renderRow = (item: PlayerLeaderBoard) => (
+  const renderRow = (item: Match) => (
     <tr
       key={item.id}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
       <td className="flex items-center gap-4 p-4">
         <div className="flex flex-col">
-          <h3 className="font-semibold">{item.name}</h3>
-          <p className="text-xs text-gray-500">{item.username}</p>
+          <h3 className="font-semibold">
+            {item.player1.name} vs {item.player2.name}
+          </h3>
+          <p className="text-xs text-gray-500">{item.tournament.name}</p>
         </div>
       </td>
-      <td className="hidden md:table-cell">{item.eloRating}</td>
+      <td className="hidden md:table-cell">{item.id}</td>
+      <td className="hidden md:table-cell">
+        <Badge
+          className={clsx({
+            "bg-yellow-500": item.status === "SCHEDULED",
+            "bg-green-500": item.status === "PENDING",
+            "bg-blue-500": item.status === "COMPLETED",
+          })}
+        >
+          {toTitleCase(item.status)}
+        </Badge>
+      </td>
+      <td>
+        {item.status === "COMPLETED" || item.status === "BYE"
+          ? item.player1Score + " : " + item.player2Score
+          : "Undecided"}
+      </td>
+      <td>{formatReadableDate(item.matchDate)}</td>
       <td>
         <div className="flex items-center gap-2">
-          <Link href={`/dashboard/list/users/${item.id}`}>
+          <Link href={`/dashboard/list/matches/${item.id}`}>
             <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaSky">
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
@@ -85,46 +127,56 @@ const SingleTournamentPage = ({
           </div>
           <div className="w-9/12 flex flex-col justify-between gap-4">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold">
-                {match?.player1.name} vs {match?.player2.name}
-              </h1>
-              {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
-                <FormModal
-                  table="tournamentUpdate"
-                  type="update"
-                  data={match}
-                />
-              )}
+              <h1 className="text-xl font-semibold">{user?.username}</h1>
             </div>
             <p className="text-sm text-gray-500">
-              The Ultimate Challenge Cup 2024 is an annual, high-stakes
-              tournament that brings together competitors from across the globe
-              to test their skills in an electrifying series of matches. From
-              seasoned professionals to rising stars, this competition showcases
-              talent, strategy, and sportsmanship at its finest. Competitors
-              will face off in both single and team events, battling through
-              intense rounds for the coveted title and ultimate bragging rights.
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum
+              modi voluptatem earum. Rem, nesciunt odit debitis veritatis quis,
+              accusamus voluptatum quaerat, cumque quam tempora itaque magnam in
+              adipisci ipsa quo!
             </p>
             <div className="flex items-center justify-between gap-2 flex-wrap text-xs font-medium">
               <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                <Image src="/date.png" alt="" width={14} height={14} />
-                <span>{formatReadableDate(match?.matchDate)}</span>
-              </div>
-              <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
                 <Image src="/mail.png" alt="" width={14} height={14} />
-                <span>admin@tournament.com</span>
+                <span>{user?.email}</span>
               </div>
               <div className="w-full md:w-1/3 lg:w-full 2xl:w-1/3 flex items-center gap-2">
-                <Image src="/phone.png" alt="" width={14} height={14} />
-                <span>+65 1234 5678</span>
+                <Image src="/profile.png" alt="" width={14} height={14} />
+                <span>
+                  {user?.userType === "ROLE_ADMIN" ? "Admin" : "Player"}
+                </span>
               </div>
             </div>
           </div>
         </div>
         {/* BOTTOM */}
-        <div className="mt-4 bg-white rounded-md p-4 h-[800px]">
-          <h1>Players</h1>
-          <Table columns={columns} renderRow={renderRow} data={players} />
+        <div className="mt-4 bg-white rounded-md p-4 min-h-[800px]">
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="stats">Player Statistics</TabsTrigger>
+              <TabsTrigger value="history">Match History</TabsTrigger>
+            </TabsList>
+            <TabsContent value="stats" className="grid grid-cols-2 gap-4">
+              <EloLineGraph
+                description="A Timeline of Elo Progression"
+                title="Past Elo History"
+                data={eloRecords}
+              />
+              <PieChartGraph
+                description="The pie chart shows the percentage breakdown of wins, losses, and draws in a set of matches."
+                title="Win-Lose-Draw"
+                data={matches}
+              />
+              <RadialGraph
+                data={playerStats}
+                title="Statistics"
+                description="The chart shows the breakdown of Punches, KOs, and Dodges in their career."
+              />
+            </TabsContent>
+            <TabsContent value="history">
+              <Table columns={columns} renderRow={renderRow} data={matches} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -134,8 +186,23 @@ const SingleTournamentPage = ({
 const columns = [
   { header: "Info", accessor: "info" },
   {
-    header: "Elo",
-    accessor: "elo",
+    header: "Match ID",
+    accessor: "id",
+    className: "hidden md:table-cell",
+  },
+  {
+    header: "Status",
+    accessor: "status",
+    className: "hidden md:table-cell",
+  },
+  {
+    header: "Score",
+    accessor: "score",
+    className: "hidden md:table-cell",
+  },
+  {
+    header: "Match Date",
+    accessor: "tournament",
     className: "hidden lg:table-cell",
   },
   {
@@ -144,4 +211,4 @@ const columns = [
   },
 ];
 
-export default SingleTournamentPage;
+export default SingleUserPage;

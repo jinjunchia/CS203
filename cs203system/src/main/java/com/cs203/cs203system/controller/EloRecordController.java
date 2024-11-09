@@ -1,6 +1,8 @@
 package com.cs203.cs203system.controller;
 
+import com.cs203.cs203system.dtos.EloRecordResponseDto;
 import com.cs203.cs203system.model.EloRecord;
+import com.cs203.cs203system.dtos.EloRecordResponseMapper;
 import com.cs203.cs203system.service.EloRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,16 +15,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller for managing Elo Records.
  * Provides CRUD operations for Elo Records.
  */
 @RestController
-@RequestMapping("/elo-records")
-@CrossOrigin("*")
+@RequestMapping("/api/elo-records")
+@CrossOrigin
 public class EloRecordController {
     private final EloRecordService eloRecordService;
+    private final EloRecordResponseMapper eloRecordResponseMapper;
 
     /**
      * Constructs an EloRecordController with the required service.
@@ -30,8 +34,10 @@ public class EloRecordController {
      * @param eloRecordService the service for EloRecord operations
      */
     @Autowired
-    public EloRecordController(EloRecordService eloRecordService) {
+    public EloRecordController(EloRecordService eloRecordService,
+                               EloRecordResponseMapper eloRecordResponseMapper) {
         this.eloRecordService = eloRecordService;
+        this.eloRecordResponseMapper = eloRecordResponseMapper;
     }
 
     /**
@@ -62,9 +68,18 @@ public class EloRecordController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<EloRecord> getEloRecordById(@PathVariable Long id){
+    public ResponseEntity<EloRecordResponseDto> getEloRecordById(@PathVariable Long id){
         EloRecord eloRecord = eloRecordService.findEloRecordById(id);
-        return new ResponseEntity<>(eloRecord, HttpStatus.OK);
+        return new ResponseEntity<>(eloRecordResponseMapper.toDto(eloRecord), HttpStatus.OK);
+    }
+
+    @GetMapping("/player/{playerId}")
+    public ResponseEntity<List<EloRecordResponseDto>> getAllEloRecordsForPlayer(@PathVariable Long playerId){
+        List<EloRecord> eloRecord = eloRecordService.findAllEloRecordsForPlayer(playerId);
+        return new ResponseEntity<>(eloRecord
+                .stream()
+                .map(eloRecordResponseMapper::toDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     /**
@@ -81,9 +96,9 @@ public class EloRecordController {
                     content = @Content)
     })
     @PostMapping
-    public ResponseEntity<EloRecord> createEloRecord(@RequestBody EloRecord eloRecord){
+    public ResponseEntity<EloRecordResponseDto> createEloRecord(@RequestBody EloRecord eloRecord){
         eloRecordService.saveEloRecord(eloRecord);
-        return new ResponseEntity<>(eloRecord, HttpStatus.CREATED);
+        return new ResponseEntity<>(eloRecordResponseMapper.toDto(eloRecord), HttpStatus.CREATED);
     }
 
     /**
@@ -103,9 +118,9 @@ public class EloRecordController {
                     content = @Content)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<EloRecord> updateEloRecord(@PathVariable Long id, @RequestBody EloRecord eloRecordDetails){
+    public ResponseEntity<EloRecordResponseDto> updateEloRecord(@PathVariable Long id, @RequestBody EloRecord eloRecordDetails){
         eloRecordService.updateEloRecord(id, eloRecordDetails);
-        return new ResponseEntity<>(eloRecordDetails, HttpStatus.OK);
+        return new ResponseEntity<>(eloRecordResponseMapper.toDto(eloRecordDetails), HttpStatus.OK);
     }
 
     /**

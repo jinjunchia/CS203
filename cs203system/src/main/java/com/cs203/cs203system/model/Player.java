@@ -74,12 +74,4 @@ public class Player extends User {
     @ToString.Exclude
     private Set<EloRecord> eloRecords = new LinkedHashSet<>();
 
-//    /**
-//     * The player's statistical data, such as performance metrics.
-//     */
-//    @ToString.Exclude
-//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "player_stats_id")
-//    private PlayerStats playerStats;
-
 }

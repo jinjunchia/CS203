@@ -11,4 +11,6 @@ public interface PlayerStatsService {
      * @return A list of PlayerStatsDto with total punches, dodges, and KOs for each player.
      */
     List<PlayerStatsDTO> getAllPlayerStats();
+
+    PlayerStatsDTO getPlayerStatsByPlayerId(Long id);
 }

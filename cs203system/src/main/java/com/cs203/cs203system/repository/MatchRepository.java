@@ -17,4 +17,9 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Query("SELECT m FROM Match m WHERE m.matchDate BETWEEN :startDate AND :endDate")
     List<Match> findMatchesWithinDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("select m from Match m where m.player2.id = ?1 or m.player1.id = ?1")
+    List<Match> findByPlayerId(Long player1Id);
+
+
 }

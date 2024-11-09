@@ -1,5 +1,6 @@
 "use client";
 
+import TournamentCreateForm from "@/components/forms/TournamentCreateForm";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";
@@ -11,15 +12,6 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import TournamentCreateForm from "@/components/forms/TournamentCreateForm";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 const columns = [
   { header: "Info", accessor: "info" },
@@ -59,7 +51,7 @@ const TournamentPage = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Fetch data using Axios
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -76,7 +68,6 @@ const TournamentPage = () => {
 
     fetchTournaments();
   }, []);
-  
 
   const renderRow = (item: Tournament) => (
     <tr
@@ -84,13 +75,6 @@ const TournamentPage = () => {
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
       <td className="flex items-center gap-4 p-4">
-        {/* <Image
-          src="/"
-          alt=""
-          width={40}
-          height={40}
-          className="md:hidden xl:block w-10 h-10 rounded-full object-cover"
-        /> */}
         <div className="flex flex-col">
           <h3 className="font-semibold">{item.name}</h3>
           <p className="text-xs text-gray-500">{item.location}</p>

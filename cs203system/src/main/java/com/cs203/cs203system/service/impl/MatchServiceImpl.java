@@ -92,4 +92,9 @@ public class MatchServiceImpl implements MatchService {
         matchRepository.save(match);
 
     }
+
+    @Override
+    public List<Match> findMatchesByPlayerId(Long playerId) {
+        return matchRepository.findByPlayerId(playerId);
+    }
 }
