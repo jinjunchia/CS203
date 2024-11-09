@@ -26,6 +26,8 @@ public class EloServiceImpl implements EloService {
 
     @Override
     @Transactional
+
+
     public void updateEloRatings(Player player1, Player player2, Match match) {
         // Get player scores from the match (entered by the admin)
         Integer player1Score = match.getPlayer1Score();
@@ -38,8 +40,6 @@ public class EloServiceImpl implements EloService {
         // Determine actual scores for ELO calculation based on input scores
         double actualScorePlayer1 = player1Score > player2Score ? 1.0 : (player1Score < player2Score ? 0.0 : 0.5);
         double actualScorePlayer2 = 1.0 - actualScorePlayer1;
-
-
 
         // Retrieve additional metrics
         int punchesPlayer1 = match.getPunchesPlayer1();
@@ -59,19 +59,19 @@ public class EloServiceImpl implements EloService {
         double expectedScorePlayer1 = expectedScore(player1.getEloRating(), player2.getEloRating());
         double expectedScorePlayer2 = expectedScore(player2.getEloRating(), player1.getEloRating());
 
-        // Calculate factors based on punches, dodges, and KO
-        double punchFactorPlayer1 = calculatePunchFactor(punchesPlayer1, punchesPlayer2);
-        double punchFactorPlayer2 = calculatePunchFactor(punchesPlayer2, punchesPlayer1);
-        double dodgeFactorPlayer1 = calculateDodgeFactor(dodgesPlayer1, dodgesPlayer2);
-        double dodgeFactorPlayer2 = calculateDodgeFactor(dodgesPlayer2, dodgesPlayer1);
-        double koFactorPlayer1 = koByPlayer1 ? calculateKOFactor(true) : 0;
-        double koFactorPlayer2 = koByPlayer2 ? calculateKOFactor(true) : 0;
+        // Apply additional factors, with reduced weight for the losing player
+        double punchFactorPlayer1 = actualScorePlayer1 == 1.0 ? calculatePunchFactor(punchesPlayer1, punchesPlayer2) : calculatePunchFactor(punchesPlayer1, punchesPlayer2) * 0.5;
+        double punchFactorPlayer2 = actualScorePlayer2 == 1.0 ? calculatePunchFactor(punchesPlayer2, punchesPlayer1) : calculatePunchFactor(punchesPlayer2, punchesPlayer1) * 0.5;
+        double dodgeFactorPlayer1 = actualScorePlayer1 == 1.0 ? calculateDodgeFactor(dodgesPlayer1, dodgesPlayer2) : calculateDodgeFactor(dodgesPlayer1, dodgesPlayer2) * 0.5;
+        double dodgeFactorPlayer2 = actualScorePlayer2 == 1.0 ? calculateDodgeFactor(dodgesPlayer2, dodgesPlayer1) : calculateDodgeFactor(dodgesPlayer2, dodgesPlayer1) * 0.5;
+        double koFactorPlayer1 = actualScorePlayer1 == 1.0 && koByPlayer1 ? calculateKOFactor(true) : 0;
+        double koFactorPlayer2 = actualScorePlayer2 == 1.0 && koByPlayer2 ? calculateKOFactor(true) : 0;
 
         if (koByPlayer1 && koByPlayer2) {
             throw new IllegalStateException("Both players cannot perform a KO in the same match.");
         }
 
-        // Calculate new ELO ratings with the added factors
+        // Calculate new ELO ratings with the adjusted factors
         double newEloPlayer1 = player1.getEloRating() + K_FACTOR * (actualScorePlayer1 - expectedScorePlayer1) + punchFactorPlayer1 + dodgeFactorPlayer1 + koFactorPlayer1;
         double newEloPlayer2 = player2.getEloRating() + K_FACTOR * (actualScorePlayer2 - expectedScorePlayer2) + punchFactorPlayer2 + dodgeFactorPlayer2 + koFactorPlayer2;
 
@@ -83,6 +83,7 @@ public class EloServiceImpl implements EloService {
         saveEloRecord(player1, match, oldEloPlayer1, newEloPlayer1, "Match against " + player2.getName());
         saveEloRecord(player2, match, oldEloPlayer2, newEloPlayer2, "Match against " + player1.getName());
     }
+
 
     public double expectedScore(double playerElo, double opponentElo) {
         // Calculates the expected score based on ELO ratings
