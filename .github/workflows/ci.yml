@@ -50,6 +50,12 @@ jobs:
       - name: Rename JAR for Deployment
         run: mv cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ./cs203system.jar
 
+      - name: Verify JAR exists
+        run: |
+          if [ ! -f ./cs203system.jar ]; then
+            echo "JAR file not found, build may have failed."
+            exit 1
+          fi
 
 
   deploy:
