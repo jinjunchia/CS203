@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -37,3 +37,29 @@ jobs:
       - name: Build project
         working-directory: frontend
         run: npm run build || true
+
+#  deploy:
+#        runs-on: ubuntu-latest
+#        needs: build_and_test  # Run deployment after build_and_test succeeds
+#
+#        steps:
+#          - name: Checkout code
+#            uses: actions/checkout@v3
+#
+#          - name: Deploy to EC2
+#            uses: appleboy/ssh-action@v0.1.3
+#            with:
+#              host: ${{ secrets.EC2_HOST }}
+#              username: ${{ secrets.EC2_USER }}
+#              key: ${{ secrets.EC2_SSH_KEY }}
+#              script: |
+#                cd /path/on/EC2/for/frontend  # Change to the directory on EC2 where the frontend is located
+#                git pull origin main
+#                npm install --prefix CS203/frontend  # Install dependencies in frontend directory on EC2
+#                npm run build --prefix CS203/frontend  # Build the Next.js project on EC2
+#                npm run start --prefix CS203/frontend  # Start the Next.js application on EC2
+#
+#                cd /home/ubuntu/CS203/backend  # Path to the backend on EC2
+#                            npm install  # Install backend dependencies on EC2
+#                            npm run build  # Build backend if necessary
+#                            pm2 start npm --name "backend" -- start  # Start the backend server on EC2 using PM2
