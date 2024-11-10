@@ -49,7 +49,7 @@ jobs:
 
         # New step to check the directory for the JAR file
       - name: Verify JAR file location
-        run: ls cs203system/build/libs/
+        run: ls-la cs203system/build/libs/
 
 
 
