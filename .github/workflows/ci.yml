@@ -76,7 +76,7 @@ jobs:
         run: ./gradlew build
 
       - name: Verify JAR file location
-        run: ls   cs203system/build/libs/
+        run: ls -la cs203system/build/libs/
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.5
