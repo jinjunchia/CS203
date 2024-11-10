@@ -60,7 +60,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      - name: Verify JAR file location
+        run: ls -la cs203system/build/libs/
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.5
         with:
