@@ -40,6 +40,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build JAR
+        working-directory: cs203system/build/libs
         run: ./gradlew build
 
       - name: Archive JAR
