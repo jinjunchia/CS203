@@ -61,6 +61,8 @@ jobs:
             exit 1
           fi
 
+      - name: List directory contents after build
+        run: ls cs203system/build/libs
 
   deploy:
     runs-on: ubuntu-latest
