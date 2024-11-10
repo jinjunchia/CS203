@@ -18,9 +18,7 @@ import java.util.List;
 
 @Service
 public class SwissDoubleEliminationHybridManagerImpl implements TournamentFormatManager {
-//    private final SwissRoundManager swissRoundManager;
-//
-//    private final DoubleEliminationManager doubleEliminationManager;
+
     private final SwissRoundManagerImpl swissRoundManager;
     private final DoubleEliminationManagerImpl doubleEliminationManager;
     private final TournamentRepository tournamentRepository;
