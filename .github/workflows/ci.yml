@@ -49,7 +49,7 @@ jobs:
 
         # New step to check the directory for the JAR file
       - name: Verify JAR file location
-        run: ls cs203system/build/libs/
+        run: ls la cs203system/build/libs/
 
 
 
@@ -73,7 +73,7 @@ jobs:
             mkdir -p ~/CS203/backend
             
             # Copy the JAR file to EC2
-            scp -i ~/.ssh/new-ec2-key.pem ./cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
+            scp -i ~/.ssh/new-ec2-key.pem cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
             
             # Stop the current backend service if running
             pkill -f "cs203system.jar" || true
