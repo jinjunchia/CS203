@@ -1,8 +1,18 @@
 "use client";
 
+import AddPlayerForm from "@/components/forms/AddPlayerForm";
 import TournamentUpdateForm from "@/components/forms/TournamentUpdateForm";
 import Table from "@/components/Table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axiosInstance from "@/lib/axios";
 import { formatReadableDate, toTitleCase } from "@/lib/utils";
@@ -11,6 +21,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { set } from "react-hook-form";
+import { CiCirclePlus } from "react-icons/ci";
 
 const SingleTournamentPage = ({
   params,
@@ -21,6 +33,7 @@ const SingleTournamentPage = ({
   const [tournament, setTournaments] = useState<Tournament>();
   const [matches, setMatches] = useState<Match[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
+  const [tournamentId, setTournamentId] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   // Fetch data using Axios
@@ -34,6 +47,7 @@ const SingleTournamentPage = ({
         setTournaments(tournamentRes.data);
         setMatches(tournamentRes.data.matches);
         setPlayers(tournamentRes.data.players);
+        setTournamentId(tournamentRes.data.id);
       } catch (err) {
         console.error("Error fetching tournaments:", err);
         setError("Failed to load tournaments.");
@@ -166,24 +180,45 @@ const SingleTournamentPage = ({
           </div>
         </div>
         {/* BOTTOM */}
-        <div className="mt-4 bg-white rounded-md p-4 min-h-[800px]">
-          <Tabs defaultValue="players" className="w-full">
-            <TabsList className="mb-1">
-              <TabsTrigger value="players">Players</TabsTrigger>
-              <TabsTrigger value="match">Matches</TabsTrigger>
-            </TabsList>
-            <TabsContent value="players">
-              <Table
-                columns={playerColumns}
-                renderRow={renderPlayerRow}
-                data={players}
-              />
-            </TabsContent>
-            <TabsContent value="match">
-              <Table columns={columns} renderRow={renderRow} data={matches} />
-            </TabsContent>
-          </Tabs>
-        </div>
+        <Sheet>
+          <div className="mt-4 bg-white rounded-md p-4 min-h-[800px]">
+            <Tabs defaultValue="players" className="w-full">
+              <div className="flex justify-between">
+                <TabsList className="mb-1">
+                  <TabsTrigger value="players">Players</TabsTrigger>
+                  <TabsTrigger value="match">Matches</TabsTrigger>
+                </TabsList>
+                {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
+                  <SheetTrigger>
+                    <Button className="h-8 w-8 p-0 rounded-full bg-lamaSky hover:bg-lamaSky">
+                      <CiCirclePlus size={30} />
+                    </Button>
+                  </SheetTrigger>
+                )}
+              </div>
+              <TabsContent value="players">
+                <Table
+                  columns={playerColumns}
+                  renderRow={renderPlayerRow}
+                  data={players}
+                />
+              </TabsContent>
+              <TabsContent value="match">
+                <Table columns={columns} renderRow={renderRow} data={matches} />
+              </TabsContent>
+            </Tabs>
+          </div>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Adding Players</SheetTitle>
+              <SheetDescription>Pick you fighters!</SheetDescription>
+            </SheetHeader>
+            <AddPlayerForm
+              currentPlayers={players}
+              tournamentId={tournamentId}
+            />
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );
