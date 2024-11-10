@@ -47,8 +47,14 @@ jobs:
         working-directory: cs203system
         run: ./gradlew build -x test
 
-      - name: Archive JAR
-        run: mv ./build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
+      - name: Verify and Archive JAR
+        run: |
+          if [ -f ./cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ]; then
+            mv ./cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
+          else
+            echo "JAR file not found, build may have failed."
+            exit 1
+          fi      
 
   deploy:
     runs-on: ubuntu-latest
