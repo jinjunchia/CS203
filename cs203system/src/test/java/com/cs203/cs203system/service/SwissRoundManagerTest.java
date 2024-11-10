@@ -60,7 +60,7 @@ public class SwissRoundManagerTest {
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
-        Tournament result = swissRoundManagerImpl.initializeSwiss(tournament);
+        Tournament result = swissRoundManagerImpl.initializeTournament(tournament);
 
         // Assert
         assertEquals(2, result.getPlayers().size());
@@ -153,7 +153,7 @@ public class SwissRoundManagerTest {
         when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
-        Tournament result = swissRoundManagerImpl.initializeSwiss(tournament);
+        Tournament result = swissRoundManagerImpl.initializeTournament(tournament);
 
         // Assert
         assertEquals(0, result.getPlayers().size());

@@ -102,21 +102,35 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
         Player loser = match.getLoser();
 
         if (match.getBracket() == MatchBracket.UPPER) {
+            // If the match is in the UPPER bracket, move the loser to the LOWER bracket
             tournament.getWinnersBracket().remove(loser);
             tournament.getLosersBracket().add(loser);
-        } else if (match.getBracket() == MatchBracket.LOWER ||
-                (match.getBracket() == MatchBracket.FINAL && !tournament.getLosersBracket().contains(loser))) {
+
+        } else if (match.getBracket() == MatchBracket.LOWER) {
+            // If the match is in the LOWER bracket, remove the loser from the tournament (elimination)
             tournament.getLosersBracket().remove(loser);
-        } else if ((match.getBracket() == MatchBracket.FINAL && !tournament.getLosersBracket().contains(loser))) {
-            tournament.getWinnersBracket().remove(loser);
-            tournament.getLosersBracket().add(loser);
-        } else if ((match.getBracket() == MatchBracket.FINAL && tournament.getLosersBracket().contains(loser))
-                || match.getBracket() == MatchBracket.GRAND_FINAL) {
+
+        } else if (match.getBracket() == MatchBracket.FINAL) {
+            // If the match is in the FINAL bracket
+            if (tournament.getWinnersBracket().contains(loser)) {
+                // If the loser is from the winners bracket, move to the losers bracket
+                tournament.getWinnersBracket().remove(loser);
+                tournament.getLosersBracket().add(loser);
+            } else if (tournament.getLosersBracket().contains(loser)) {
+                // If the loser is already in the losers bracket, the tournament is completed
+                tournament.getWinnersBracket().clear();
+                tournament.getLosersBracket().clear();
+                tournament.setStatus(TournamentStatus.COMPLETED);
+            }
+
+        } else if (match.getBracket() == MatchBracket.GRAND_FINAL) {
+            // For GRAND_FINAL, clearing both brackets signifies the tournament completion
             tournament.getWinnersBracket().clear();
             tournament.getLosersBracket().clear();
             tournament.setStatus(TournamentStatus.COMPLETED);
         }
     }
+
 
 
     /**

@@ -238,11 +238,12 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
             throw new RuntimeException("Tournament needs to be scheduled");
         } else if (tournament.getPlayers().size() < 2) {
             throw new RuntimeException("Tournament needs at least 2 players");
+        } else if (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION && !isPowerOfTwo(tournament.getPlayers().size())) {
+            throw new RuntimeException("Double Elimination must have total number of players to power 2");
         } else if (tournament.getPlayers().size() % 2 != 0) {
             throw new RuntimeException("Tournament needs an even number of players");
-        } else if (!isPowerOfTwo(tournament.getPlayers().size())
-                && (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION || tournament.getFormat() == TournamentFormat.HYBRID)) {
-            throw new RuntimeException("Double Elimination and Hybrid must have total number of players to power 2");
+        } else if (tournament.getFormat() == TournamentFormat.HYBRID && !isPowerOfTwo(tournament.getPlayers().size())) {
+            throw new RuntimeException("Hybrid must have total number of players to power 2");
         }
 
         tournament.setStatus(TournamentStatus.ONGOING);
