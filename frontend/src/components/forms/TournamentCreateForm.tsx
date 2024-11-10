@@ -61,9 +61,14 @@ const formSchema = z.object({
   }),
 });
 
-const TournamentCreateForm = () => {
+interface MyComponentProps {
+  onRefresh: () => void; // Add this prop to type definition
+}
+
+const TournamentCreateForm: React.FC<MyComponentProps> = ({ onRefresh }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -94,6 +99,9 @@ const TournamentCreateForm = () => {
         },
         { withCredentials: true }
       );
+      onRefresh();
+      router.refresh();
+      setDialogOpen(false);
     } catch (err) {
       toast({
         variant: "destructive",
@@ -107,9 +115,12 @@ const TournamentCreateForm = () => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger>
-        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <button
+          onClick={() => setDialogOpen(true)}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow"
+        >
           <Image src="/plus.png" alt="" width={14} height={14} />
         </button>
       </DialogTrigger>
@@ -208,7 +219,7 @@ const TournamentCreateForm = () => {
                             <SelectValue placeholder="Select Format" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="SWISS">SWISS</SelectItem>
+                            <SelectItem value="SWISS">Swiss</SelectItem>
                             <SelectItem value="DOUBLE_ELIMINATION">
                               Double Elimination
                             </SelectItem>

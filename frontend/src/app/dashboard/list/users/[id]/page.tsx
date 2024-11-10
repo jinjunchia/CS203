@@ -157,15 +157,15 @@ const SingleUserPage = ({ params }: { params: Promise<{ slug: string }> }) => {
               <TabsTrigger value="history">Match History</TabsTrigger>
             </TabsList>
             <TabsContent value="stats" className="grid grid-cols-2 gap-4">
-              <EloLineGraph
-                description="A Timeline of Elo Progression"
-                title="Past Elo History"
-                data={eloRecords}
-              />
               <PieChartGraph
                 description="The pie chart shows the percentage breakdown of wins, losses, and draws in a set of matches."
                 title="Win-Lose-Draw"
                 data={matches}
+              />
+              <EloLineGraph
+                description="A Timeline of Elo Progression"
+                title="Past Elo History"
+                data={eloRecords}
               />
               <RadialGraph
                 data={playerStats}

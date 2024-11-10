@@ -62,9 +62,18 @@ const formSchema = z.object({
   }),
 });
 
-const TournamentUpdateForm = () => {
+interface MyComponentProps {
+  data: any;
+  onRefresh: () => void; // Add this prop to type definition
+}
+
+const TournamentUpdateForm: React.FC<MyComponentProps> = ({
+  data,
+  onRefresh,
+}) => {
   const router = useRouter();
   const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -95,6 +104,10 @@ const TournamentUpdateForm = () => {
         },
         { withCredentials: true }
       );
+
+      // onRefresh();
+      // router.refresh();
+      setDialogOpen(false);
     } catch (err) {
       toast({
         variant: "destructive",
@@ -108,9 +121,12 @@ const TournamentUpdateForm = () => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger>
-        <button className="flex justify-center">
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <button
+          onClick={() => setDialogOpen(true)}
+          className="flex justify-center"
+        >
           {/* <Image src="/edit.png" alt="" width={7} height={7} /> */}
           <CiEdit size={20} />
         </button>
