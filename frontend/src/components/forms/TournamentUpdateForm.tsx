@@ -38,6 +38,7 @@ import {
 
 // import * as dialog from "@/components/ui/dialog";
 import Image from "next/image";
+import { CiEdit } from "react-icons/ci";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -61,7 +62,7 @@ const formSchema = z.object({
   }),
 });
 
-const TournamentCreateForm = () => {
+const TournamentUpdateForm = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -109,14 +110,15 @@ const TournamentCreateForm = () => {
   return (
     <Dialog>
       <DialogTrigger>
-        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-          <Image src="/plus.png" alt="" width={14} height={14} />
+        <button className="flex justify-center">
+          {/* <Image src="/edit.png" alt="" width={7} height={7} /> */}
+          <CiEdit size={20} />
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
-          <DialogTitle>Create Tournament</DialogTitle>
-          <DialogDescription>The journey starts now!</DialogDescription>
+          <DialogTitle>Update Tournament</DialogTitle>
+          <DialogDescription>What's on your mind?</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Form {...form}>
@@ -241,4 +243,4 @@ const TournamentCreateForm = () => {
   );
 };
 
-export default TournamentCreateForm;
+export default TournamentUpdateForm;

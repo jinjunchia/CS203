@@ -10,6 +10,9 @@ public interface MatchService {
     List<Match> findAllMatches();
 
     List<Match> findAllMatchesByTournamentId(Long tournamentId);
+
     void updateAndSaveMatchStats(Long matchId, Integer punchesPlayer1, Integer punchesPlayer2,
                                  Integer dodgesPlayer1, Integer dodgesPlayer2, boolean koByPlayer1, boolean koByPlayer2);
+
+    List<Match> findMatchesByPlayerId(Long playerId);
 }

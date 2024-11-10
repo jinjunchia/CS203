@@ -1,5 +1,6 @@
 package com.cs203.cs203system.service.impl;
 
+import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.EloRecord;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.model.Player;
@@ -29,9 +30,14 @@ public class EloRecordServiceImpl implements EloRecordService {
     }
 
     @Override
+    public List<EloRecord> findAllEloRecordsForPlayer(Long playerId) {
+        return eloRecordRepository.findByPlayer_Id(playerId);
+    }
+
+    @Override
     public EloRecord findEloRecordById(Long id) {
         Optional<EloRecord> eloRecord = eloRecordRepository.findById(id);
-        return eloRecord.orElseThrow(() -> new RuntimeException("Elo Record not found for id: " + id));
+        return eloRecord.orElseThrow(() -> new NotFoundException("Elo Record not found for id: " + id));
     }
 
     @Override

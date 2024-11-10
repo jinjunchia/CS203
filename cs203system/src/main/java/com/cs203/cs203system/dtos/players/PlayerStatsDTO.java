@@ -1,7 +1,11 @@
 package com.cs203.cs203system.dtos.players;
 
-public class PlayerStatsDTO {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class PlayerStatsDTO {
     private Long playerId;
     private String playerName;
     private int totalPunches;
@@ -14,47 +18,6 @@ public class PlayerStatsDTO {
         this.playerName = playerName;
         this.totalPunches = totalPunches;
         this.totalDodges = totalDodges;
-        this.totalKOs = totalKOs;
-    }
-
-    // Getters and Setters
-    public Long getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(Long playerId) {
-        this.playerId = playerId;
-    }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public int getTotalPunches() {
-        return totalPunches;
-    }
-
-    public void setTotalPunches(int totalPunches) {
-        this.totalPunches = totalPunches;
-    }
-
-    public int getTotalDodges() {
-        return totalDodges;
-    }
-
-    public void setTotalDodges(int totalDodges) {
-        this.totalDodges = totalDodges;
-    }
-
-    public int getTotalKOs() {
-        return totalKOs;
-    }
-
-    public void setTotalKOs(int totalKOs) {
         this.totalKOs = totalKOs;
     }
 

@@ -13,12 +13,12 @@ const menuItems = [
   {
     title: "MENU",
     items: [
-      {
-        icon: <CiHome size={20} />,
-        label: "Home",
-        href: "/dashboard/admin",
-        visible: ["admin", "player"],
-      },
+      // {
+      //   icon: <CiHome size={20} />,
+      //   label: "Home",
+      //   href: "/dashboard/admin",
+      //   visible: ["admin", "player"],
+      // },
       {
         icon: <CiTrophy size={20} />,
         label: "Tournament",

@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/player")
-@CrossOrigin("*")
+@CrossOrigin
 public class PlayerController {
 
     private final PlayerService playerService;
