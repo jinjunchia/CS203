@@ -92,6 +92,9 @@ jobs:
             # Ensure the backend directory exists on EC2
             mkdir -p ~/CS203/backend
             
+            # Ensure the file is present
+            ls -la cs203system/build/libs/
+            
             # Copy the JAR file to EC2
             scp -i ~/.ssh/new-ec2-key.pem cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
             
