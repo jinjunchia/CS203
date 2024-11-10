@@ -64,7 +64,7 @@ public class DoubleEliminationManagerTest {
         when(tournamentRepository.save(any(Tournament.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Tournament result = doubleEliminationManagerImpl.initializeDoubleElimination(tournament);
+        Tournament result = doubleEliminationManagerImpl.initializeTournament(tournament);
 
         // Assert
         assertNotNull(result);
@@ -166,7 +166,6 @@ public class DoubleEliminationManagerTest {
         // Arrange: Set up a Tournament object and initialize the winner's and loser's brackets
         Tournament tournament = new Tournament();
 
-
         // Define two players involved in the match
         Player player1 = new Player();
         Player player2 = new Player();
@@ -193,18 +192,13 @@ public class DoubleEliminationManagerTest {
         // Act: Call the method being tested
         Tournament result = doubleEliminationManagerImpl.receiveMatchResult(match);
 
-//        System.out.println("winner bracket should contain no one" + result.getWinnersBracket());
-//        System.out.println("loser's bracket should contain 2 players" + result.getLosersBracket());
-
         // Assert: Check that the tournament result is not null
         assertNotNull(result);
 
         // Player1 should be moved from the Winner's bracket to the Loser's bracket
-        // Player2 should remain in Loser's bracket for a FINAL match in double elimination
-        assertFalse(result.getWinnersBracket().contains(player1));  // Player1 is no longer in the Winner's bracket
-        assertTrue(result.getLosersBracket().contains(player1));    // Player1 is now in the Loser's bracket
-        assertTrue(result.getLosersBracket().contains(player2));    // Player2 remains in Loser's bracket
-
+        assertFalse(result.getWinnersBracket().contains(player1), "Player1 should no longer be in the Winner's bracket after losing in the final.");
+        assertTrue(result.getLosersBracket().contains(player1), "Player1 should now be in the Loser's bracket after losing in the final.");
+        assertTrue(result.getLosersBracket().contains(player2), "Player2 should remain in the Loser's bracket.");
 
         // Verify that Elo ratings were updated for both players
         verify(eloService, times(1)).updateEloRatings(player1, player2, match);
@@ -212,6 +206,7 @@ public class DoubleEliminationManagerTest {
         // Verify that the tournament was saved after processing the match result
         verify(tournamentRepository, times(1)).save(tournament);
     }
+
 
     @Test
     void receiveMatchResult_AllMatchesCompleted_UpdatesTournamentStatus() {
