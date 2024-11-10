@@ -47,14 +47,10 @@ jobs:
         working-directory: cs203system
         run: ./gradlew build -x test
 
-      - name: Verify and Archive JAR
-        run: |
-          if [ -f ./cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ]; then
-            mv ./cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
-          else
-            echo "JAR file not found, build may have failed."
-            exit 1
-          fi      
+      - name: Rename JAR for Deployment
+        run: mv cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
+
+
 
   deploy:
     runs-on: ubuntu-latest
@@ -76,8 +72,8 @@ jobs:
             mkdir -p ~/CS203/backend
             
             # Copy the JAR file to EC2
-            scp -i ~/.ssh/new-ec2-key.pem build/libs/cs203system.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
-
+            scp -i ~/.ssh/new-ec2-key.pem cs203system.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
+            
             # Stop the current backend service if running
             pkill -f "cs203system.jar" || true
             
