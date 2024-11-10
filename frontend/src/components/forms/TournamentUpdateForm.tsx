@@ -134,7 +134,7 @@ const TournamentUpdateForm: React.FC<MyComponentProps> = ({
       <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
           <DialogTitle>Update Tournament</DialogTitle>
-          <DialogDescription>What's on your mind?</DialogDescription>
+          <DialogDescription>What is on your mind?</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Form {...form}>
