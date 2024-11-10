@@ -50,6 +50,10 @@ jobs:
       - name: Rename JAR for Deployment
         run: mv cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ./cs203system.jar
 
+          # New step to check the directory for the JAR file
+      - name: Verify JAR file location
+        run: ls cs203system/build/libs/
+
       - name: Verify JAR exists
         run: |
           if [ ! -f ./cs203system.jar ]; then
