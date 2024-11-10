@@ -13,53 +13,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js (use the version that matches your project, e.g., 18)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # You can adjust this if you're using a different Node.js version
+          node-version: '18'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         working-directory: frontend
         run: npm install
 
-      # Step 4: Run linting (ensure code follows linting rules)
       - name: Run linting
         working-directory: frontend
         run: npm run lint
 
-      # Step 5: Build the project (Next.js build process)
       - name: Build project
         working-directory: frontend
         run: npm run build || true
 
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Build JAR
+        run: ./gradlew build
+
+      - name: Archive JAR
+        run: mv ./build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
+
   deploy:
-        runs-on: ubuntu-latest
-        needs: build_and_test  # Run deployment after build_and_test succeeds
+    runs-on: ubuntu-latest
+    needs: build_and_test
 
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-          - name: Deploy to EC2
-            uses: appleboy/ssh-action@v0.1.3
-            with:
-              host: ${{ secrets.EC2_HOST }}
-              username: ${{ secrets.EC2_USER }}
-              key: ${{ secrets.EC2_SSH_KEY }}
-              script: |
-                mkdir -p ~/CS203/backend
-
-            # Copy the JAR file
-                scp -i ~/.ssh/new-ec2-key.pem build/libs/cs203system.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Ensure the backend directory exists on EC2
+            mkdir -p ~/CS203/backend
+            
+            # Copy the JAR file to EC2
+            scp -i ~/.ssh/new-ec2-key.pem build/libs/cs203system.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
 
             # Stop the current backend service if running
-                pkill -f "cs203system.jar" || true
+            pkill -f "cs203system.jar" || true
             
             # Run the new JAR file
-                nohup java -jar /home/ubuntu/CS203/backend/cs203system.jar > output.log 2>&1 &
+            nohup java -jar /home/ubuntu/CS203/backend/cs203system.jar > output.log 2>&1 &
