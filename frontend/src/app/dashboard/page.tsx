@@ -8,11 +8,14 @@ const Page = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  console.log((session?.user as any)?.user.id);
   useEffect(() => {
     if ((session as any)?.user.user.userType === "ROLE_ADMIN") {
-      router.replace("/dashboard/admin");
+      router.replace("/dashboard/list/tournaments");
     } else {
-      router.replace("/dashboard/player");
+      router.replace(
+        "/dashboard/list/users/" + (session?.user as any)?.user.id
+      );
     }
   }, [router]);
 

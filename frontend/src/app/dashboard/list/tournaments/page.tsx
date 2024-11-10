@@ -49,6 +49,7 @@ const columns = [
 const TournamentPage = () => {
   const { data: session, status } = useSession();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -66,8 +67,13 @@ const TournamentPage = () => {
       }
     };
 
+    if (shouldRefresh) {
+      setShouldRefresh(false); // Reset the flag after fetching data
+    }
     fetchTournaments();
-  }, []);
+  }, [shouldRefresh]);
+
+  const handleRefresh = () => setShouldRefresh(true);
 
   const renderRow = (item: Tournament) => (
     <tr
@@ -129,7 +135,7 @@ const TournamentPage = () => {
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
 
-            <TournamentCreateForm />
+            <TournamentCreateForm onRefresh={handleRefresh} />
           </div>
         </div>
       </div>

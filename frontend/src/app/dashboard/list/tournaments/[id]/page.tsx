@@ -1,6 +1,7 @@
 "use client";
 
 import AddPlayerForm from "@/components/forms/AddPlayerForm";
+import MatchUpdateForm from "@/components/forms/MatchUpdateForm";
 import TournamentUpdateForm from "@/components/forms/TournamentUpdateForm";
 import Table from "@/components/Table";
 import { Badge } from "@/components/ui/badge";
@@ -14,14 +15,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import axiosInstance from "@/lib/axios";
 import { formatReadableDate, toTitleCase } from "@/lib/utils";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { set } from "react-hook-form";
 import { CiCirclePlus } from "react-icons/ci";
 
 const SingleTournamentPage = ({
@@ -30,12 +32,16 @@ const SingleTournamentPage = ({
   params: Promise<{ slug: string }>;
 }) => {
   const { data: session, status } = useSession();
+  const { toast } = useToast();
+  const router = useRouter();
   const [tournament, setTournaments] = useState<Tournament>();
   const [matches, setMatches] = useState<Match[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [tournamentId, setTournamentId] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+
   // Fetch data using Axios
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -56,9 +62,39 @@ const SingleTournamentPage = ({
     };
 
     fetchTournaments();
-  }, []);
+    if (shouldRefresh) {
+      setShouldRefresh(false); // Reset the flag after fetching data
+    }
+  }, [shouldRefresh]);
 
-  console.log(tournament);
+  const startGame = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      const id = await params.id;
+      await axiosInstance.put("/api/tournament/start/" + id, "", {
+        withCredentials: true,
+      });
+      router.refresh();
+      handleRefresh();
+
+      toast({
+        title: "Game On!",
+        description: "You have start the Game!",
+      });
+    } catch (err) {
+      setError("Failed to start tournaments.");
+      setLoading(false);
+      toast({
+        title: "Oopie",
+        description: "Ensure you have the right number of players",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // console.log(tournament);
+  const handleRefresh = () => setShouldRefresh(true);
 
   const renderRow = (item: Match) => (
     <tr
@@ -104,6 +140,22 @@ const SingleTournamentPage = ({
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
           </Link>
+          {item.status === "SCHEDULED" && (
+            <Sheet>
+              <SheetTrigger>
+                <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaYellow">
+                  <Image src="/edit.png" alt="" width={16} height={16} />
+                </button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Updating the Match</SheetTitle>
+                  <SheetDescription>Fates are decided here!</SheetDescription>
+                </SheetHeader>
+                <MatchUpdateForm matchId={item.id} />
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </td>
     </tr>
@@ -151,7 +203,10 @@ const SingleTournamentPage = ({
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-semibold">{tournament?.name}</h1>
               {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
-                <TournamentUpdateForm />
+                <TournamentUpdateForm
+                  data={tournament}
+                  onRefresh={handleRefresh}
+                />
               )}
             </div>
             <p className="text-sm text-gray-500">
@@ -176,6 +231,17 @@ const SingleTournamentPage = ({
                 <Image src="/phone.png" alt="" width={14} height={14} />
                 <span>+65 1234 5678</span>
               </div>
+              <div>
+                <Badge
+                  className={clsx({
+                    "bg-yellow-500": tournament?.status === "SCHEDULED",
+                    "bg-green-500": tournament?.status === "ONGOING",
+                    "bg-blue-500": tournament?.status === "COMPLETED",
+                  })}
+                >
+                  {toTitleCase(tournament?.status)}
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
@@ -188,13 +254,14 @@ const SingleTournamentPage = ({
                   <TabsTrigger value="players">Players</TabsTrigger>
                   <TabsTrigger value="match">Matches</TabsTrigger>
                 </TabsList>
-                {(session?.user as any)?.user.userType === "ROLE_ADMIN" && (
-                  <SheetTrigger>
-                    <Button className="h-8 w-8 p-0 rounded-full bg-lamaSky hover:bg-lamaSky">
-                      <CiCirclePlus size={30} />
-                    </Button>
-                  </SheetTrigger>
-                )}
+                {(session?.user as any)?.user.userType === "ROLE_ADMIN" &&
+                  tournament?.status === "SCHEDULED" && (
+                    <SheetTrigger>
+                      <Button className="h-8 w-8 p-0 rounded-full bg-lamaSky hover:bg-lamaSky">
+                        <CiCirclePlus size={30} />
+                      </Button>
+                    </SheetTrigger>
+                  )}
               </div>
               <TabsContent value="players">
                 <Table
@@ -207,6 +274,13 @@ const SingleTournamentPage = ({
                 <Table columns={columns} renderRow={renderRow} data={matches} />
               </TabsContent>
             </Tabs>
+            {(session?.user as any)?.user.userType === "ROLE_ADMIN" &&
+              tournament?.status === "SCHEDULED" &&
+              tournament?.players.length > 2 && (
+                <div className="w-full flex justify-center items-center mt-6">
+                  <Button onClick={startGame}>Start the Game</Button>
+                </div>
+              )}
           </div>
           <SheetContent>
             <SheetHeader>
@@ -216,6 +290,7 @@ const SingleTournamentPage = ({
             <AddPlayerForm
               currentPlayers={players}
               tournamentId={tournamentId}
+              onRefresh={handleRefresh}
             />
           </SheetContent>
         </Sheet>
