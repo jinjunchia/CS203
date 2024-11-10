@@ -78,6 +78,9 @@ jobs:
       - name: Verify JAR file location
         run: ls -la cs203system/build/libs/
 
+      - name: Test SSH Connection
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-ec2-key.pem ubuntu@${{ secrets.EC2_HOST }} "echo SSH connection successful"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.5
         with:
