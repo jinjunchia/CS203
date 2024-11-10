@@ -84,10 +84,10 @@ jobs:
             mkdir -p ~/CS203/backend
             
             # Copy the JAR file to EC2
-            scp -i ~/.ssh/new-ec2-key.pem ./cs203system.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
+            scp -i ~/.ssh/new-ec2-key.pem cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/CS203/backend/
             
             # Stop the current backend service if running
             pkill -f "cs203system.jar" || true
             
             # Run the new JAR file
-            nohup java -jar /home/ubuntu/CS203/backend/cs203system.jar > output.log 2>&1 &
+            nohup java -jar /home/ubuntu/CS203/backend/cs203system-0.0.1-SNAPSHOT.jar > output.log 2>&1 &
