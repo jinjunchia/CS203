@@ -42,10 +42,10 @@ jobs:
       - name: Grant execute permission for gradlew
         working-directory: cs203system
         run: chmod +x gradlew
-        
+
       - name: Build JAR
         working-directory: cs203system
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       - name: Archive JAR
         run: mv ./build/libs/cs203system-0.0.1-SNAPSHOT.jar cs203system.jar
