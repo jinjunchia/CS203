@@ -32,4 +32,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/cs203app:latest
 
             # Run the Docker image
-            docker run -d --name my-container -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/your-image-name:latest
+            docker run -d --name my-container -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/cs203app:latest
