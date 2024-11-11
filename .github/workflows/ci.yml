@@ -81,8 +81,8 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/new-ec2-key.pem
-          chmod 600 ~/.ssh/new-ec2-key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+          chmod 600 ~/.ssh/ec2-key.pem
 
       - name: Connect to EC2 and Run Command
         run: |
@@ -90,7 +90,7 @@ jobs:
 
       - name: Copy the JAR file to EC2
         run: |
-           scp -v -i ~/.ssh/new-ec2-key.pem cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/CS203/backend/
+           scp -v -i ~/.ssh/ec2-key.pem cs203system/build/libs/cs203system-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/CS203/backend/
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.5
