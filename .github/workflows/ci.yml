@@ -106,7 +106,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           debug: true
-          command_timeout: 1200s
+          timeout: 30m       # Total session timeout (adjust as needed)
+          command_timeout: 10m  # Each command within the session can take up to 10 minutes
           script: |
             # Ensure the backend directory exists on EC2
             mkdir -p ~/CS203/backend
