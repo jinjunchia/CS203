@@ -1,5 +1,5 @@
 # Use a lightweight Alpine base image with OpenJDK 17
-FROM openjdk:21-jdk
+FROM bellsoft/liberica-openjdk-alpine:17
 
 # Create a temporary volume
 VOLUME /tmp
@@ -11,7 +11,7 @@ WORKDIR /app
 ARG JAR_FILE
 
 # Copy the JAR file to the container as app.jar
-COPY ${JAR_FILE} app.jar
+COPY ./build/libs/cs203system-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose the application port
 EXPOSE 8080
