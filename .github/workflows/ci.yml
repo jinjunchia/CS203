@@ -114,4 +114,7 @@ jobs:
             pkill -f "cs203system.jar" || true
             
             # Run the new JAR file
-            java -jar /home/${{ secrets.EC2_USER }}/CS203/backend/cs203system-0.0.1-SNAPSHOT.jar > output.log 2>&1 &
+            nohup java -jar /home/${{ secrets.EC2_USER }}/CS203/backend/cs203system-0.0.1-SNAPSHOT.jar > output.log 2>&1 &
+            
+            sleep 5
+            pgrep -f "cs203system.jar" && echo "JAR started successfully." || echo "Failed to start JAR."
