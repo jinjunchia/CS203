@@ -115,3 +115,6 @@ jobs:
             
             # Run the new JAR file
             java -jar /home/${{ secrets.EC2_USER }}/CS203/backend/cs203system-0.0.1-SNAPSHOT.jar > output.log 2>&1 &
+            
+            timeout: 300           
+            command_timeout: 600
