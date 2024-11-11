@@ -79,7 +79,12 @@ jobs:
         run: ls -la cs203system/build/libs/
 
       - name: Test SSH Connection
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-ec2-key.pem ubuntu@${{ secrets.EC2_HOST }} "echo SSH connection successful"
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-ec2-key.pem ubuntu@${{ EC2_SSH_key }} "echo SSH connection successful"
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.5
