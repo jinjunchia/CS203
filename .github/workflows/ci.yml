@@ -80,8 +80,12 @@ jobs:
 
       - name: Set up SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/new-ec2-key.pem
-          chmod 600 ~/.ssh/new-ec2-key.pem
+          # Ensure the .ssh directory exists
+          mkdir -p ~/.ssh
+          
+          # Write the SSH private key from GitHub Secrets and set correct permissions
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/my_key.pem
+          chmod 600 ~/.ssh/my_key.pem
 
       - name: Test SSH Connection
         run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/new-ec2-key.pem ubuntu@${{ secrets.EC2_HOST }} "echo SSH connection successful"
