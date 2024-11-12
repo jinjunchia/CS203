@@ -19,21 +19,15 @@ jobs:
       - name: Grant execute permissions for Gradle wrapper
         run: chmod +x ./gradlew
         working-directory: ./cs203system
-      - name: Add Database connection
-        env:
-          DB_HOST: ${{ secrets.DATASOURCE_URL }}
-          DB_USER: ${{ secrets.DATASOURCE_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
-        run: |
-          echo "spring.datasource.url=jdbc:postgresql://$DB_HOST:5432/postgres" >> ./cs203system/src/main/resources/application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./cs203system/src/main/resources/application.properties
-          echo "spring.datasource.password=$DB_PASSWORD" >> ./cs203system/src/main/resources/application.properties
-        working-directory: ./cs203system
-      - name: Build with Gradle
-        run: ./gradlew build
-        working-directory: ./cs203system
+#      - name: Build with Gradle
+#        run: ./gradlew build
+#        working-directory: ./cs203system
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag cs203someshit/aws-cicd:${{ github.sha }}
+        run: docker build --file Dockerfile \
+            --build-arg DB_HOST=${DATASOURCE_URL} \
+            --build-arg DB_USER=${DB_USER} \
+            --build-arg DB_PASSWORD=${DB_PASSWORD} \
+            --tag cs203someshit/aws-cicd:${{ github.sha }} .
         working-directory: ./cs203system
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
