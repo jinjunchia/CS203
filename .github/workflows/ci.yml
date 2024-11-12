@@ -19,9 +19,9 @@ jobs:
       - name: Grant execute permissions for Gradle wrapper
         run: chmod +x ./gradlew
         working-directory: ./cs203system
-#      - name: Build with Gradle
-#        run: ./gradlew build
-#        working-directory: ./cs203system
+      - name: Build with Gradle
+        run: ./gradlew build
+        working-directory: ./cs203system
       - name: Build the Docker image
         run: docker build --file Dockerfile \
             --build-arg DB_HOST=${DATASOURCE_URL} \
