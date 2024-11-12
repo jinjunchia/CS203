@@ -23,7 +23,8 @@ jobs:
         run: ./gradlew build
         working-directory: ./cs203system
       - name: Build the Docker image
-        run: docker build --file Dockerfile \
+        run: |
+            docker build --file Dockerfile
             --build-arg DB_HOST=${DATASOURCE_URL} \
             --build-arg DB_USER=${DATASOURCE_USERNAME} \
             --build-arg DB_PASSWORD=${DATASOURCE_PASSWORD} \
