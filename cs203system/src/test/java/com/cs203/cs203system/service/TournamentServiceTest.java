@@ -147,7 +147,7 @@ public class TournamentServiceTest {
         when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> tournamentManagerServiceImpl.startTournament(tournamentId));
-        assertEquals("Double Elimination must have total number of players to power 2", exception.getMessage());
+        assertEquals("Double Elimination must have a total number of players equal to a power of 2", exception.getMessage());
     }
 
     @Test
