@@ -44,8 +44,5 @@ jobs:
         run: |
           docker run -d -p 8080:8080 \
             --name spring-app-container \
-            --restart unless-stopped \
-            --e DB_USERNAME=${{secrets.DATASOURCE_USERNAME}} \
-            --e DB_PASSWORD=${{secrets.DATASOURCE_PASSWORD}} \
             cs203someshit/aws-cicd:${{ github.sha }}
 
