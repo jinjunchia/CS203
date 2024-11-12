@@ -62,7 +62,7 @@ public class MatchServiceTest {
             matchServiceImpl.findMatchById(matchId);
         });
 
-        assertEquals("Tournament with id " + matchId + " not found", exception.getMessage());
+        assertEquals("Match with id " + matchId + " not found", exception.getMessage());
         verify(matchRepository, times(1)).findById(matchId);
     }
 
