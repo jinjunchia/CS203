@@ -37,8 +37,10 @@ jobs:
     steps:
       - name: Pull from docker hub
         run: docker pull cs203someshit/aws-cicd:latest
-      #      - name: Delete old container
-      #        run: docker rm -r spring-app-container
+      - name: Stop and remove existing container (if running)
+        run: |
+          docker stop spring-app-container || true
+          docker rm spring-app-container || true
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name spring-app-container cs203someshit/aws-cicd
 
