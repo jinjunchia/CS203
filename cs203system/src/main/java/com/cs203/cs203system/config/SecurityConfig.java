@@ -88,17 +88,17 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/ws/**").permitAll()  // Explicitly allow WebSocket access
-                        .requestMatchers(HttpMethod.GET, "api/tournament/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tournament/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tournament/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tournament/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/tournament/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "api/player/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "api/match/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/match/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/player/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/match/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/match/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .requestMatchers("/socket.io/**").permitAll()
-                        .requestMatchers("swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/api-docs/**",
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
@@ -165,7 +165,7 @@ public class SecurityConfig {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
         jwtConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtConverter;

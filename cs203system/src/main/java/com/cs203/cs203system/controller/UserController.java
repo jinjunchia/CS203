@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin
 public class UserController {
     private final UserService userService;
     private final UserResponseMapper userResponseMapper;

@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/match")
-@CrossOrigin
 public class MatchController {
 
     private final MatchService matchService;
