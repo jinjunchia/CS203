@@ -57,15 +57,15 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 # Expose the port your application runs on (default Spring Boot port is 8080)
 EXPOSE 8080
 
-# Define build arguments
-ARG DB_HOST
-ARG DB_USER
-ARG DB_PASSWORD
-
-# Set environment variables from arguments
-ENV SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:5432/postgres
-ENV SPRING_DATASOURCE_USERNAME=${DB_USER}
-ENV SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+## Define build arguments
+#ARG DB_HOST
+#ARG DB_USER
+#ARG DB_PASSWORD
+#
+## Set environment variables from arguments
+#ENV SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:5432/postgres
+#ENV SPRING_DATASOURCE_USERNAME=${DB_USER}
+#ENV SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
