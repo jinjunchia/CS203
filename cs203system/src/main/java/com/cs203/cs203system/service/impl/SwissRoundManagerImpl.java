@@ -37,12 +37,6 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
 
     private static final HashMap<String, Double> scoreMap = new HashMap<>();
 
-//    static {
-//        scoreMap.put("WIN", 1.0);
-//        scoreMap.put("DRAW", 0.5);
-//        scoreMap.put("LOSE", 0.0);
-//    }
-
     private final PlayerRepository playerRepository;
     private final EloService eloService;
 
@@ -82,41 +76,6 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
 
         return tournamentRepository.save(tournament);
     }
-
-//    public Tournament initializeSwiss(Tournament tournament) {
-////        int numberOfRounds = (int) Math.ceil(Math.log(tournament.getPlayers().size()) / Math.log(2));
-//        int numberOfRounds = calculateTotalRounds(tournament);
-//        tournament.setTotalSwissRounds(numberOfRounds);
-//        tournament.setCurrentRoundNumber(1);
-//
-//        initializePlayersPoints(tournament.getPlayers());
-//        Collections.shuffle(tournament.getPlayers());
-//
-//        List<Match> initialMatches =  createInitialMatches(tournament);
-//        tournament.getMatches().addAll(initialMatches);
-//
-//        return tournamentRepository.save(tournament);
-//
-////        for (int i = 1; i < tournament.getPlayers().size(); i += 2) {
-////            tournament.getPlayers().get(i - 1)
-////                    .setPoints(0.0);
-////            tournament.getPlayers().get(i)
-////                    .setPoints(0.0);
-////
-////            Match newMatch = Match.builder()
-////                    .tournament(tournament)
-////                    .matchDate(LocalDateTime.now())
-////                    .player1(tournament.getPlayers().get(i - 1))
-////                    .player2(tournament.getPlayers().get(i))
-////                    .status(MatchStatus.SCHEDULED)
-////                    .bracket(MatchBracket.SWISS)
-////                    .round(tournament.getCurrentRoundNumber())
-////                    .build();
-////            tournament.getMatches().add(newMatch);
-////        }
-////
-////        return tournamentRepository.save(tournament);
-//    }
 
     /**
      * Calculates the total number of rounds needed for the tournament.
@@ -205,132 +164,6 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
 
         return tournamentRepository.save(tournament);
     }
-//    public Tournament receiveMatchResult(Match match) {
-//        Tournament tournament = match.getTournament();
-//        if (!match.isDraw()) {
-//            Player winner = match.getWinner(), loser = match.getLoser();
-//            System.out.println("Winner is: " + winner);
-//            winner.setPoints(winner.getPoints() + scoreMap.get("WIN"));
-//            loser.setPoints(loser.getPoints() + scoreMap.get("LOSE"));
-//            playerRepository.saveAll(List.of(winner, loser));
-//        } else {
-//            Player player1 = match.getPlayer1(), player2 = match.getPlayer2();
-//            player1.setPoints(player1.getPoints() + scoreMap.get("DRAW"));
-//            player2.setPoints(player2.getPoints() + scoreMap.get("DRAW"));
-//            playerRepository.saveAll(List.of(player1, player2));
-//        }
-//
-//        // Update elo here
-//        eloService.updateEloRatings(match.getPlayer1(), match.getPlayer2(), match);
-//
-//        // Check if all the previous matches are either completed or Bye (for odd number of people)
-//        boolean isAllMatchCompleted = match.getTournament().getMatches()
-//                .stream()
-//                .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED)
-//                        || m.getStatus().equals(MatchStatus.BYE));
-//
-//        if (!isAllMatchCompleted) {
-//            return tournamentRepository.save(tournament);
-//        }
-//
-//        // End tournament/Finals Case (if the number of current rounds == total possible rounds)
-//        if (tournament.getCurrentRoundNumber() >= tournament.getTotalSwissRounds()) {
-//
-//            List<Player> winners = SwissRoundUtils.findWinners(tournament);
-//
-//            // It will end the swiss tournament if
-//            //      a) There is only 1 winner (No draws)
-//            //      b) If it's a hybrid (need to start the double elimination)
-//            if (winners.size() <= 1 || tournament.getFormat().equals(TournamentFormat.HYBRID)) {
-//                tournament.setStatus(TournamentStatus.COMPLETED);
-//                if (tournament.getFormat().equals(TournamentFormat.SWISS)) tournament.setEndDate(LocalDate.now());
-//                return tournamentRepository.save(tournament);
-//            }
-//
-//            // Tiebreaker (Finals). Give them the final match to decide
-//            // IF AFTER ALL THOSE FORMULAS DOES NOT WORK, then have to go to final match
-//            Match newMatch = Match.builder()
-//                    .tournament(tournament)
-//                    .bracket(MatchBracket.GRAND_FINAL)
-//                    .matchDate(LocalDateTime.now())
-//                    .player1(winners.get(0))
-//                    .player2(winners.get(1))
-//                    .status(MatchStatus.SCHEDULED)
-//                    .round(tournament.getCurrentRoundNumber())
-//                    .build();
-//            tournament.getMatches().add(newMatch);
-//            return tournamentRepository.save(tournament);
-//        }
-//        tournament.setCurrentRoundNumber(tournament.getCurrentRoundNumber() + 1);
-//
-//        // Time to do normal matchmaking
-//        // Need to ensure that when finding opponents, they are previously matched
-//        // They need to be similar in points
-//        // 1) Sort the list based on their points
-//        // 2) Iterate through the list of players and check with match history, if there was a similar match
-//        // 3) If there is an odd, the last person will be in a match with not one. The match will be "BYE"
-//        tournament
-//                .getPlayers()
-//                .sort(Comparator
-//                        .comparingDouble(Player::getPoints)
-//                        .reversed());
-//
-//        List<Match> newMatches = new ArrayList<>();
-//        Set<Player> pairedPlayers = new HashSet<>(); // For players that have already been paired
-//        Map<Player, Set<Player>> matchHistory = SwissRoundUtils.createMatchHistory(tournament);
-//        for (int i = 0; i < tournament.getPlayers().size(); i++) {
-//
-//            // Skip if the player is already matched
-//            if (pairedPlayers.contains(tournament.getPlayers().get(i))) {
-//                continue;
-//            }
-//
-//            // Find the best opponent for the current unmatched player
-//            boolean paired = false;
-//            Player player = tournament.getPlayers().get(i);
-//
-//            for (int j = i + 1; j < tournament.getPlayers().size(); j++) {
-//                Player possibleOpponent = tournament.getPlayers().get(j);
-//
-//                if (pairedPlayers.contains(possibleOpponent)
-//                        && matchHistory.get(player).contains(possibleOpponent)) {
-//                    continue;
-//                }
-//
-//                Match newMatch = Match.builder()
-//                        .tournament(tournament)
-//                        .matchDate(LocalDateTime.now())
-//                        .bracket(MatchBracket.SWISS)
-//                        .player1(player)
-//                        .player2(possibleOpponent)
-//                        .status(MatchStatus.SCHEDULED)
-//                        .round(tournament.getCurrentRoundNumber())
-//                        .build();
-//                newMatches.add(newMatch);
-//                pairedPlayers.add(tournament.getPlayers().get(j));
-//                pairedPlayers.add(possibleOpponent);
-//                paired = true;
-//                break;
-//            }
-//
-//            if (!paired) {
-//                Match newMatch = Match.builder()
-//                        .tournament(tournament)
-//                        .matchDate(LocalDateTime.now())
-//                        .bracket(MatchBracket.SWISS)
-//                        .player1(player)
-//                        .status(MatchStatus.BYE)
-//                        .round(tournament.getCurrentRoundNumber())
-//                        .build();
-//                pairedPlayers.add(player);
-//                newMatches.add(newMatch);
-//            }
-//        }
-//
-//        tournament.getMatches().addAll(newMatches);
-//        return tournamentRepository.save(tournament);
-//    }
-
 
     /**
      * Updates player scores based on match results.
