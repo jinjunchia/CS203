@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/elo-records")
-@CrossOrigin
 public class EloRecordController {
     private final EloRecordService eloRecordService;
     private final EloRecordResponseMapper eloRecordResponseMapper;

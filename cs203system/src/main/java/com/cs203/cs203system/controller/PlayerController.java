@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/player")
-@CrossOrigin
 public class PlayerController {
 
     private final PlayerService playerService;

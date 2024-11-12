@@ -4,7 +4,6 @@ import com.cs203.cs203system.dtos.*;
 import com.cs203.cs203system.dtos.players.PlayerResponseDTOMapper;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Tournament;
-//import com.cs203.cs203system.service.MailService;
 import com.cs203.cs203system.service.TournamentManagerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/tournament")
-@CrossOrigin
 public class TournamentController {
 
     private final TournamentManagerService tournamentManagerService;
