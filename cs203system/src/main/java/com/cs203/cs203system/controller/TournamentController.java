@@ -32,17 +32,14 @@ public class TournamentController {
     private final InputMatchDTOMapper inputMatchDTOMapper;
     private final PlayerResponseDTOMapper playerResponseDTOMapper;
 
-//    @Autowired
-//    private MailService mailService;
-
     /**
      * Constructs a TournamentController with the required services and mappers.
      *
-     * @param tournamentManagerService the service to manage tournaments
+     * @param tournamentManagerService    the service to manage tournaments
      * @param tournamentResponseDTOMapper the mapper for TournamentResponseDTO
-     * @param tournamentRequestDTOMapper the mapper for TournamentRequestDTO
-     * @param inputMatchDTOMapper the mapper for InputMatchDTO
-     * @param playerResponseDTOMapper the mapper for PlayerResponseDTO
+     * @param tournamentRequestDTOMapper  the mapper for TournamentRequestDTO
+     * @param inputMatchDTOMapper         the mapper for InputMatchDTO
+     * @param playerResponseDTOMapper     the mapper for PlayerResponseDTO
      */
     @Autowired
     public TournamentController(TournamentManagerService tournamentManagerService, TournamentResponseDTOMapper tournamentResponseDTOMapper,
@@ -137,7 +134,7 @@ public class TournamentController {
     /**
      * Adds or removes players from an existing tournament.
      *
-     * @param tournamentId the ID of the tournament to be updated
+     * @param tournamentId         the ID of the tournament to be updated
      * @param tournamentRequestDTO the request data containing player IDs to be added or removed
      * @return ResponseEntity containing the updated TournamentResponseDTO
      */
@@ -213,6 +210,30 @@ public class TournamentController {
     public ResponseEntity<TournamentResponseDTO> deleteTournamentById(@PathVariable Long id) {
         tournamentManagerService.deleteTournamentById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Updates an existing tournament by its ID.
+     *
+     * @param id                   the ID of the tournament to be updated
+     * @param tournamentRequestDTO the request data to update the tournament
+     * @return ResponseEntity containing the updated TournamentResponseDTO
+     */
+    @Operation(summary = "Update a tournament", description = "Update an existing tournament by its ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tournament updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = TournamentResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Tournament not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<TournamentResponseDTO> updateTournament(@PathVariable Long id, @RequestBody @Valid TournamentRequestDTO tournamentRequestDTO) {
+        Tournament tournament = tournamentManagerService
+                .updateTournament(id, tournamentRequestDTOMapper.toEntity(tournamentRequestDTO));
+        return new ResponseEntity<>(tournamentResponseDTOMapper
+                .toDto(tournament), HttpStatus.OK);
     }
 
 //    @PostMapping("/remind/{playerEmail}")

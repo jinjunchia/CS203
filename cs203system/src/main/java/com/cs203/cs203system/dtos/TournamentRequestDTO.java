@@ -5,6 +5,7 @@ import com.cs203.cs203system.model.Tournament;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Value;
+import org.hibernate.validator.constraints.Length;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -33,4 +34,7 @@ public class TournamentRequestDTO implements Serializable {
 
     @NotNull(message = "Tournament format cannot be null")
     TournamentFormat format;
+
+    @Length(max = 1000)
+    String description;
 }

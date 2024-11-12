@@ -1,5 +1,6 @@
 package com.cs203.cs203system.service.impl;
 
+import com.cs203.cs203system.enums.MatchStatus;
 import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.repository.MatchRepository;
@@ -40,7 +41,7 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository
                 .findById(id)
                 .orElseThrow(() ->
-                        new NotFoundException("Tournament with id " + id + " not found"));
+                        new NotFoundException("Match with id " + id + " not found"));
     }
 
     /**
@@ -96,5 +97,20 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<Match> findMatchesByPlayerId(Long playerId) {
         return matchRepository.findByPlayerId(playerId);
+    }
+
+    @Override
+    public Match updateMatchDetails(Long id, Match updatedMatch) {
+        Match match = matchRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Match with id " + id + " not found"));
+
+        if (match.getStatus() == MatchStatus.COMPLETED) {
+            throw new NotFoundException("Match with id " + id + " already completed");
+        }
+
+        match.setDescription(updatedMatch.getDescription());
+        match.setMatchDate(updatedMatch.getMatchDate());
+
+        return matchRepository.save(match);
     }
 }

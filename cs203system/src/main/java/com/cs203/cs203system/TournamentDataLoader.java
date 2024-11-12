@@ -43,11 +43,17 @@ public class TournamentDataLoader implements CommandLineRunner {
 
             Tournament tournament = Tournament.builder()
                     .startDate(randomDate)
-                    .endDate(randomDate.plusDays(20))
                     .status(TournamentStatus.ONGOING)
-                    .name(faker.chess().tournament())
+                    .name("World Boxing Championship (2024)")
+                    .description("The Ultimate Challenge Cup 2024 is an annual, high-stakes " +
+                            "tournament that brings together competitors from across the globe " +
+                            "to test their skills in an electrifying series of matches. From " +
+                            "seasoned professionals to rising stars, this competition showcases " +
+                            "talent, strategy, and sportsmanship at its finest. Competitors " +
+                            "will face off in both single and team events, battling through " +
+                            "intense rounds for the coveted title and ultimate bragging rights.")
                     .location(faker.address().city())
-                    .format(TournamentFormat.SWISS)
+                    .format(TournamentFormat.DOUBLE_ELIMINATION)
                     .status(TournamentStatus.SCHEDULED)
                     .build();
 

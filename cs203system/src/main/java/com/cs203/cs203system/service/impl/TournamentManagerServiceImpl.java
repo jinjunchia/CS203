@@ -12,7 +12,8 @@ import com.cs203.cs203system.model.Tournament;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.repository.PlayerRepository;
 import com.cs203.cs203system.repository.TournamentRepository;
-import com.cs203.cs203system.service.*;
+import com.cs203.cs203system.service.TournamentFormatManager;
+import com.cs203.cs203system.service.TournamentManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
     private final MatchRepository matchRepository;
     private final NotificationService notificationService;
 
-//    /**
+    //    /**
 //     * Constructor for TournamentManagerServiceImpl.
 //     *
 //     * @param doubleEliminationManager            the double elimination manager for handling double elimination workflows.
@@ -333,7 +334,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         return matchInDatabase.getTournament();
     }
 
-//    /**
+    //    /**
 //     * Determines the winner of a completed tournament.
 //     *
 //     * @param tournamentId the ID of the tournament.
@@ -369,27 +370,27 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
 //        }
 //        return null;
 //    }
-        public Player determineWinner(Long tournamentId) {
-            Tournament tournament = tournamentRepository
-                    .findById(tournamentId)
-                    .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
+    public Player determineWinner(Long tournamentId) {
+        Tournament tournament = tournamentRepository
+                .findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
 
-            if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
-                throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
-            }
-
-            TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
-            if (manager == null) {
-                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
-            }
-            Player winner = manager.determineWinner(tournament);
-
-            if (winner != null) {
-                sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED, winner.getName() + " is the winner!");
-                return winner;
-            }
-            return null;
+        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
+            throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
         }
+
+        TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
+        if (manager == null) {
+            throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+        }
+        Player winner = manager.determineWinner(tournament);
+
+        if (winner != null) {
+            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED, winner.getName() + " is the winner!");
+            return winner;
+        }
+        return null;
+    }
 
     /**
      * Determines if a given number is a power of two.
@@ -410,18 +411,39 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
 //                        .build()
 //        );
 //    }
+    private boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
+    }
 
-        private boolean isPowerOfTwo(int n) {
-            return n > 0 && (n & (n - 1)) == 0;
-        }
+    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus, String message) {
+        notificationService.sendNotification(
+                playerIDs,
+                Notification.builder()
+                        .status(notificationStatus)
+                        .message(message)
+                        .build()
+        );
+    }
 
-        public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus, String message) {
-            notificationService.sendNotification(
-                    playerIDs,
-                    Notification.builder()
-                            .status(notificationStatus)
-                            .message(message)
-                            .build()
-            );
-        }
+    /**
+     * Updates an existing tournament by its ID.
+     *
+     * @param id                the ID of the tournament to be updated
+     * @param updatedTournament the updated tournament details
+     * @return the updated Tournament object after saving changes
+     * @throws NotFoundException if the tournament with the given ID does not exist
+     */
+    public Tournament updateTournament(Long id, Tournament updatedTournament) {
+        Tournament tournament = tournamentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tournament id " + updatedTournament.getId() + " does not exist"));
+
+        tournament.setName(updatedTournament.getName());
+        tournament.setStartDate(updatedTournament.getStartDate());
+        tournament.setLocation(updatedTournament.getLocation());
+        tournament.setMinEloRating(updatedTournament.getMinEloRating());
+        tournament.setMaxEloRating(updatedTournament.getMaxEloRating());
+        tournament.setDescription(updatedTournament.getDescription());
+
+        return tournamentRepository.save(tournament);
+    }
 }

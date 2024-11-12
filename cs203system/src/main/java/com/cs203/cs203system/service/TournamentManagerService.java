@@ -25,5 +25,5 @@ public interface TournamentManagerService {
 
     Player determineWinner(Long tournamentId);
 
-
+    Tournament updateTournament(Long id, Tournament tournament);
 }

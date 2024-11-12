@@ -11,22 +11,51 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class for managing user-related operations.
+ * Implements the {@link UserDetailsService} interface to integrate with Spring Security.
+ */
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
+    /**
+     * Constructs a new {@code UserService} with the provided {@link UserRepository}.
+     *
+     * @param userRepository the repository used for user data access operations.
+     */
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Retrieves a user by their unique identifier.
+     *
+     * @param id the ID of the user to be retrieved.
+     * @return an {@link Optional} containing the user if found, or an empty {@code Optional} if not found.
+     */
     public Optional<User> getUserById(Long id) {
         return userRepository
                 .findById(id);
     }
 
+    /**
+     * Retrieves a list of all users in the system.
+     *
+     * @return a {@link List} of {@link User} objects representing all users.
+     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public User updateUserDetails(Long id, User updatedUserDetails) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setEmail(updatedUserDetails.getEmail());
+
+        return userRepository.save(updatedUserDetails);
     }
 
     /**

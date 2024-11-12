@@ -32,6 +32,8 @@ public class TournamentResponseDTO implements Serializable {
     List<MatchDto> matches;
     AdminDto admin;
     List<PlayerDto> players;
+    String description;
+
 
     /**
      * DTO for {@link com.cs203.cs203system.model.Player}

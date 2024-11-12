@@ -58,6 +58,12 @@ public class Tournament implements Serializable {
     private TournamentStatus status;
 
     /**
+     * The description of the tournament
+     */
+    @Column(length = 1000)
+    private String description;
+
+    /**
      * The minimum Elo rating allowed for participants in the tournament.
      */
     @Builder.Default

@@ -15,4 +15,6 @@ public interface MatchService {
                                  Integer dodgesPlayer1, Integer dodgesPlayer2, boolean koByPlayer1, boolean koByPlayer2);
 
     List<Match> findMatchesByPlayerId(Long playerId);
+
+    Match updateMatchDetails(Long id, Match match);
 }

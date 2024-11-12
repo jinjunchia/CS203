@@ -52,8 +52,10 @@ public class Match implements Serializable {
     /**
      * The date and time on which the match was held.
      */
-    @Getter
     private LocalDateTime matchDate;
+
+    @Column(length = 1000)
+    private String description;
 
     // ---------- Swiss -----------
 
@@ -109,25 +111,25 @@ public class Match implements Serializable {
     /**
      * Number of punches thrown by player 1.
      */
-
+    @Builder.Default
     private Integer punchesPlayer1 = 0;
 
     /**
      * Number of punches thrown by player 2.
      */
-
+    @Builder.Default
     private Integer punchesPlayer2 = 0 ;
 
     /**
      * Number of successful dodges by player 1.
      */
-
+    @Builder.Default
     private Integer dodgesPlayer1 = 0;
 
     /**
      * Number of successful dodges by player 2.
      */
-
+    @Builder.Default
     private Integer dodgesPlayer2 = 0;
 
     /**
