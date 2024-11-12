@@ -31,7 +31,6 @@ jobs:
       - name: Push to docker hub
         run: docker push cs203someshit/aws-cicd:latest
 
-
   deploy:
     needs: build
     runs-on: self-hosted
