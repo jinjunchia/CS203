@@ -97,6 +97,17 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "401", description = "Unauthorized access",
                     content = @Content)
     })
+
+    /**
+     * Retrieves the currently authenticated user's information.
+     *
+     * This method checks if the user is authenticated and, if so, fetches the user's details.
+     * If the user is not authenticated, it returns an HTTP 401 Unauthorized response.
+     *
+     * @param authentication the authentication object containing user authentication information
+     * @return a {@link ResponseEntity} containing the {@link UserResponseDto} of the authenticated user
+     *         and an HTTP 200 OK status, or an HTTP 401 Unauthorized status if the user is not authenticated
+     */
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {

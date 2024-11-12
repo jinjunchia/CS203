@@ -235,10 +235,4 @@ public class TournamentController {
         return new ResponseEntity<>(tournamentResponseDTOMapper
                 .toDto(tournament), HttpStatus.OK);
     }
-
-//    @PostMapping("/remind/{playerEmail}")
-//    public String sendMatchReminder(@PathVariable String playerEmail) {
-//        mailService.sendEmail(playerEmail, "Match Reminder", "Your match is coming up soon!");
-//        return "Reminder email sent successfully!";
-//    }
 }

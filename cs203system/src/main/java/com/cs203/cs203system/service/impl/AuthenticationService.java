@@ -64,7 +64,6 @@ public class AuthenticationService {
         this.userResponseMapper = userResponseMapper;
     }
 
-
     /**
      * Registers a new user in the system.
      *

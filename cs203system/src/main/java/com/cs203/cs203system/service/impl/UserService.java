@@ -12,17 +12,21 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Service class for managing user-related operations.
- * Implements the {@link UserDetailsService} interface to integrate with Spring Security.
+ * Service for managing user-related operations and user authentication.
+ *
+ * This service implements {@link UserDetailsService} to provide user
+ * authentication functionality, including locating users by username
+ * for Spring Security.
  */
 @Service
 public class UserService implements UserDetailsService {
+
     private final UserRepository userRepository;
 
     /**
-     * Constructs a new {@code UserService} with the provided {@link UserRepository}.
+     * Constructs a UserService with the necessary dependencies.
      *
-     * @param userRepository the repository used for user data access operations.
+     * @param userRepository the user repository for accessing user data
      */
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -30,20 +34,19 @@ public class UserService implements UserDetailsService {
     }
 
     /**
-     * Retrieves a user by their unique identifier.
+     * Retrieves a user by their unique ID.
      *
-     * @param id the ID of the user to be retrieved.
-     * @return an {@link Optional} containing the user if found, or an empty {@code Optional} if not found.
+     * @param id the unique ID of the user to retrieve
+     * @return an {@link Optional} containing the user if found, or empty if not found
      */
     public Optional<User> getUserById(Long id) {
-        return userRepository
-                .findById(id);
+        return userRepository.findById(id);
     }
 
     /**
-     * Retrieves a list of all users in the system.
+     * Retrieves a list of all users.
      *
-     * @return a {@link List} of {@link User} objects representing all users.
+     * @return a list of all {@link User} entities
      */
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -60,19 +63,21 @@ public class UserService implements UserDetailsService {
 
     /**
      * Locates the user based on the username. In the actual implementation, the search
-     * may be case-sensitive, or case-insensitive depending on how the
-     * implementation instance is configured. In this case, the <code>UserDetails</code>
-     * object that comes back may have a username that is of a different case than what
-     * was actually requested.
+     * may be case-sensitive or case-insensitive depending on the configuration.
      *
-     * @param username the username identifying the user whose data is required.
-     * @return a fully populated user record (never <code>null</code>)
+     * This method is used by Spring Security to authenticate users. If the user
+     * is found, it returns a {@link UserDetails} object with the user's information.
+     * If not found, it throws a {@link UsernameNotFoundException}.
+     *
+     * @param username the username identifying the user whose data is required
+     * @return a fully populated user record (never {@code null})
      * @throws UsernameNotFoundException if the user could not be found or the user has no
      *                                   GrantedAuthority
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(()-> new UsernameNotFoundException("User '" + username + "' not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User '" + username + "' not found"));
     }
 }
+

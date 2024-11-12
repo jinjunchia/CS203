@@ -2,7 +2,6 @@ package com.cs203.cs203system.controller;
 
 import com.cs203.cs203system.dtos.*;
 import com.cs203.cs203system.dtos.players.PlayerStatsDTO;
-import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.service.MatchService;
 import com.cs203.cs203system.service.PlayerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,6 +101,16 @@ public class MatchController {
             @ApiResponse(responseCode = "404", description = "Tournament not found",
                     content = @Content)
     })
+
+    /**
+     * Retrieves all matches associated with a specific tournament.
+     *
+     * This method fetches and returns a list of matches for the given tournament ID.
+     *
+     * @param id the ID of the tournament whose matches are to be retrieved
+     * @return a {@link ResponseEntity} containing a list of {@link MatchResponseDTO} objects representing
+     *         the matches of the specified tournament and an HTTP 200 OK status
+     */
     @GetMapping("/tournament/{id}")
     public ResponseEntity<List<MatchResponseDTO>> findTournamentMatches(@PathVariable Long id) {
         return new ResponseEntity<>(matchService
