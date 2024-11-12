@@ -1,5 +1,4 @@
 package com.cs203.cs203system.service.impl;
-
 import com.cs203.cs203system.Notification.Notification;
 import com.cs203.cs203system.Notification.NotificationStatus;
 import com.cs203.cs203system.enums.MatchStatus;
@@ -20,25 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * Service implementation for managing tournaments.
+ *
+ * This service handles operations for creating, updating, starting, and managing
+ * the results of tournaments, including different formats such as Swiss, Double
+ * Elimination, and Hybrid. It also manages player participation and notifications.
+ */
 @Service
 public class TournamentManagerServiceImpl implements TournamentManagerService {
-
-//    private final Map<TournamentFormat, TournamentFormatManager> formatManagers;
-
-//    private final DoubleEliminationManager doubleEliminationManager;
-//
-//    private final TournamentRepository tournamentRepository;
-//
-//    private final PlayerRepository playerRepository;
-//
-//    private final MatchRepository matchRepository;
-//
-//    private final SwissRoundManager swissRoundManager;
-//
-//    private final SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager;
-//
-//    private final NotificationService notficationService;
 
     private final Map<TournamentFormat, TournamentFormatManager> formatManagers;
     private final TournamentRepository tournamentRepository;
@@ -46,26 +35,17 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
     private final MatchRepository matchRepository;
     private final NotificationService notificationService;
 
-//    /**
-//     * Constructor for TournamentManagerServiceImpl.
-//     *
-//     * @param doubleEliminationManager            the double elimination manager for handling double elimination workflows.
-//     * @param tournamentRepository                the repository used to manage Tournament data.
-//     * @param playerRepository                    the repository used to manage Player data.
-//     * @param matchRepository                     the repository used to manage Match data.
-//     * @param swissRoundManager                   the manager used to handle Swiss-style tournament rounds.
-//     * @param swissDoubleEliminationHybridManager the manager used to handle workflows for hybrid tournaments involving Swiss and double elimination formats.
-//     */
-//    @Autowired
-//    public TournamentManagerServiceImpl(DoubleEliminationManager doubleEliminationManager, TournamentRepository tournamentRepository, PlayerRepository playerRepository, MatchRepository matchRepository, SwissRoundManager swissRoundManager, SwissDoubleEliminationHybridManager swissDoubleEliminationHybridManager, NotificationService notficationService) {
-//        this.doubleEliminationManager = doubleEliminationManager;
-//        this.tournamentRepository = tournamentRepository;
-//        this.playerRepository = playerRepository;
-//        this.matchRepository = matchRepository;
-//        this.swissRoundManager = swissRoundManager;
-//        this.swissDoubleEliminationHybridManager = swissDoubleEliminationHybridManager;
-//        this.notficationService = notficationService;
-//    }
+    /**
+     * Constructs a TournamentManagerServiceImpl with the necessary dependencies.
+     *
+     * @param swissRoundManagerImpl the Swiss round manager for handling Swiss format tournaments
+     * @param doubleEliminationManagerImpl the Double Elimination manager for double elimination tournaments
+     * @param hybridManagerImpl the Hybrid format manager for hybrid tournaments
+     * @param tournamentRepository the repository for tournament data
+     * @param playerRepository the repository for player data
+     * @param matchRepository the repository for match data
+     * @param notificationService the service for sending notifications
+     */
     @Autowired
     public TournamentManagerServiceImpl(
             SwissRoundManagerImpl swissRoundManagerImpl,
@@ -87,7 +67,6 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         this.notificationService = notificationService;
     }
 
-
     /**
      * Retrieves all tournaments.
      *
@@ -103,7 +82,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      *
      * @param id the ID of the tournament to delete.
      * @throws NotFoundException if the tournament with the given ID does not exist.
-     * @throws RuntimeException  if the tournament is not in a SCHEDULED status.
+     * @throws RuntimeException if the tournament is not in a SCHEDULED status.
      */
     @Override
     @Transactional
@@ -131,12 +110,11 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         if (tournament.isEmpty()) {
             throw new NotFoundException("Tournament id of " + id + " does not exist");
         }
-        return tournament; // Simply return the found tournament Optional
+        return tournament;
     }
 
     /**
      * Creates a new tournament with a SCHEDULED status.
-     * Does not start the tournament or add players.
      *
      * @param tournament the tournament to be created.
      * @return the created tournament.
@@ -154,10 +132,10 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * Adds players to a scheduled tournament.
      *
      * @param tournamentId the ID of the tournament.
-     * @param playerIds    the list of player IDs to add to the tournament.
+     * @param playerIds the list of player IDs to add to the tournament.
      * @return the updated tournament.
      * @throws NotFoundException if the tournament or any player does not exist.
-     * @throws RuntimeException  if the tournament is not in a SCHEDULED status or if no players are provided.
+     * @throws RuntimeException if the tournament is not in a SCHEDULED status or if no players are provided.
      */
     @Override
     @Transactional
@@ -190,47 +168,10 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param tournamentId the ID of the tournament to start.
      * @return the updated tournament.
      * @throws NotFoundException if the tournament does not exist.
-     * @throws RuntimeException  if the tournament does not meet the conditions to start.
+     * @throws RuntimeException if the tournament does not meet the conditions to start.
      */
     @Override
     public Tournament startTournament(Long tournamentId) {
-//        Tournament tournament = findTournamentById(tournamentId)
-//                .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
-//
-//        if (!tournament.getStatus().equals(TournamentStatus.SCHEDULED)) {
-//            throw new RuntimeException("Tournament needs to be scheduled");
-//        } else if (tournament.getPlayers().size() < 2) {
-//            throw new RuntimeException("Tournament needs at least 2 players");
-//        } else if (tournament.getPlayers().size() % 2 != 0) {
-//            throw new RuntimeException("Tournament needs an even number of players");
-//        } else if (!isPowerOfTwo(tournament.getPlayers().size())
-//                && (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION)) {
-//            throw new RuntimeException("Double Elimination must have total number of players to power 2");
-//        } else if (!isPowerOfTwo(tournament.getPlayers().size())
-//                && (tournament.getFormat() == TournamentFormat.HYBRID)) {
-//            throw new RuntimeException("Hybrid must have total number of players to power 2");
-//        }
-//        tournament.setStatus(TournamentStatus.ONGOING);
-//        List<Player> players = tournament.getPlayers();
-//        List<Long> playerIDs = new ArrayList<>();
-//        for (Player P1: players) {
-//            playerIDs.add(P1.getId());
-//        }
-//        sendNotification(playerIDs,NotificationStatus.START,"Tournament is starting!");
-//        try {
-//            switch (tournament.getFormat()) {
-//                case SWISS:
-//                    return swissRoundManager.initializeSwiss(tournament);
-//                case DOUBLE_ELIMINATION:
-//                    return doubleEliminationManager.initializeDoubleElimination(tournament);
-//                case HYBRID:
-//                    return swissDoubleEliminationHybridManager.initializeHybrid(tournament);
-//                default:
-//                    throw new IllegalArgumentException("Unsupported tournament format:" + tournament.getFormat());
-//            }
-//        } catch (NullPointerException e) {
-//            throw new IllegalArgumentException("Unsupported tournament format:");
-//        }
         Tournament tournament = findTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException("Tournament id of " + tournamentId + " does not exist"));
 
@@ -239,11 +180,11 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         } else if (tournament.getPlayers().size() < 2) {
             throw new RuntimeException("Tournament needs at least 2 players");
         } else if (tournament.getFormat() == TournamentFormat.DOUBLE_ELIMINATION && !isPowerOfTwo(tournament.getPlayers().size())) {
-            throw new RuntimeException("Double Elimination must have total number of players to power 2");
+            throw new RuntimeException("Double Elimination must have a total number of players equal to a power of 2");
         } else if (tournament.getPlayers().size() % 2 != 0) {
             throw new RuntimeException("Tournament needs an even number of players");
         } else if (tournament.getFormat() == TournamentFormat.HYBRID && !isPowerOfTwo(tournament.getPlayers().size())) {
-            throw new RuntimeException("Hybrid must have total number of players to power 2");
+            throw new RuntimeException("Hybrid must have a total number of players equal to a power of 2");
         }
 
         tournament.setStatus(TournamentStatus.ONGOING);
@@ -264,7 +205,7 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param matchInRequest the match with updated results.
      * @return the updated tournament.
      * @throws NotFoundException if the match does not exist.
-     * @throws RuntimeException  if the match results are invalid.
+     * @throws RuntimeException if the match results are invalid.
      */
     @Transactional
     @Override
@@ -272,58 +213,31 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         Match matchInDatabase = matchRepository
                 .findById(matchInRequest.getId())
                 .orElseThrow(() -> new NotFoundException("Match of id " + matchInRequest.getId() + " is not found"));
-        //validation of scores and match statuses
+
+        // Validation of scores and match statuses
         if (matchInRequest.getPlayer1Score() < 0 || matchInRequest.getPlayer2Score() < 0) {
             throw new RuntimeException("Match score cannot be negative");
-
         } else if (matchInRequest.getPlayer1Score() + matchInRequest.getPlayer2Score() == 0) {
             throw new RuntimeException("The total match score must be more than 0");
-
         } else if (matchInRequest.getPlayer1Score().equals(matchInRequest.getPlayer2Score())
                 && matchInDatabase.getTournament().getFormat() == TournamentFormat.DOUBLE_ELIMINATION) {
             throw new RuntimeException("Draws are not allowed for Double Elimination");
-
-            // if match status = SCHEDULED or WAITING (IN THE RESPONSE BODY) -> match has not started
         } else if (matchInRequest.getStatus() == MatchStatus.SCHEDULED || matchInRequest.getStatus() == MatchStatus.WAITING) {
             throw new RuntimeException("Please input a valid match status");
-
-            // if match status = COMPLETED (IN THE DATABASE) -> match has completed and results have been inserted
         } else if (matchInDatabase.getStatus() == MatchStatus.COMPLETED) {
-            throw new RuntimeException("Match has completed");
-
-
-            // if match status = PENDING (IN THE RESPONSE BODY) -> match has completed but results have yet to be inserted
-            // therefore, we need to insert results into repository and set the match status from PENDING to COMPLETED
-            // Note: Only the system has the final authority to change the status to completed
+            throw new RuntimeException("Match has already been completed");
         } else if (matchInRequest.getStatus() == MatchStatus.PENDING) {
-            //inputting of the match result
             matchInDatabase.setPlayer1Score(matchInRequest.getPlayer1Score());
             matchInDatabase.setPlayer2Score(matchInRequest.getPlayer2Score());
-
             matchInDatabase.setPunchesPlayer1(matchInRequest.getPunchesPlayer1());
             matchInDatabase.setPunchesPlayer2(matchInRequest.getPunchesPlayer2());
-
             matchInDatabase.setDodgesPlayer1(matchInRequest.getDodgesPlayer1());
             matchInDatabase.setDodgesPlayer2(matchInRequest.getDodgesPlayer2());
-
             matchInDatabase.setKoByPlayer1(matchInRequest.isKoByPlayer1());
             matchInDatabase.setKoByPlayer2(matchInRequest.isKoByPlayer2());
-
             matchInDatabase.setStatus(MatchStatus.COMPLETED);
             matchInDatabase = matchRepository.save(matchInDatabase);
 
-//            switch (matchInDatabase.getTournament().getFormat()) {
-//                case SWISS:
-//                    return swissRoundManager.receiveMatchResult(matchInDatabase);
-//                case DOUBLE_ELIMINATION:
-//                    return doubleEliminationManager.receiveMatchResult(matchInDatabase);
-//                case HYBRID:
-//                    return swissDoubleEliminationHybridManager.receiveMatchResult(matchInDatabase);
-//                default:
-//                    throw new IllegalArgumentException("Unsupported tournament format: " + matchInRequest.getTournament().getFormat());
-//            }
-//        }
-//        return null;
             TournamentFormatManager manager = formatManagers.get(matchInDatabase.getTournament().getFormat());
             if (manager == null) {
                 throw new IllegalArgumentException("Unsupported tournament format: " + matchInDatabase.getTournament().getFormat());
@@ -333,63 +247,35 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
         return matchInDatabase.getTournament();
     }
 
-//    /**
-//     * Determines the winner of a completed tournament.
-//     *
-//     * @param tournamentId the ID of the tournament.
-//     * @return the winner player.
-//     * @throws NotFoundException if the tournament does not exist.
-//     * @throws RuntimeException  if the tournament is not completed.
-//     */
-//    public Player determineWinner(Long tournamentId) {
-//        Tournament tournament = tournamentRepository
-//                .findById(tournamentId)
-//                .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
-//        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
-//            throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
-//        }
-//        Player winner = null;
-//        switch (tournament.getFormat()) {
-//            case SWISS:
-//                winner = swissRoundManager.determineWinner(tournament);
-//                break;
-//            case DOUBLE_ELIMINATION:
-//                winner = doubleEliminationManager.determineWinner(tournament);
-//                break;
-//            case HYBRID:
-//                winner = swissDoubleEliminationHybridManager.determineWinner(tournament);
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
-//        }
-//        if (winner != null) {
-//            System.out.println("Winner is " + winner.getName());
-//            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED,winner.getName() + " is the winner!");
-//            return winner;
-//        }
-//        return null;
-//    }
-        public Player determineWinner(Long tournamentId) {
-            Tournament tournament = tournamentRepository
-                    .findById(tournamentId)
-                    .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
+    /**
+     * Determines the winner of a completed tournament.
+     *
+     * @param tournamentId the ID of the tournament.
+     * @return the winning player.
+     * @throws NotFoundException if the tournament does not exist.
+     * @throws RuntimeException if the tournament is not completed.
+     */
+    public Player determineWinner(Long tournamentId) {
+        Tournament tournament = tournamentRepository
+                .findById(tournamentId)
+                .orElseThrow(() -> new NotFoundException("Tournament id " + tournamentId + " does not exist"));
 
-            if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
-                throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
-            }
-
-            TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
-            if (manager == null) {
-                throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
-            }
-            Player winner = manager.determineWinner(tournament);
-
-            if (winner != null) {
-                sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED, winner.getName() + " is the winner!");
-                return winner;
-            }
-            return null;
+        if (!tournament.getStatus().equals(TournamentStatus.COMPLETED)) {
+            throw new RuntimeException("Winner cannot be determined in a tournament that has not completed.");
         }
+
+        TournamentFormatManager manager = formatManagers.get(tournament.getFormat());
+        if (manager == null) {
+            throw new IllegalArgumentException("Unsupported tournament format: " + tournament.getFormat());
+        }
+        Player winner = manager.determineWinner(tournament);
+
+        if (winner != null) {
+            sendNotification(Collections.singletonList(winner.getId()), NotificationStatus.ENDED, winner.getName() + " is the winner!");
+            return winner;
+        }
+        return null;
+    }
 
     /**
      * Determines if a given number is a power of two.
@@ -397,31 +283,25 @@ public class TournamentManagerServiceImpl implements TournamentManagerService {
      * @param n the number to check.
      * @return true if the number is a power of two, false otherwise.
      */
-//    private boolean isPowerOfTwo(int n) {
-//        return n > 0 && (n & (n - 1)) == 0;
-//    }
-//
-//    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus ,String message) {
-//        notificationService.sendNotification(
-//                playerIDs,
-//                Notification.builder()
-//                        .status(notificationStatus)
-//                        .message(message)
-//                        .build()
-//        );
-//    }
+    private boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
+    }
 
-        private boolean isPowerOfTwo(int n) {
-            return n > 0 && (n & (n - 1)) == 0;
-        }
-
-        public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus, String message) {
-            notificationService.sendNotification(
-                    playerIDs,
-                    Notification.builder()
-                            .status(notificationStatus)
-                            .message(message)
-                            .build()
-            );
-        }
+    /**
+     * Sends a notification to a list of players.
+     *
+     * @param playerIDs the list of player IDs to notify.
+     * @param notificationStatus the status of the notification.
+     * @param message the message to send.
+     */
+    public void sendNotification(List<Long> playerIDs, NotificationStatus notificationStatus, String message) {
+        notificationService.sendNotification(
+                playerIDs,
+                Notification.builder()
+                        .status(notificationStatus)
+                        .message(message)
+                        .build()
+        );
+    }
 }
+

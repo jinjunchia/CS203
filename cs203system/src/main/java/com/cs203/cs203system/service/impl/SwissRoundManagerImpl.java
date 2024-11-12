@@ -132,9 +132,6 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
                 .build();
     }
 
-
-
-
     /**
      * Receives a match result and updates the standings accordingly.
      * If all matches are completed, proceeds to the next round.

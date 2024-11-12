@@ -25,7 +25,6 @@ import java.util.List;
  * Responsible for managing the double-elimination tournament process, including initialization,
  * receiving match results, and determining winners.
  */
-
 @Builder
 @Service
 public class DoubleEliminationManagerImpl implements TournamentFormatManager {
@@ -228,7 +227,6 @@ public class DoubleEliminationManagerImpl implements TournamentFormatManager {
      * @return the winner of the tournament.
      * @throws IllegalStateException if the tournament is not completed or if no winner is found.
      */
-
     public Player determineWinner(Tournament tournament){
         if(!tournament.getStatus().equals(TournamentStatus.COMPLETED)){
             throw new IllegalStateException("Tournament is not completed. Winner cannot be determined.");
