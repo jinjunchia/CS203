@@ -61,9 +61,7 @@ public class SwissDoubleEliminationHybridManagerImpl implements TournamentFormat
                 updatedTournament.setPlayers(SwissRoundUtils.getTopPlayers(updatedTournament, updatedTournament.getPlayers().size() / 2));
                 tournament.setIsOnSecondFormat(true);
                 return doubleEliminationManager.initializeTournament(updatedTournament);
-
             }
-
             return updatedTournament;
         }
 
