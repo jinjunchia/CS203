@@ -75,6 +75,7 @@ public class MatchServiceImpl implements MatchService {
         // Retrieve matches within this date range across all tournaments
         return matchRepository.findMatchesWithinDateRange(startDate, endDate);
     }
+
     public void updateAndSaveMatchStats(Long matchId, Integer punchesPlayer1, Integer punchesPlayer2,
                                         Integer dodgesPlayer1, Integer dodgesPlayer2,
                                         boolean koByPlayer1, boolean koByPlayer2) {
