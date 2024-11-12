@@ -19,6 +19,17 @@ jobs:
       - name: Grant execute permissions for Gradle wrapper
         run: chmod +x ./gradlew
         working-directory: ./cs203system
+      - name: Add Database connection
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+        run: |
+          echo "DB_HOST=$DB_HOST" >> ./cs203system/src/main/resources/application.properties
+          echo "DB_USER=$DB_USER" >> ./cs203system/src/main/resources/application.properties
+          echo "DB_PASSWORD=$DB_PASSWORD" >> ./cs203system/src/main/resources/application.properties
+        working-directory: ./cs203system
       - name: Build with Gradle
         run: ./gradlew build
         working-directory: ./cs203system
@@ -44,8 +55,5 @@ jobs:
         run: |
           docker run -d -p 8080:8080 \
             --name spring-app-container \
-            --restart unless-stopped \
-            --e DB_USERNAME=${{secrets.DATASOURCE_USERNAME}} \
-            --e DB_PASSWORD=${{secrets.DATASOURCE_PASSWORD}} \
             cs203someshit/aws-cicd:${{ github.sha }}
 
