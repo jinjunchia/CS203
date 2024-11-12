@@ -100,6 +100,16 @@ public class MatchController {
             @ApiResponse(responseCode = "404", description = "Tournament not found",
                     content = @Content)
     })
+
+    /**
+     * Retrieves all matches associated with a specific tournament.
+     *
+     * This method fetches and returns a list of matches for the given tournament ID.
+     *
+     * @param id the ID of the tournament whose matches are to be retrieved
+     * @return a {@link ResponseEntity} containing a list of {@link MatchResponseDTO} objects representing
+     *         the matches of the specified tournament and an HTTP 200 OK status
+     */
     @GetMapping("/tournament/{id}")
     public ResponseEntity<List<MatchResponseDTO>> findTournamentMatches(@PathVariable Long id) {
         return new ResponseEntity<>(matchService
@@ -109,7 +119,15 @@ public class MatchController {
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
-
+    /**
+     * Updates the statistics of a match based on the provided match ID and stats data.
+     *
+     * This method allows updating match statistics, including punches, dodges, and knockout details for each player.
+     *
+     * @param id the ID of the match to update
+     * @param request the request body containing updated match statistics
+     * @return a {@link ResponseEntity} with HTTP 200 OK status upon successful update
+     */
     @PutMapping("/{id}/stats")
     public ResponseEntity<Void> updateMatchStats(@PathVariable Long id,
                                                  @RequestBody MatchStatsUpdateRequest request) {
@@ -119,11 +137,26 @@ public class MatchController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Retrieves statistics for all players.
+     *
+     * This method fetches and returns a list of statistics for each player.
+     *
+     * @return a list of {@link PlayerStatsDTO} objects containing the stats for all players
+     */
     @GetMapping("/player-stats")
     public List<PlayerStatsDTO> getAllPlayerStats() {
         return playerStatsService.getAllPlayerStats();
     }
 
+    /**
+     * Retrieves all matches associated with a specific player.
+     *
+     * This method fetches and returns a list of matches that the specified player has participated in.
+     *
+     * @param playerId the ID of the player whose matches are to be retrieved
+     * @return a list of {@link MatchResponseDTO} objects containing match details for the specified player
+     */
     @GetMapping("/player/{playerId}")
     public List<MatchResponseDTO> getAllMatchesByPlayerId(@PathVariable Long playerId) {
         return matchService.findMatchesByPlayerId(playerId)
@@ -131,5 +164,6 @@ public class MatchController {
                 .map(matchResponseDTOMapper::toDto)
                 .collect(Collectors.toList());
     }
+
 
 }

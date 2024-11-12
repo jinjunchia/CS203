@@ -66,14 +66,33 @@ public class EloRecordController {
             @ApiResponse(responseCode = "404", description = "Elo Record not found",
                     content = @Content)
     })
+
+    /**
+     * Retrieves an Elo record by its ID.
+     *
+     * This method fetches a specific Elo record based on the provided ID and returns it as a response.
+     *
+     * @param id the ID of the Elo record to retrieve
+     * @return a {@link ResponseEntity} containing the {@link EloRecordResponseDto} of the specified Elo record
+     *         and an HTTP 200 OK status
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<EloRecordResponseDto> getEloRecordById(@PathVariable Long id){
+    public ResponseEntity<EloRecordResponseDto> getEloRecordById(@PathVariable Long id) {
         EloRecord eloRecord = eloRecordService.findEloRecordById(id);
         return new ResponseEntity<>(eloRecordResponseMapper.toDto(eloRecord), HttpStatus.OK);
     }
 
+    /**
+     * Retrieves all Elo records for a specific player.
+     *
+     * This method fetches all Elo records associated with the specified player ID and returns them as a list.
+     *
+     * @param playerId the ID of the player whose Elo records are to be retrieved
+     * @return a {@link ResponseEntity} containing a list of {@link EloRecordResponseDto} for the player's Elo records
+     *         and an HTTP 200 OK status
+     */
     @GetMapping("/player/{playerId}")
-    public ResponseEntity<List<EloRecordResponseDto>> getAllEloRecordsForPlayer(@PathVariable Long playerId){
+    public ResponseEntity<List<EloRecordResponseDto>> getAllEloRecordsForPlayer(@PathVariable Long playerId) {
         List<EloRecord> eloRecord = eloRecordService.findAllEloRecordsForPlayer(playerId);
         return new ResponseEntity<>(eloRecord
                 .stream()

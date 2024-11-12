@@ -32,9 +32,6 @@ public class TournamentController {
     private final InputMatchDTOMapper inputMatchDTOMapper;
     private final PlayerResponseDTOMapper playerResponseDTOMapper;
 
-//    @Autowired
-//    private MailService mailService;
-
     /**
      * Constructs a TournamentController with the required services and mappers.
      *
@@ -215,9 +212,4 @@ public class TournamentController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    @PostMapping("/remind/{playerEmail}")
-//    public String sendMatchReminder(@PathVariable String playerEmail) {
-//        mailService.sendEmail(playerEmail, "Match Reminder", "Your match is coming up soon!");
-//        return "Reminder email sent successfully!";
-//    }
 }
