@@ -5,6 +5,7 @@ import com.cs203.cs203system.exceptions.NotFoundException;
 import com.cs203.cs203system.model.Match;
 import com.cs203.cs203system.repository.MatchRepository;
 import com.cs203.cs203system.service.MatchService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,6 +77,7 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findMatchesWithinDateRange(startDate, endDate);
     }
 
+    @Transactional
     public void updateAndSaveMatchStats(Long matchId, Integer punchesPlayer1, Integer punchesPlayer2,
                                         Integer dodgesPlayer1, Integer dodgesPlayer2,
                                         boolean koByPlayer1, boolean koByPlayer2) {
