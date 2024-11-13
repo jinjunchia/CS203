@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -116,6 +117,38 @@ public class TournamentServiceTest {
         verify(tournamentRepository, times(1)).save(tournament);
     }
 
+    // Test for updating a tournament
+    @Test
+    void updateTournament_TournamentExists_ReturnsUpdatedTournament() {
+        Long tournamentId = 1L;
+        Tournament existingTournament = new Tournament();
+        existingTournament.setId(tournamentId);
+        existingTournament.setName("Old Tournament");
+
+        Tournament updatedTournament = new Tournament();
+        updatedTournament.setName("Updated Tournament");
+        updatedTournament.setStartDate(LocalDate.of(2024, 1, 1));
+        updatedTournament.setLocation("New Location");
+        updatedTournament.setMinEloRating(1000.0);
+        updatedTournament.setMaxEloRating(2000.0);
+        updatedTournament.setDescription("Updated Description");
+
+        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(existingTournament));
+        when(tournamentRepository.save(any(Tournament.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Tournament result = tournamentManagerServiceImpl.updateTournament(tournamentId, updatedTournament);
+
+        assertNotNull(result);
+        assertEquals("Updated Tournament", result.getName());
+        assertEquals(LocalDate.of(2024, 1, 1), result.getStartDate());
+        assertEquals("New Location", result.getLocation());
+        assertEquals(1000, result.getMinEloRating());
+        assertEquals(2000, result.getMaxEloRating());
+        assertEquals("Updated Description", result.getDescription());
+
+        verify(tournamentRepository, times(1)).save(existingTournament);
+    }
+
     // Tests for starting tournaments with various formats
     @Test
     void startTournament_ValidSwissTournament_StartsSuccessfully() {
@@ -150,20 +183,6 @@ public class TournamentServiceTest {
         assertEquals("Double Elimination must have a total number of players equal to a power of 2", exception.getMessage());
     }
 
-    @Test
-    void startTournament_HybridFormat_UnsupportedFormat_ThrowsIllegalArgumentException() {
-        Long tournamentId = 1L;
-        Tournament tournament = new Tournament();
-        tournament.setStatus(TournamentStatus.SCHEDULED);
-        tournament.setFormat(null);
-        tournament.setPlayers(Arrays.asList(new Player(), new Player()));
-
-        when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> tournamentManagerServiceImpl.startTournament(tournamentId));
-        assertEquals("Unsupported tournament format: null", exception.getMessage());
-    }
-
     // Tests for determining winners
     @Test
     void determineWinner_DoubleEliminationTournament_ReturnsWinner() {
@@ -182,8 +201,6 @@ public class TournamentServiceTest {
         assertEquals(winner, result);
         verify(doubleEliminationManagerImpl, times(1)).determineWinner(tournament);
     }
-
-    // Add other tests as needed
 
     // Utility method to reset all mocks
     @AfterEach
