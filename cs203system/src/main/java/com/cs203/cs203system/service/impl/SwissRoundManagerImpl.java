@@ -193,8 +193,10 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
      */
     //check all match complete
     private boolean allMatchesCompleted(Tournament tournament) {
+//        return tournament.getMatches().stream()
+//                .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED) || m.getStatus().equals(MatchStatus.BYE));
         return tournament.getMatches().stream()
-                .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED) || m.getStatus().equals(MatchStatus.BYE));
+                .allMatch(m -> m.getStatus().equals(MatchStatus.COMPLETED));
     }
     /**
      * Checks if the tournament has reached the final round.
@@ -258,11 +260,12 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
                 newMatches.add(match);
                 pairedPlayers.add(player);
                 pairedPlayers.add(opponent.get());
-            } else {
-                Match byeMatch = createMatch(tournament, player, null, MatchStatus.BYE);
-                newMatches.add(byeMatch);
-                pairedPlayers.add(player);
             }
+//            else {
+//                Match byeMatch = createMatch(tournament, player, null, MatchStatus.BYE);
+//                newMatches.add(byeMatch);
+//                pairedPlayers.add(player);
+//            }
         }
         return newMatches;
     }
