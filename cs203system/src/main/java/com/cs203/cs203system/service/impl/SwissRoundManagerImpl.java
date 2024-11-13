@@ -206,7 +206,6 @@ public class SwissRoundManagerImpl implements TournamentFormatManager {
     private boolean isFinalRound(Tournament tournament){
         return tournament.getCurrentRoundNumber() >= tournament.getTotalSwissRounds();
     }
-
     /**
      * Handles the logic for the final round of the tournament.
      * If there are multiple winners, a grand final match is created; otherwise, the tournament is marked as completed.
