@@ -1,3 +1,8 @@
+/**
+ * Integration test class for the TournamentManagerService implementation.
+ * This class verifies the functionality of creating, managing, and completing tournaments
+ * using various tournament formats and scenarios.
+ */
 package com.cs203.cs203system.service.IntegrationTest;
 
 import com.cs203.cs203system.enums.MatchStatus;
@@ -21,13 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration test for {@link TournamentManagerService} covering various tournament lifecycle
+ * operations like creating, updating players, starting, and finalizing tournaments.
+ */
 @SpringBootTest
 public class TournamentManagerImplTest {
 
@@ -48,6 +56,11 @@ public class TournamentManagerImplTest {
     private Tournament tournament;
     private List<Long> playerIds;
 
+    /**
+     * Initializes tournament and mock players before each test.
+     * Creates a tournament with a default status of SCHEDULED and prepares
+     * a list of mock players.
+     */
     @BeforeEach
     public void setUp() {
         tournament = new Tournament();
@@ -63,6 +76,11 @@ public class TournamentManagerImplTest {
         }
     }
 
+    /**
+     * Prepares a tournament with the specified format.
+     * @param format The format to set for the tournament.
+     * @return The updated tournament with players added.
+     */
     private Tournament prepareTournament(TournamentFormat format) {
         tournament.setFormat(format);
         Tournament createdTournament = tournamentManagerService.createTournament(tournament);
@@ -74,58 +92,61 @@ public class TournamentManagerImplTest {
         return updatedTournament;
     }
 
+    /**
+     * Tests the entire lifecycle of a tournament for all formats.
+     * Verifies that the tournament progresses through SCHEDULED, ONGOING, and COMPLETED statuses.
+     * Ensures a winner is determined once the tournament is completed.
+     * @param format The tournament format to test with.
+     */
     @ParameterizedTest
     @EnumSource(TournamentFormat.class)
     @Transactional
     public void testTournamentLifecycle(TournamentFormat format) {
-        // Prepare and start the tournament
         Tournament createdTournament = prepareTournament(format);
         Tournament startedTournament = tournamentManagerService.startTournament(createdTournament.getId());
         assertEquals(TournamentStatus.ONGOING, startedTournament.getStatus(), "Tournament should be ONGOING after starting");
 
-        // Continue processing rounds until the tournament is complete
         while (startedTournament.getStatus() != TournamentStatus.COMPLETED) {
-            // Fetch the latest matches for the current round
             List<Match> matchesCopy = new ArrayList<>(startedTournament.getMatches());
             System.out.println("Number of matches in this round: " + matchesCopy.size());
 
             for (Match match : matchesCopy) {
-                // Assume Player 1 wins each match for simplicity
                 match.setPlayer1Score(1);
                 match.setPlayer2Score(0);
                 match.setStatus(MatchStatus.PENDING);
-                matchRepository.save(match);  // Save each match to mark as completed
+                matchRepository.save(match);
                 tournamentManagerService.inputResult(match);
             }
 
-            // Reload the tournament to check if it progressed to the next round or completed
             startedTournament = tournamentManagerService.findTournamentById(startedTournament.getId()).orElseThrow();
 
-            // If all rounds are completed, mark the tournament as COMPLETED
             if (tournamentIsFinalized(startedTournament)) {
                 startedTournament.setStatus(TournamentStatus.COMPLETED);
                 tournamentRepository.save(startedTournament);
             }
         }
 
-        // Determine the winner and validate the result
         Player winner = tournamentManagerService.determineWinner(startedTournament.getId());
         assertNotNull(winner, "Winner should be determined once the tournament is completed");
         System.out.println("The winner for format " + format + " is: " + winner.getName());
     }
 
-    // Helper method to check if the tournament can be finalized
+    /**
+     * Helper method to determine if a tournament can be finalized.
+     * @param tournament The tournament to check.
+     * @return True if the tournament is ready to be finalized, false otherwise.
+     */
     private boolean tournamentIsFinalized(Tournament tournament) {
-        // Implement logic here to check if all rounds are complete.
-        // For example, you might check if there are no pending matches or if the format rules are met.
-        // This would vary depending on the structure of the tournament.
         return tournament.getMatches().stream().allMatch(m -> m.getStatus() == MatchStatus.COMPLETED);
     }
 
+    /**
+     * Tests the deletion of a tournament with SCHEDULED status.
+     * Ensures that the tournament is deleted from the repository successfully.
+     */
     @Test
     @Transactional
     public void testDeleteScheduledTournament() {
-        // Create and delete a tournament with SCHEDULED status
         Tournament createdTournament = tournamentManagerService.createTournament(tournament);
         assertNotNull(createdTournament, "Tournament should be created successfully");
 
@@ -138,12 +159,15 @@ public class TournamentManagerImplTest {
         assertTrue(deletedTournament.isEmpty(), "Tournament should be deleted successfully");
     }
 
+    /**
+     * Tests starting a tournament with insufficient players.
+     * Ensures an exception is thrown when trying to start a tournament with less than 2 players.
+     */
     @Test
     @Transactional
     public void testStartTournamentWithInsufficientPlayers() {
-        // Create a tournament with only one player
         Tournament createdTournament = tournamentManagerService.createTournament(tournament);
-        playerIds = playerIds.subList(0, 1); // Limit to only one player
+        playerIds = playerIds.subList(0, 1);
         tournamentManagerService.updatePlayersToTournament(createdTournament.getId(), playerIds);
 
         assertThrows(RuntimeException.class, () -> {
@@ -151,6 +175,10 @@ public class TournamentManagerImplTest {
         }, "Starting a tournament with less than 2 players should throw an exception");
     }
 
+    /**
+     * Tests inputting an invalid match result.
+     * Verifies that an exception is thrown if a match result with a negative score is provided.
+     */
     @Test
     @Transactional
     public void testInputInvalidMatchResult() {
@@ -159,7 +187,7 @@ public class TournamentManagerImplTest {
 
         List<Match> matchesCopy = new ArrayList<>(startedTournament.getMatches());
         Match match = matchesCopy.get(0);
-        match.setPlayer1Score(-1); // Invalid score
+        match.setPlayer1Score(-1);
 
         assertThrows(RuntimeException.class, () -> {
             tournamentManagerService.inputResult(match);
