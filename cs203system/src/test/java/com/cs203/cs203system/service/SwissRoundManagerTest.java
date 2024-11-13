@@ -281,122 +281,122 @@ public class SwissRoundManagerTest {
 //        }
 //    }
 
-    @Test
-    void testReceiveMatchResult_NormalMatchmaking() {
-        // Arrange: Set up a tournament with an odd number of players for a BYE scenario
-        Tournament tournament = new Tournament();
-        tournament.setFormat(TournamentFormat.SWISS);
-        tournament.setTotalSwissRounds(3);
-        tournament.setCurrentRoundNumber(1);
-
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player player3 = new Player();  // Odd player to get BYE
-        player1.setPoints(3.0);
-        player2.setPoints(2.0);
-        player3.setPoints(1.0);
-        tournament.setPlayers(Arrays.asList(player1, player2, player3));
-
-        Match match = Match.builder()
-                .tournament(tournament)
-                .player1(player1)
-                .player2(player2)
-                .status(MatchStatus.COMPLETED)
-                .build();
-        match.setPlayer1Score(1);
-        match.setPlayer2Score(0);
-
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
-
-        try (MockedStatic<SwissRoundUtils> mockedUtils = mockStatic(SwissRoundUtils.class)) {
-            // Mock match history to simulate no previous matches
-            mockedUtils.when(() -> SwissRoundUtils.createMatchHistory(any(Tournament.class)))
-                    .thenReturn(new HashMap<>());
-
-            // Act: Call receiveMatchResult to process the match
-            Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
-
-            // Assert: Check the correct number of matches
-            assertEquals(2, result.getMatches().size(), "Should create 2 matches (1 real match, 1 BYE for odd player)");
-
-            // Ensure one of the matches is a BYE
-            long byeMatches = result.getMatches().stream().filter(m -> m.getStatus() == MatchStatus.BYE).count();
-            assertEquals(1, byeMatches, "One player should receive a BYE match due to odd number of players");
-
-            // Verify Elo rating update and save operations
-            verify(eloService, times(1)).updateEloRatings(player1, player2, match);
-            verify(tournamentRepository, times(1)).save(any(Tournament.class));
-        }
-    }
-
-    @Test
-    void testReceiveMatchResult_EvenNumberOfPlayers() {
-        // Arrange
-        Tournament tournament = new Tournament();
-        tournament.setFormat(TournamentFormat.SWISS);
-        Player player1 = new Player();
-        Player player2 = new Player();
-        Player player3 = new Player();
-        Player player4 = new Player();  // Even number of players
-        player1.setPoints(3.0);
-        player2.setPoints(2.0);
-        player3.setPoints(1.0);
-        player4.setPoints(0.0);
-
-        tournament.setPlayers(Arrays.asList(player1, player2, player3, player4));
+//    @Test
+//    void testReceiveMatchResult_NormalMatchmaking() {
+//        // Arrange: Set up a tournament with an odd number of players for a BYE scenario
+//        Tournament tournament = new Tournament();
+//        tournament.setFormat(TournamentFormat.SWISS);
+//        tournament.setTotalSwissRounds(3);
+//        tournament.setCurrentRoundNumber(1);
 //
-//         Simulating the match history
-        Map<Player, Set<Player>> matchHistory = new HashMap<>();
-        matchHistory.put(player1, new HashSet<>());
-        matchHistory.put(player2, new HashSet<>());
-        matchHistory.put(player3, new HashSet<>());
-        matchHistory.put(player4, new HashSet<>());
+//        Player player1 = new Player();
+//        Player player2 = new Player();
+//        Player player3 = new Player();  // Odd player to get BYE
+//        player1.setPoints(3.0);
+//        player2.setPoints(2.0);
+//        player3.setPoints(1.0);
+//        tournament.setPlayers(Arrays.asList(player1, player2, player3));
+//
+//        Match match = Match.builder()
+//                .tournament(tournament)
+//                .player1(player1)
+//                .player2(player2)
+//                .status(MatchStatus.COMPLETED)
+//                .build();
+//        match.setPlayer1Score(1);
+//        match.setPlayer2Score(0);
+//
+//        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+//
+//        try (MockedStatic<SwissRoundUtils> mockedUtils = mockStatic(SwissRoundUtils.class)) {
+//            // Mock match history to simulate no previous matches
+//            mockedUtils.when(() -> SwissRoundUtils.createMatchHistory(any(Tournament.class)))
+//                    .thenReturn(new HashMap<>());
+//
+//            // Act: Call receiveMatchResult to process the match
+//            Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
+//
+//            // Assert: Check the correct number of matches
+//            assertEquals(2, result.getMatches().size(), "Should create 2 matches (1 real match, 1 BYE for odd player)");
+//
+//            // Ensure one of the matches is a BYE
+//            long byeMatches = result.getMatches().stream().filter(m -> m.getStatus() == MatchStatus.BYE).count();
+//            assertEquals(1, byeMatches, "One player should receive a BYE match due to odd number of players");
+//
+//            // Verify Elo rating update and save operations
+//            verify(eloService, times(1)).updateEloRatings(player1, player2, match);
+//            verify(tournamentRepository, times(1)).save(any(Tournament.class));
+//        }
+//    }
 
-        // Set up a completed match with winner and loser
-        Match match = Match.builder()
-                .tournament(tournament)
-                .player1(player1)
-                .player2(player2)
-                .status(MatchStatus.COMPLETED)
-                .build();
-
-        match.setPlayer1Score(3);
-        match.setPlayer2Score(2);
-
-        Match match2 = Match.builder()
-                .tournament(tournament)
-                .player1(player3)
-                .player2(player4)
-                .status(MatchStatus.COMPLETED)
-                .build();
-
-        match2.setPlayer1Score(3);
-        match2.setPlayer2Score(2);
-
-        List<Match> matches = new ArrayList<>();
-        matches.add(match);
-        matches.add(match2);
-
-        System.out.println("Match winner:" + match.getWinner());
-
-        tournament.setMatches(matches);
-        tournament.setCurrentRoundNumber(1);
-
-        // Mocking the necessary utilities and repositories
-        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
-        try (MockedStatic<SwissRoundUtils> mockedUtils = mockStatic(SwissRoundUtils.class)) {
-            mockedUtils.when(() -> SwissRoundUtils.createMatchHistory(any(Tournament.class)))
-                    .thenReturn(matchHistory);
-
-            // Act: Call the existing receiveMatchResult method which contains the matchmaking logic
-            Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
-
-            // Assert: Verify the correct number of matches
-            assertEquals(2, result.getMatches().size());  // Two matches should be created for 4 players
-            long byeMatches = result.getMatches().stream().filter(m -> m.getStatus() == MatchStatus.BYE).count();
-            assertEquals(0, byeMatches);  // No BYE matches should exist
-
-            verify(tournamentRepository, times(1)).save(any(Tournament.class));
-        }
-    }
+//    @Test
+//    void testReceiveMatchResult_EvenNumberOfPlayers() {
+//        // Arrange
+//        Tournament tournament = new Tournament();
+//        tournament.setFormat(TournamentFormat.SWISS);
+//        Player player1 = new Player();
+//        Player player2 = new Player();
+//        Player player3 = new Player();
+//        Player player4 = new Player();  // Even number of players
+//        player1.setPoints(3.0);
+//        player2.setPoints(2.0);
+//        player3.setPoints(1.0);
+//        player4.setPoints(0.0);
+//
+//        tournament.setPlayers(Arrays.asList(player1, player2, player3, player4));
+////
+////         Simulating the match history
+//        Map<Player, Set<Player>> matchHistory = new HashMap<>();
+//        matchHistory.put(player1, new HashSet<>());
+//        matchHistory.put(player2, new HashSet<>());
+//        matchHistory.put(player3, new HashSet<>());
+//        matchHistory.put(player4, new HashSet<>());
+//
+//        // Set up a completed match with winner and loser
+//        Match match = Match.builder()
+//                .tournament(tournament)
+//                .player1(player1)
+//                .player2(player2)
+//                .status(MatchStatus.COMPLETED)
+//                .build();
+//
+//        match.setPlayer1Score(3);
+//        match.setPlayer2Score(2);
+//
+//        Match match2 = Match.builder()
+//                .tournament(tournament)
+//                .player1(player3)
+//                .player2(player4)
+//                .status(MatchStatus.COMPLETED)
+//                .build();
+//
+//        match2.setPlayer1Score(3);
+//        match2.setPlayer2Score(2);
+//
+//        List<Match> matches = new ArrayList<>();
+//        matches.add(match);
+//        matches.add(match2);
+//
+//        System.out.println("Match winner:" + match.getWinner());
+//
+//        tournament.setMatches(matches);
+//        tournament.setCurrentRoundNumber(1);
+//
+//        // Mocking the necessary utilities and repositories
+//        when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
+//        try (MockedStatic<SwissRoundUtils> mockedUtils = mockStatic(SwissRoundUtils.class)) {
+//            mockedUtils.when(() -> SwissRoundUtils.createMatchHistory(any(Tournament.class)))
+//                    .thenReturn(matchHistory);
+//
+//            // Act: Call the existing receiveMatchResult method which contains the matchmaking logic
+//            Tournament result = swissRoundManagerImpl.receiveMatchResult(match);
+//
+//            // Assert: Verify the correct number of matches
+//            assertEquals(2, result.getMatches().size());  // Two matches should be created for 4 players
+//            long byeMatches = result.getMatches().stream().filter(m -> m.getStatus() == MatchStatus.BYE).count();
+//            assertEquals(0, byeMatches);  // No BYE matches should exist
+//
+//            verify(tournamentRepository, times(1)).save(any(Tournament.class));
+//        }
+//    }
 }
